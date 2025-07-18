@@ -1,8 +1,50 @@
 const express = require('express');
 const path = require('path');
 const sql = require('mssql');
+const auditLogger = require('./middleware/audit');
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Función helper para obtener datos completos del usuario
+async function getUserFromToken(email) {
+  let pool;
+  try {
+    pool = await new sql.ConnectionPool(sqlConfig).connect();
+    const result = await pool.request()
+      .input('email', sql.VarChar, email)
+      .query('SELECT Id, Nombre, Apellido, Email, Rol FROM Usuarios WHERE Email = @email');
+    
+    if (result.recordset.length > 0) {
+      return result.recordset[0];
+    }
+    
+    // Si no se encuentra el usuario, devolver un objeto con valores por defecto
+    return {
+      Id: null,
+      Nombre: 'Usuario',
+      Apellido: 'Desconocido',
+      Email: email,
+      Rol: 'Desconocido'
+    };
+  } catch (error) {
+    console.error('Error obteniendo usuario:', error);
+    return {
+      Id: null,
+      Nombre: 'Usuario',
+      Apellido: 'Desconocido', 
+      Email: email,
+      Rol: 'Desconocido'
+    };
+  } finally {
+    if (pool) {
+      try {
+        await pool.close();
+      } catch (err) {
+        console.error('Error cerrando conexión:', err);
+      }
+    }
+  }
+}
 
 // Configuración de conexión a SQL Server
 const sqlConfig = {
@@ -31,6 +73,9 @@ app.use(express.static(path.join(__dirname, '/')));
 // Middleware para procesar datos JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Middleware de auditoría
+app.use(auditLogger.auditMiddleware());
 
 // Ruta principal
 app.get('/', (req, res) => {
@@ -107,6 +152,9 @@ app.post('/api/login', async (req, res) => {
 
       console.log('Usuario autenticado desde DB:', { username: user.Nombre, isAdmin, fullname, role: user.Rol });
 
+      // Auditar login exitoso
+      await auditLogger.auditLogin(req, user, true);
+
       res.json({ 
         success: true, 
         username: user.Nombre, 
@@ -116,10 +164,15 @@ app.post('/api/login', async (req, res) => {
       });
     } else {
       console.log('Credenciales inválidas o usuario inactivo.');
+      // Auditar login fallido
+      await auditLogger.auditLogin(req, { Email: email }, false, 'Credenciales inválidas o usuario inactivo');
       res.status(401).json({ success: false, message: 'Credenciales inválidas o el usuario está inactivo.' });
     }
   } catch (err) {
     console.error('Error en el proceso de login:', err);
+    // Auditar error en login - usar usuario sistema cuando no hay usuario autenticado
+    const systemUser = { Id: null, Nombre: 'Sistema', Apellido: '', Email: 'sistema@ditzler.com', Rol: 'Sistema' };
+    await auditLogger.auditError(req, systemUser, 'USUARIOS', 'Error en proceso de login', err.message);
     res.status(500).json({ 
       success: false, 
       message: 'Error interno del servidor durante el login.',
@@ -185,15 +238,50 @@ app.post('/api/admin/users', async (req, res) => {
           VALUES (@nombre, @apellido, @email, @password, @rol, 'Activo', GETDATE(), GETDATE())
         `);
       
+      // Auditar creación de usuario
+      const newUserData = { 
+        nombre: userData.nombre, 
+        apellido: userData.apellido, 
+        email: userData.email, 
+        rol: userData.rol || 'Operario' 
+      };
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditCreate(
+        req, 
+        currentUser, 
+        'USUARIOS', 
+        'Usuario', 
+        null, 
+        newUserData,
+        `Usuario ${userData.email} creado con rol ${userData.rol || 'Operario'}`
+      );
+      
       res.json({ success: true, message: 'Usuario creado correctamente' });
     }
     // Obtener lista de usuarios
     else if (action === 'list') {
       const users = await pool.request().query('SELECT * FROM Usuarios ORDER BY FechaCreacion DESC');
+      
+      // Auditoría de consultas removida - solo se registran cambios en el sistema
+      
       res.json({ success: true, users: users.recordset });
     }
     // Actualizar usuario existente
     else if (action === 'update' && userData && userData.id) {
+      // Obtener datos anteriores para auditoría
+      const oldUserResult = await pool.request()
+        .input('userId', sql.Int, userData.id)
+        .query('SELECT * FROM Usuarios WHERE Id = @userId');
+      
+      if (oldUserResult.recordset.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Usuario no encontrado' 
+        });
+      }
+      
+      const oldUserData = oldUserResult.recordset[0];
+      
       // Validar formato de email si se está actualizando
       if (userData.email) {
         const emailValidationResult = await pool.request()
@@ -239,13 +327,73 @@ app.post('/api/admin/users', async (req, res) => {
           WHERE Id = @userId
         `);
       
+      // Auditar actualización de usuario
+      const oldData = {
+        nombre: oldUserData.Nombre,
+        apellido: oldUserData.Apellido,
+        email: oldUserData.Email,
+        rol: oldUserData.Rol,
+        estado: oldUserData.Estado
+      };
+      const newData = {
+        nombre: userData.nombre,
+        apellido: userData.apellido,
+        email: userData.email,
+        rol: userData.rol,
+        estado: userData.estado
+      };
+      
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditUpdate(
+        req, 
+        currentUser, 
+        'USUARIOS', 
+        'Usuario', 
+        userData.id, 
+        oldData,
+        newData,
+        `Usuario ${userData.email} actualizado`
+      );
+      
       res.json({ success: true, message: 'Usuario actualizado correctamente' });
     }
     // Eliminar usuario
     else if (action === 'delete' && userData && userData.id) {
+      // Obtener datos del usuario antes de eliminarlo para auditoría
+      const userToDeleteResult = await pool.request()
+        .input('userId', sql.Int, userData.id)
+        .query('SELECT * FROM Usuarios WHERE Id = @userId');
+      
+      if (userToDeleteResult.recordset.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Usuario no encontrado' 
+        });
+      }
+      
+      const deletedUserData = userToDeleteResult.recordset[0];
+      
       await pool.request()
         .input('userId', sql.Int, userData.id)
         .query('DELETE FROM Usuarios WHERE Id = @userId');
+      
+      // Auditar eliminación de usuario
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditDelete(
+        req, 
+        currentUser, 
+        'USUARIOS', 
+        'Usuario', 
+        userData.id, 
+        {
+          nombre: deletedUserData.Nombre,
+          apellido: deletedUserData.Apellido,
+          email: deletedUserData.Email,
+          rol: deletedUserData.Rol
+        },
+        `Usuario ${deletedUserData.Email} eliminado`
+      );
+      
       res.json({ success: true, message: 'Usuario eliminado correctamente' });
     }
     else {
@@ -254,6 +402,16 @@ app.post('/api/admin/users', async (req, res) => {
   } catch (err) {
     // En caso de error en la conexión o consulta, registrar el error y responder
     console.error('Error en operación de usuarios:', err);
+    
+    // Auditar error en operación de usuarios
+    const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+    await auditLogger.auditError(
+      req, 
+      currentUser, 
+      'USUARIOS', 
+      'Error en operación de usuarios', 
+      err.message
+    );
     
     // Manejo específico de errores de restricciones
     let errorMessage = 'Error al conectar con la base de datos.';
@@ -329,11 +487,34 @@ app.post('/api/admin/clientes', async (req, res) => {
         .query(`INSERT INTO Clientes (logo, nombre_empresa, contacto_principal, email, telefono, tipo, estado)
                 VALUES (@logo, @nombre_empresa, @contacto_principal, @email, @telefono, @tipo, @estado)`);
       
+      // Auditar creación de cliente
+      const newClientData = {
+        nombreEmpresa: clientData.nombreEmpresa,
+        contactoPrincipal: clientData.contactoPrincipal,
+        email: clientData.email,
+        telefono: clientData.telefono,
+        tipo: clientData.tipo,
+        estado: clientData.estado
+      };
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditCreate(
+        req, 
+        currentUser, 
+        'CLIENTES', 
+        'Cliente', 
+        null, 
+        newClientData,
+        `Cliente ${clientData.nombreEmpresa} creado`
+      );
+      
       res.json({ success: true, message: 'Cliente creado correctamente' });
     }
     // Obtener lista de clientes
     else if (action === 'list') {
       const clientes = await pool.request().query('SELECT * FROM Clientes ORDER BY nombre_empresa');
+      
+      // Auditoría de consultas removida - solo se registran cambios en el sistema
+      
       res.json({ success: true, clientes: clientes.recordset });
     }
     // Actualizar cliente existente
@@ -365,6 +546,20 @@ app.post('/api/admin/clientes', async (req, res) => {
         }
       }
       
+      // Obtener datos anteriores para auditoría
+      const oldClientResult = await pool.request()
+        .input('clientId', sql.Int, clientData.id)
+        .query('SELECT * FROM Clientes WHERE id = @clientId');
+      
+      if (oldClientResult.recordset.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Cliente no encontrado' 
+        });
+      }
+      
+      const oldClientData = oldClientResult.recordset[0];
+      
       await pool.request()
         .input('id', sql.Int, clientData.id)
         .input('logo', sql.NVarChar, clientData.logo || '')
@@ -379,13 +574,79 @@ app.post('/api/admin/clientes', async (req, res) => {
                     email = @email, telefono = @telefono, tipo = @tipo, estado = @estado
                 WHERE id = @id`);
       
+      // Auditar actualización de cliente
+      const oldData = {
+        logo: oldClientData.logo,
+        nombreEmpresa: oldClientData.nombre_empresa,
+        contactoPrincipal: oldClientData.contacto_principal,
+        email: oldClientData.email,
+        telefono: oldClientData.telefono,
+        tipo: oldClientData.tipo,
+        estado: oldClientData.estado
+      };
+      const newData = {
+        logo: clientData.logo || '',
+        nombreEmpresa: clientData.nombreEmpresa,
+        contactoPrincipal: clientData.contactoPrincipal,
+        email: clientData.email,
+        telefono: clientData.telefono,
+        tipo: clientData.tipo,
+        estado: clientData.estado
+      };
+      
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditUpdate(
+        req, 
+        currentUser, 
+        'CLIENTES', 
+        'Cliente', 
+        clientData.id, 
+        oldData,
+        newData,
+        `Cliente ${clientData.nombreEmpresa} actualizado`
+      );
+      
       res.json({ success: true, message: 'Cliente actualizado correctamente' });
     }
     // Eliminar cliente
     else if (action === 'delete' && clientData && clientData.id) {
+      // Obtener datos del cliente antes de eliminarlo para auditoría
+      const clientToDeleteResult = await pool.request()
+        .input('clientId', sql.Int, clientData.id)
+        .query('SELECT * FROM Clientes WHERE id = @clientId');
+      
+      if (clientToDeleteResult.recordset.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Cliente no encontrado' 
+        });
+      }
+      
+      const deletedClientData = clientToDeleteResult.recordset[0];
+      
       await pool.request()
         .input('id', sql.Int, clientData.id)
         .query('DELETE FROM Clientes WHERE id = @id');
+      
+      // Auditar eliminación de cliente
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditDelete(
+        req, 
+        currentUser, 
+        'CLIENTES', 
+        'Cliente', 
+        clientData.id, 
+        {
+          nombreEmpresa: deletedClientData.nombre_empresa,
+          contactoPrincipal: deletedClientData.contacto_principal,
+          email: deletedClientData.email,
+          telefono: deletedClientData.telefono,
+          tipo: deletedClientData.tipo,
+          estado: deletedClientData.estado
+        },
+        `Cliente ${deletedClientData.nombre_empresa} eliminado`
+      );
+      
       res.json({ success: true, message: 'Cliente eliminado correctamente' });
     }
     else {
@@ -546,7 +807,7 @@ app.put('/api/operador/totes/update-status', async (req, res) => {
     
     pool = await new sql.ConnectionPool(sqlConfig).connect();
     
-    // Verificar que el tote pertenece al operador
+    // Verificar que el tote pertenece al operador y obtener datos del operador
     const checkResult = await pool.request()
       .input('toteId', sql.Int, toteId)
       .input('operador', sql.VarChar, operadorName)
@@ -555,6 +816,24 @@ app.put('/api/operador/totes/update-status', async (req, res) => {
     if (checkResult.recordset[0].count === 0) {
       return res.status(403).json({ success: false, message: 'No tiene permisos para modificar este tote' });
     }
+    
+    // Obtener datos del operador para auditoría
+    const operadorResult = await pool.request()
+      .input('username', sql.VarChar, operadorName)
+      .query('SELECT Id, Nombre, Apellido, Email, Rol FROM Usuarios WHERE Nombre = @username');
+    
+    if (operadorResult.recordset.length === 0) {
+      return res.status(401).json({ success: false, message: 'Usuario no encontrado' });
+    }
+    
+    const currentUser = operadorResult.recordset[0];
+    
+    // Obtener datos anteriores del tote para auditoría
+    const oldToteResult = await pool.request()
+      .input('toteId', sql.Int, toteId)
+      .query('SELECT Codigo, Estado, Ubicacion FROM Totes WHERE Id = @toteId');
+    
+    const oldToteData = oldToteResult.recordset[0];
     
     // Actualizar el tote
     await pool.request()
@@ -569,10 +848,35 @@ app.put('/api/operador/totes/update-status', async (req, res) => {
         WHERE Id = @toteId
       `);
     
+    // Registrar auditoría del cambio de estado
+    const oldData = {
+      codigo: oldToteData.Codigo,
+      estado: oldToteData.Estado,
+      ubicacion: oldToteData.Ubicacion
+    };
+    
+    const newData = {
+      codigo: oldToteData.Codigo,
+      estado: nuevoEstado,
+      ubicacion: ubicacion
+    };
+    
+    await auditLogger.auditUpdate(
+      req,
+      currentUser,
+      'TOTES',
+      'Tote',
+      toteId,
+      oldData,
+      newData,
+      `Estado de tote ${oldToteData.Codigo} actualizado por operador`
+    );
+    
     res.json({ success: true, message: 'Estado del tote actualizado correctamente' });
     
   } catch (err) {
     console.error('Error al actualizar estado del tote:', err);
+    await auditLogger.auditError(req, 'TOTES', `Error al actualizar estado del tote: ${err.message}`);
     res.status(500).json({ success: false, message: 'Error interno del servidor' });
   } finally {
     if (pool) {
@@ -931,9 +1235,291 @@ process.on('unhandledRejection', (reason, promise) => {
   // No cerrar el proceso, solo registrar el error
 });
 
+// =============================================
+// ENDPOINTS PARA REGISTRO DE EVENTOS/AUDITORÍA
+// =============================================
+
+// Endpoint para obtener eventos con filtros
+app.get('/api/eventos', async (req, res) => {
+    try {
+        const { 
+            tipoEvento, 
+            modulo, 
+            usuarioId, 
+            fechaInicio, 
+            fechaFin, 
+            exitoso, 
+            page = 1, 
+            limit = 50 
+        } = req.query;
+        
+        const pool = await new sql.ConnectionPool(sqlConfig).connect();
+        let query = `
+            SELECT 
+                Id, TipoEvento, Modulo, Descripcion, UsuarioNombre, UsuarioRol,
+                ObjetoId, ObjetoTipo, Exitoso, FechaEvento, DireccionIP,
+                CASE 
+                    WHEN DATEDIFF(MINUTE, FechaEvento, GETDATE()) < 60 
+                    THEN CAST(DATEDIFF(MINUTE, FechaEvento, GETDATE()) AS NVARCHAR) + ' minutos atrás'
+                    WHEN DATEDIFF(HOUR, FechaEvento, GETDATE()) < 24 
+                    THEN CAST(DATEDIFF(HOUR, FechaEvento, GETDATE()) AS NVARCHAR) + ' horas atrás'
+                    ELSE CAST(DATEDIFF(DAY, FechaEvento, GETDATE()) AS NVARCHAR) + ' días atrás'
+                END AS TiempoTranscurrido
+            FROM Eventos 
+            WHERE 1=1
+        `;
+        
+        const request = pool.request();
+        
+        // Aplicar filtros
+        if (tipoEvento) {
+            query += ' AND TipoEvento = @tipoEvento';
+            request.input('tipoEvento', sql.NVarChar(50), tipoEvento);
+        }
+        
+        if (modulo) {
+            query += ' AND Modulo = @modulo';
+            request.input('modulo', sql.NVarChar(50), modulo);
+        }
+        
+        if (usuarioId) {
+            query += ' AND UsuarioId = @usuarioId';
+            request.input('usuarioId', sql.Int, usuarioId);
+        }
+        
+        if (fechaInicio) {
+            query += ' AND FechaEvento >= @fechaInicio';
+            request.input('fechaInicio', sql.DateTime, fechaInicio);
+        }
+        
+        if (fechaFin) {
+            query += ' AND FechaEvento <= @fechaFin';
+            request.input('fechaFin', sql.DateTime, fechaFin);
+        }
+        
+        if (exitoso !== undefined) {
+            query += ' AND Exitoso = @exitoso';
+            request.input('exitoso', sql.Bit, exitoso === 'true');
+        }
+        
+        // Paginación
+        const offset = (page - 1) * limit;
+        query += ` ORDER BY FechaEvento DESC OFFSET ${offset} ROWS FETCH NEXT ${limit} ROWS ONLY`;
+        
+        const result = await request.query(query);
+        
+        // Obtener total de registros para paginación
+        let countQuery = 'SELECT COUNT(*) as Total FROM Eventos WHERE 1=1';
+        const countRequest = pool.request();
+        
+        if (tipoEvento) {
+            countQuery += ' AND TipoEvento = @tipoEvento';
+            countRequest.input('tipoEvento', sql.NVarChar(50), tipoEvento);
+        }
+        if (modulo) {
+            countQuery += ' AND Modulo = @modulo';
+            countRequest.input('modulo', sql.NVarChar(50), modulo);
+        }
+        if (usuarioId) {
+            countQuery += ' AND UsuarioId = @usuarioId';
+            countRequest.input('usuarioId', sql.Int, usuarioId);
+        }
+        if (fechaInicio) {
+            countQuery += ' AND FechaEvento >= @fechaInicio';
+            countRequest.input('fechaInicio', sql.DateTime, fechaInicio);
+        }
+        if (fechaFin) {
+            countQuery += ' AND FechaEvento <= @fechaFin';
+            countRequest.input('fechaFin', sql.DateTime, fechaFin);
+        }
+        if (exitoso !== undefined) {
+            countQuery += ' AND Exitoso = @exitoso';
+            countRequest.input('exitoso', sql.Bit, exitoso === 'true');
+        }
+        
+        const countResult = await countRequest.query(countQuery);
+        const total = countResult.recordset[0].Total;
+        
+        // Auditoría de consultas removida - solo se registran cambios en el sistema
+        
+        res.json({ 
+            success: true, 
+            eventos: result.recordset,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error al obtener eventos:', error);
+        if (req.session && req.session.user) {
+            const currentUser = await getUserFromToken(req.session.user.Email);
+            await auditLogger.auditError(req, currentUser, 'EVENTOS', 'Error al consultar eventos', error.message);
+        }
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error interno del servidor' 
+        });
+    }
+});
+
+// Endpoint para obtener estadísticas de eventos
+app.get('/api/eventos/estadisticas', async (req, res) => {
+    try {
+        const pool = await new sql.ConnectionPool(sqlConfig).connect();
+        
+        // Verificar si la tabla Eventos existe
+        const tableCheck = await pool.request().query(`
+            SELECT COUNT(*) as tableExists 
+            FROM INFORMATION_SCHEMA.TABLES 
+            WHERE TABLE_NAME = 'Eventos' AND TABLE_SCHEMA = 'dbo'
+        `);
+        
+        if (tableCheck.recordset[0].tableExists === 0) {
+            return res.status(500).json({ 
+                success: false, 
+                message: 'La tabla Eventos no existe. Ejecute el script de creación de la base de datos.' 
+            });
+        }
+        
+        // Estadísticas generales
+        const statsQuery = `
+            SELECT 
+                COUNT(*) as TotalEventos,
+                COUNT(CASE WHEN Exitoso = 1 THEN 1 END) as EventosExitosos,
+                COUNT(CASE WHEN Exitoso = 0 THEN 1 END) as EventosFallidos,
+                COUNT(CASE WHEN FechaEvento >= DATEADD(day, -1, GETDATE()) THEN 1 END) as EventosUltimas24h,
+                COUNT(CASE WHEN FechaEvento >= DATEADD(day, -7, GETDATE()) THEN 1 END) as EventosUltimaSemana
+            FROM Eventos
+        `;
+        
+        // Eventos por tipo
+        const tipoQuery = `
+            SELECT TipoEvento, COUNT(*) as Cantidad
+            FROM Eventos 
+            GROUP BY TipoEvento
+            ORDER BY Cantidad DESC
+        `;
+        
+        // Eventos por módulo
+        const moduloQuery = `
+            SELECT Modulo, COUNT(*) as Cantidad
+            FROM Eventos 
+            GROUP BY Modulo
+            ORDER BY Cantidad DESC
+        `;
+        
+        // Usuarios más activos
+        const usuariosQuery = `
+            SELECT TOP 10 UsuarioNombre, UsuarioRol, COUNT(*) as Cantidad
+            FROM Eventos 
+            WHERE UsuarioId IS NOT NULL
+            GROUP BY UsuarioNombre, UsuarioRol
+            ORDER BY Cantidad DESC
+        `;
+        
+        // Actividad por hora del día
+        const actividadQuery = `
+            SELECT 
+                DATEPART(HOUR, FechaEvento) as Hora,
+                COUNT(*) as Cantidad
+            FROM Eventos 
+            WHERE FechaEvento >= DATEADD(day, -7, GETDATE())
+            GROUP BY DATEPART(HOUR, FechaEvento)
+            ORDER BY Hora
+        `;
+        
+        const [stats, tipos, modulos, usuarios, actividad] = await Promise.all([
+            pool.request().query(statsQuery),
+            pool.request().query(tipoQuery),
+            pool.request().query(moduloQuery),
+            pool.request().query(usuariosQuery),
+            pool.request().query(actividadQuery)
+        ]);
+        
+        res.json({ 
+            success: true, 
+            estadisticas: {
+                generales: stats.recordset[0],
+                porTipo: tipos.recordset,
+                porModulo: modulos.recordset,
+                usuariosActivos: usuarios.recordset,
+                actividadPorHora: actividad.recordset
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error al obtener estadísticas de eventos:', error);
+        if (req.session && req.session.user) {
+            const currentUser = await getUserFromToken(req.session.user.Email);
+            await auditLogger.auditError(req, currentUser, 'EVENTOS', 'Error al consultar estadísticas de eventos', error.message);
+        }
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error interno del servidor' 
+        });
+    }
+});
+
+// Endpoint para obtener detalle de un evento específico
+app.get('/api/eventos/:id', async (req, res) => {
+    try {
+        const eventoId = req.params.id;
+        const pool = await new sql.ConnectionPool(sqlConfig).connect();
+        
+        const result = await pool.request()
+            .input('id', sql.Int, eventoId)
+            .query('SELECT * FROM Eventos WHERE Id = @id');
+        
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Evento no encontrado' 
+            });
+        }
+        
+        const evento = result.recordset[0];
+        
+        // Parsear JSON si existe
+        if (evento.ValoresAnteriores) {
+            try {
+                evento.ValoresAnteriores = JSON.parse(evento.ValoresAnteriores);
+            } catch (e) {
+                // Mantener como string si no es JSON válido
+            }
+        }
+        
+        if (evento.ValoresNuevos) {
+            try {
+                evento.ValoresNuevos = JSON.parse(evento.ValoresNuevos);
+            } catch (e) {
+                // Mantener como string si no es JSON válido
+            }
+        }
+        
+        res.json({ 
+            success: true, 
+            evento 
+        });
+        
+    } catch (error) {
+        console.error('Error al obtener detalle del evento:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Error interno del servidor' 
+        });
+    }
+});
+
 // Iniciar el servidor
 const server = app.listen(PORT, () => {
   console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
+  
+  // Registrar evento de inicio del sistema
+  auditLogger.auditSystem('Servidor iniciado correctamente en puerto ' + PORT);
 });
 
 // Mantener el servidor activo
