@@ -1,0 +1,14 @@
+/* Estilos adicionales para el dashboard */
+
+/* Estilo para los enlaces en las tarjetas */
+.dashboard-cards a.card {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+/* Asegurar que los enlaces en las tarjetas mantengan el mismo estilo */
+.dashboard-cards a.card h3,
+.dashboard-cards a.card p {
+    color: inherit;
+}

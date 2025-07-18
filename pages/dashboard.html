@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DitzlerTotes - Panel de Administración</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard-styles.css">
+    <style>
+        /* Estilos específicos para el dashboard */
+        .dashboard-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            background-color: #3498db;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .logout-btn {
+            background-color: transparent;
+            border: 1px solid white;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: background-color 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .dashboard-content {
+            padding: 30px;
+        }
+        
+        .welcome-message {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .card p {
+            color: #666;
+            margin-bottom: 0;
+        }
+        
+        .recent-activity {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .activity-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .activity-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-time {
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .user-info {
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>DitzlerTotes - Panel de Administración</h1>
+                <div class="user-info">
+                    <div class="user-avatar" id="userInitial">U</div>
+                    <span id="username">Usuario</span>
+                    <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+                </div>
+            </div>
+            
+            <div class="dashboard-content">
+                <div class="welcome-message">
+                    <h2>Bienvenido al Panel de Administración, <span id="userFullName">Administrador</span></h2>
+                    <p>Última conexión: <span id="lastLogin">Hoy, 12:30 PM</span></p>
+                </div>
+                
+                <div class="dashboard-cards">
+                    <a href="admin-users.html" class="card">
+                        <h3>Gestión de Usuarios</h3>
+                        <p>Crear, editar y eliminar cuentas de usuario</p>
+                    </a>
+                    <div class="card">
+                        <h3>Reportes</h3>
+                        <p>Ver estadísticas y generar informes</p>
+                    </div>
+                    <div class="card">
+                        <h3>Pedidos</h3>
+                        <p>Administrar pedidos y seguimiento</p>
+                    </div>
+                    <div class="card">
+                        <h3>Configuración</h3>
+                        <p>Ajustes del sistema y permisos</p>
+                    </div>
+                </div>
+                
+                <div class="recent-activity">
+                    <h3>Actividad Reciente</h3>
+                    <ul class="activity-list">
+                        <li class="activity-item">
+                            <div>Inicio de sesión exitoso</div>
+                            <div class="activity-time">Hace 5 minutos</div>
+                        </li>
+                        <li class="activity-item">
+                            <div>Actualización de perfil</div>
+                            <div class="activity-time">Ayer, 3:45 PM</div>
+                        </li>
+                        <li class="activity-item">
+                            <div>Cambio de contraseña</div>
+                            <div class="activity-time">15/05/2023, 10:30 AM</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "name": "ditzlertotes",
+  "version": "1.0.0",
+  "description": "Este proyecto implementa un sistema de autenticación de usuarios para DitzlerTotes, que incluye funcionalidades de inicio de sesión, registro de nuevos usuarios y un panel de control básico.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mssql": "^11.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
