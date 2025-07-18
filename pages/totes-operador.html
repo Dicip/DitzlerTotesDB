@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DitzlerTotes - Gestión de Totes (Operador)</title>
+    <link rel="stylesheet" href="../css/dashboard-styles.css">
+    <link rel="stylesheet" href="../css/totes-styles.css">
+    <link rel="stylesheet" href="../css/operador-styles.css">
+    <link rel="stylesheet" href="../css/modern-buttons.css">
+    <link rel="stylesheet" href="../css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="../assets/images/logo.png" alt="Ditzler Chile Logo" class="logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="operador.html"><i class="fas fa-th-large"></i> Panel de Control</a></li>
+                <li class="active"><a href="totes-operador.html"><i class="fas fa-box"></i> Gestión de Totes</a></li>
+                <li><a href="#"><i class="fas fa-qrcode"></i> Escanear Totes</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                <a href="#"><i class="fas fa-user"></i> Mi Perfil</a>
+            </div>
+        </nav>
+        <main class="main-content">
+            <header class="totes-header">
+                <div class="title-and-actions">
+                    <h1><i class="fas fa-box"></i> Gestión de Totes</h1>
+                    <p>Visualice y actualice el estado de los totes asignados.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-secondary"><i class="fas fa-qrcode"></i> Escanear Tote</button>
+                    <button class="btn-tertiary"><i class="fas fa-filter"></i> Filtrar Mis Totes</button>
+                </div>
+            </header>
+            <div class="content-card">
+                <div class="totes-table-container">
+                    <table class="totes-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Estado</th>
+                                <th>Ubicación</th>
+                                <th>Cliente</th>
+                                <th>Producto</th>
+                                <th>Lote</th>
+                                <th>F. Envasado</th>
+                                <th>F. Vencimiento</th>
+                                <th>F. Despacho</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="totesTableBody">
+                            <!-- Las filas de datos se insertarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para actualizar estado del tote -->
+    <div id="updateToteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Actualizar Estado del Tote</h2>
+                <span class="close" onclick="closeUpdateModal()">&times;</span>
+            </div>
+            <form id="updateToteForm">
+                <input type="hidden" id="toteId" name="toteId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="codigo">Código del Tote</label>
+                        <input type="text" id="codigo" name="codigo" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="estadoActual">Estado Actual</label>
+                        <input type="text" id="estadoActual" name="estadoActual" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nuevoEstado">Nuevo Estado *</label>
+                        <select id="nuevoEstado" name="nuevoEstado" required>
+                            <option value="">Seleccionar nuevo estado</option>
+                            <option value="Disponible">Disponible</option>
+                            <option value="En Uso">En Uso</option>
+                            <option value="En Lavado">En Lavado</option>
+                            <option value="Con Cliente">Con Cliente</option>
+                            <option value="En Mantenimiento">En Mantenimiento</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ubicacion">Ubicación *</label>
+                        <input type="text" id="ubicacion" name="ubicacion" required placeholder="Ej: Bodega A-1">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="observaciones">Observaciones</label>
+                        <textarea id="observaciones" name="observaciones" rows="3" placeholder="Comentarios adicionales sobre el cambio de estado"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeUpdateModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Actualizar Estado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/dark-mode.js"></script>
+    <script src="../js/totes-operador.js"></script>
+</body>
+</html>

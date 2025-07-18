@@ -1,14 +1,330 @@
-/* Estilos adicionales para el dashboard */
-
-/* Estilo para los enlaces en las tarjetas */
-.dashboard-cards a.card {
-    text-decoration: none;
-    color: inherit;
-    cursor: pointer;
+/* Estilos generales del cuerpo */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    color: #333;
 }
 
-/* Asegurar que los enlaces en las tarjetas mantengan el mismo estilo */
-.dashboard-cards a.card h3,
-.dashboard-cards a.card p {
-    color: inherit;
+/* Contenedor principal del dashboard */
+.dashboard-wrapper {
+    display: flex;
+}
+
+/* Barra lateral */
+.sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #e0e0e0;
+    position: fixed;
+}
+
+.sidebar-header {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.logo {
+    max-width: 150px;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 20px 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.nav-links li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #555;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-links li.active a, .nav-links li a:hover {
+    background-color: #e8f0fe;
+    color: #1967d2;
+    border-left: 4px solid #1967d2;
+    padding-left: 16px;
+}
+
+.nav-links li a i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.sidebar-footer a {
+    display: flex;
+    align-items: center;
+    color: #555;
+    text-decoration: none;
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.sidebar-footer a:hover {
+    color: #1967d2;
+}
+
+.sidebar-footer a i {
+    margin-right: 15px;
+}
+
+/* Contenido principal */
+.main-content {
+    margin-left: 250px;
+    flex-grow: 1;
+    padding: 30px;
+}
+
+.main-content header h1 {
+    margin: 0 0 30px 0;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* Contenedor de tarjetas */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
+    height: 520px;
+    max-width: 100%;
+}
+
+/* Panel grande - ocupa 2 columnas en la primera fila */
+.large-card {
+    grid-column: 1 / 3;
+    grid-row: 1;
+    height: 100%;
+}
+
+/* Paneles individuales */
+.cards-container .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Eliminar el contenedor de small-cards-grid */
+.small-cards-grid {
+    display: contents;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+
+
+.card h3 {
+    margin-top: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.card-chart {
+    grid-column: span 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-chart-layout {
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    height: 100%;
+}
+
+.chart-section {
+    flex: 0 0 250px;
+    position: relative;
+    height: 250px;
+}
+
+.chart-data-section {
+    flex: 1;
+    padding-left: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.chart-container {
+    position: relative;
+    flex-grow: 1;
+    min-height: 250px; /* Altura mínima para el gráfico */
+}
+
+.chart-legend-custom {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid;
+    transition: all 0.3s ease;
+}
+
+.legend-item:hover {
+    background-color: #e9ecef;
+    transform: translateX(5px);
+}
+
+.legend-item-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.legend-label {
+    font-weight: 500;
+    color: #333;
+}
+
+.legend-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1967d2;
+}
+
+.legend-value.zero {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.card-list {
+    grid-column: span 1;
+}
+
+.card-main-metric {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    flex-shrink: 0;
+}
+
+.card-main-metric i {
+    font-size: 24px;
+    color: #1967d2;
+    margin-right: 15px;
+}
+
+.card-main-metric.warning i {
+    color: #d93025;
+}
+
+.card-main-metric span {
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.small-cards-grid .card h3 {
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.small-cards-grid .metric-description {
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.small-cards-grid .details-list {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.metric-description {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.details-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.details-list li:last-child {
+    border-bottom: none;
+}
+
+.danger-text {
+    color: #d93025;
+    font-weight: 500;
+}
+
+/* Estilos específicos para métricas en paneles pequeños */
+.cards-container .card:not(.large-card) .card-main-metric {
+    margin: 10px 0;
+    font-size: 1.8em;
+    flex-shrink: 0;
+}
+
+.cards-container .card:not(.large-card) h3 {
+    font-size: 1em;
+    margin: 0 0 10px 0;
+}
+
+.cards-container .card:not(.large-card) .metric-description {
+    font-size: 0.85em;
+    margin: 5px 0;
+    flex-shrink: 0;
+}
+
+.cards-container .card:not(.large-card) .details-list {
+    font-size: 0.8em;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 80px;
 }

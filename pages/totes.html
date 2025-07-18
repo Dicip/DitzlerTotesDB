@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DitzlerTotes - Control de Totes</title>
+    <link rel="stylesheet" href="../css/dashboard-styles.css">
+    <link rel="stylesheet" href="../css/totes-styles.css">
+    <link rel="stylesheet" href="../css/modern-buttons.css">
+    <link rel="stylesheet" href="../css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="../assets/images/logo.png" alt="Ditzler Chile Logo" class="logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="dashboard.html"><i class="fas fa-th-large"></i> Panel de control</a></li>
+                <li class="active"><a href="totes.html"><i class="fas fa-box"></i> Totes</a></li>
+                <li><a href="admin-users.html"><i class="fas fa-users"></i> Usuarios</a></li>
+                <li><a href="clientes.html"><i class="fas fa-user-friends"></i> Clientes</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                <a href="#"><i class="fas fa-cog"></i> Configuración</a>
+            </div>
+        </nav>
+        <main class="main-content">
+            <header class="totes-header">
+                <div class="title-and-actions">
+                    <h1><i class="fas fa-box"></i> Control de Totes</h1>
+                    <p>Visualice, edite y registre los totes en el sistema.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-secondary"><i class="fas fa-qrcode"></i> Escanear Tote</button>
+                    <button id="registrarToteBtn" class="btn-primary"><i class="fas fa-plus-circle"></i> Registrar Tote</button>
+                    <button class="btn-tertiary"><i class="fas fa-info-circle"></i> Ver Información General</button>
+                </div>
+            </header>
+            <div class="content-card">
+                <div class="totes-table-container">
+                    <table class="totes-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Estado</th>
+                                <th>Ubicación</th>
+                                <th>Cliente</th>
+                                <th>Operador</th>
+                                <th>Producto</th>
+                                <th>Lote</th>
+                                <th>F. Envasado</th>
+                                <th>F. Vencimiento</th>
+                                <th>F. Despacho</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Las filas de datos se insertarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para agregar/editar totes -->
+    <div id="toteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Registrar Nuevo Tote</h2>
+                <span class="close" onclick="closeToteModal()">&times;</span>
+            </div>
+            <form id="toteForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="codigo">Código del Tote *</label>
+                        <input type="text" id="codigo" name="codigo" required placeholder="Ej: TOTE-PL-001" minlength="3" maxlength="50" title="El código debe tener entre 3 y 50 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado *</label>
+                        <select id="estado" name="estado" required>
+                            <option value="">Seleccionar estado</option>
+                            <option value="Disponible">Disponible</option>
+                            <option value="En Uso">En Uso</option>
+                            <option value="En Lavado">En Lavado</option>
+                            <option value="Con Cliente">Con Cliente</option>
+                            <option value="En Mantenimiento">En Mantenimiento</option>
+                            <option value="Fuera de Servicio">Fuera de Servicio</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ubicacion">Ubicación *</label>
+                        <input type="text" id="ubicacion" name="ubicacion" required placeholder="Ej: Bodega A-1">
+                    </div>
+                    <div class="form-group">
+                        <label for="operador">Operador *</label>
+                        <select id="operador" name="operador" required>
+                            <option value="">Seleccionar operador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cliente">Cliente</label>
+                        <select id="cliente" name="cliente">
+                            <option value="">Seleccionar cliente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="producto">Producto</label>
+                        <input type="text" id="producto" name="producto" placeholder="Tipo de producto">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="lote">Lote</label>
+                        <input type="text" id="lote" name="lote" placeholder="Número de lote">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaEnvasado">Fecha de Envasado</label>
+                        <input type="date" id="fechaEnvasado" name="fechaEnvasado" max="" title="La fecha de envasado no puede ser futura">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fechaVencimiento">Fecha de Vencimiento</label>
+                        <input type="date" id="fechaVencimiento" name="fechaVencimiento" title="La fecha de vencimiento debe ser posterior a la fecha de envasado">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaDespacho">Fecha de Despacho</label>
+                        <input type="date" id="fechaDespacho" name="fechaDespacho">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="alerta">
+                            <input type="checkbox" id="alerta" name="alerta" value="1">
+                            Marcar como alerta
+                        </label>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeToteModal()">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Tote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/dark-mode.js"></script>
+    <script src="../js/totes.js"></script>
+</body>
+</html>

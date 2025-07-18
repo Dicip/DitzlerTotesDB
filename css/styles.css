@@ -95,21 +95,7 @@ body {
     min-height: 20px;
 }
 
-.login-btn {
-    width: 100%;
-    padding: 12px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.login-btn:hover {
-    background-color: #2980b9;
-}
+/* El estilo del botón login ahora está en modern-buttons.css */
 
 .links {
     margin-top: 20px;

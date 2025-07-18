@@ -1,0 +1,404 @@
+/* ==========================================================================
+   MODERN BUTTON STYLES - DitzlerTotes
+   ========================================================================== */
+
+/* Variables CSS para consistencia */
+:root {
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --secondary-color: #60a5fa;
+    --secondary-hover: #3b82f6;
+    --success-color: #1d4ed8;
+    --success-hover: #1e40af;
+    --warning-color: #2563eb;
+    --warning-hover: #1d4ed8;
+    --danger-color: #3b82f6;
+    --danger-hover: #2563eb;
+    --info-color: #3b82f6;
+    --info-hover: #2563eb;
+    --tertiary-color: #60a5fa;
+    --tertiary-hover: #3b82f6;
+    
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    
+    --border-radius: 8px;
+    --border-radius-sm: 6px;
+    --border-radius-lg: 12px;
+    
+    --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base button styles */
+.btn, .btn-primary, .btn-secondary, .btn-tertiary, .btn-success, .btn-warning, .btn-danger, .btn-info {
+    background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+    user-select: none;
+    white-space: nowrap;
+    text-decoration: none;
+    line-height: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Unified Button Hover Effect */
+.btn:hover, .btn-primary:hover, .btn-secondary:hover, .btn-tertiary:hover, .btn-success:hover, .btn-warning:hover, .btn-danger:hover, .btn-info:hover {
+    background: linear-gradient(135deg, var(--success-hover) 0%, var(--success-color) 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active, .btn-primary:active, .btn-secondary:active, .btn-tertiary:active, .btn-success:active, .btn-warning:active, .btn-danger:active, .btn-info:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Button Sizes */
+.btn-sm {
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: var(--border-radius-sm);
+}
+
+.btn-lg {
+    padding: 16px 28px;
+    font-size: 16px;
+    border-radius: var(--border-radius-lg);
+}
+
+.btn-xl {
+    padding: 20px 36px;
+    font-size: 18px;
+    border-radius: var(--border-radius-lg);
+}
+
+/* Button States */
+.btn:disabled, .btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: var(--shadow-md), 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Outline Variants */
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-outline-secondary {
+    background: transparent;
+    color: var(--secondary-color);
+    border: 2px solid var(--secondary-color);
+}
+
+.btn-outline-secondary:hover {
+    background: var(--secondary-color);
+    color: white;
+}
+
+/* Ghost Variants */
+.btn-ghost {
+    background: transparent;
+    color: var(--secondary-color);
+    border: none;
+    box-shadow: none;
+}
+
+.btn-ghost:hover {
+    background: rgba(107, 114, 128, 0.1);
+    box-shadow: none;
+    transform: none;
+}
+
+/* Icon Buttons */
+.btn-icon {
+    padding: 12px;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+}
+
+.btn-icon-sm {
+    padding: 8px;
+    width: 36px;
+    height: 36px;
+}
+
+.btn-icon-lg {
+    padding: 16px;
+    width: 52px;
+    height: 52px;
+}
+
+/* Action Buttons (Edit, Delete, etc.) */
+.btn-action {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--border-radius-sm);
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.btn-action:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+}
+
+.btn-edit {
+    color: var(--info-color);
+}
+
+.btn-edit:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--info-hover);
+}
+
+.btn-delete {
+    color: var(--danger-color);
+}
+
+.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger-hover);
+}
+
+.btn-view {
+    color: var(--success-color);
+}
+
+.btn-view:hover {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--success-hover);
+}
+
+/* Button Groups */
+.btn-group {
+    display: inline-flex;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-group .btn {
+    border-radius: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+}
+
+.btn-group .btn:first-child {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.btn-group .btn:last-child {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-right: none;
+}
+
+.btn-group .btn:only-child {
+    border-radius: var(--border-radius);
+}
+
+/* Loading State */
+.btn-loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.btn-loading::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    color: white;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Floating Action Button */
+.btn-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    transition: var(--transition);
+    z-index: 1000;
+}
+
+.btn-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Clean Filters Button */
+.btn-clean-filters {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #f59e0b;
+}
+
+.btn-clean-filters:hover {
+    background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+    color: #78350f;
+}
+
+/* Login Button */
+.login-btn {
+    background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    box-shadow: var(--shadow-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.login-btn:hover {
+    background: linear-gradient(135deg, var(--success-hover) 0%, var(--success-color) 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Add User Button */
+.add-user-btn {
+    background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.add-user-btn:hover {
+    background: linear-gradient(135deg, var(--success-hover) 0%, var(--success-color) 100%);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+    
+    .btn-lg {
+        padding: 14px 24px;
+        font-size: 15px;
+    }
+    
+    .btn-fab {
+        width: 48px;
+        height: 48px;
+        bottom: 16px;
+        right: 16px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --secondary-color: #9ca3af;
+        --secondary-hover: #d1d5db;
+    }
+    
+    .btn-secondary {
+        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+        color: #e5e7eb;
+        border: 1px solid #6b7280;
+    }
+    
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
+        color: #f9fafb;
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .btn {
+        transition: none;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .btn-loading::after {
+        animation: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid;
+    }
+    
+    .btn-primary {
+        border-color: var(--primary-color);
+    }
+    
+    .btn-secondary {
+        border-color: var(--secondary-color);
+    }
+}

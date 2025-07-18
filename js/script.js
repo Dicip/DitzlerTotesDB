@@ -50,9 +50,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     sessionStorage.setItem('loggedInAdmin', JSON.stringify(adminData));
                 }
                 
-                // Redirigir al dashboard
-                console.log('Redirigiendo al dashboard...');
-                window.location.href = 'pages/dashboard.html';
+                // Redirigir según el rol del usuario
+                console.log('Redirigiendo según rol:', data.role);
+                if (data.role === 'Admin') {
+                    window.location.href = 'pages/dashboard.html';
+                } else if (data.role === 'Operario') {
+                    window.location.href = 'pages/operador.html';
+                } else {
+                    // Por defecto redirigir al dashboard para otros roles
+                    window.location.href = 'pages/dashboard.html';
+                }
             } else {
                 showError(data.message || 'Credenciales incorrectas. Inténtelo de nuevo.');
             }
@@ -94,9 +101,13 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Verificar si la sesión no ha expirado (8 horas para mayor seguridad)
             if (currentTime - sessionTime < 8 * 60 * 60 * 1000) {
-                // Verificar que sea un administrador
-                if (adminData.isAdmin) {
-                    // Redirigir al dashboard si hay una sesión activa
+                // Redirigir según el rol del usuario
+                if (adminData.role === 'Admin') {
+                    window.location.href = 'pages/dashboard.html';
+                } else if (adminData.role === 'Operario') {
+                    window.location.href = 'pages/operador.html';
+                } else if (adminData.isAdmin) {
+                    // Fallback para compatibilidad con sesiones anteriores
                     window.location.href = 'pages/dashboard.html';
                 }
             } else {

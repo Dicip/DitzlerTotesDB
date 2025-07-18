@@ -1,0 +1,326 @@
+/* Estilos específicos para la página de clientes */
+
+/* Logo del cliente */
+.client-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    margin: 0 auto;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+}
+
+.client-logo:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Tipos de cliente */
+.client-type {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.client-type.distribuidor {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.client-type.mayorista {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+.client-type.minorista {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.client-type.exportador {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+}
+
+.client-type:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Estados específicos para clientes */
+.status.activo {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    min-width: 70px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(86, 171, 47, 0.3);
+    transition: all 0.3s ease;
+}
+
+.status.inactivo {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    min-width: 70px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+    transition: all 0.3s ease;
+}
+
+.status:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Botones de acción específicos para clientes */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-buttons .edit-btn,
+.action-buttons .delete-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.action-buttons .edit-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.action-buttons .edit-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.action-buttons .delete-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    color: white;
+}
+
+.action-buttons .delete-btn:hover {
+    background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+}
+
+/* Tabla específica para clientes */
+.users-table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.users-table-container table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.users-table-container table thead th {
+    padding: 16px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.users-table-container table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.users-table-container table tbody tr:hover {
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+}
+
+.users-table-container table tbody td {
+    padding: 16px 12px;
+    vertical-align: middle;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.users-table-container table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Formulario específico para clientes */
+.modal-body .form-group {
+    margin-bottom: 25px;
+}
+
+.modal-body .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-body .form-group input,
+.modal-body .form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.modal-body .form-group input:focus,
+.modal-body .form-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+}
+
+.modal-body .form-group input:hover,
+.modal-body .form-group select:hover {
+    border-color: #b8c6db;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.modal-body .form-group input[required],
+.modal-body .form-group select[required] {
+    border-left: 4px solid #667eea;
+}
+
+.modal-body .form-group input::placeholder {
+    color: #a0a0a0;
+    font-style: italic;
+}
+
+/* Mensajes específicos para clientes */
+.message {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
+    display: none;
+    animation: slideDown 0.3s ease;
+}
+
+.message.success {
+    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    color: white;
+    border-left: 4px solid #4a9025;
+}
+
+.message.error {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+    color: white;
+    border-left: 4px solid #e55555;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive para clientes */
+@media (max-width: 768px) {
+    .users-table-container {
+        overflow-x: auto;
+    }
+    
+    .users-table-container table {
+        min-width: 800px;
+    }
+    
+    .client-logo {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+    
+    .action-buttons .edit-btn,
+    .action-buttons .delete-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .client-type,
+    .status {
+        font-size: 10px;
+        padding: 4px 8px;
+        min-width: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .users-table-container table thead th,
+    .users-table-container table tbody td {
+        padding: 12px 8px;
+        font-size: 12px;
+    }
+    
+    .modal-body .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .modal-body .form-group input,
+    .modal-body .form-group select {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}

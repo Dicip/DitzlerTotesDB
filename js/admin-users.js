@@ -1,20 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificar si hay una sesión activa de administrador
-    const storedAdmin = localStorage.getItem('loggedInAdmin') || sessionStorage.getItem('loggedInAdmin');
-    
-    if (!storedAdmin) {
-        window.location.href = '../index.html';
+    // Session verification
+    const adminData = JSON.parse(sessionStorage.getItem('loggedInAdmin')) || JSON.parse(localStorage.getItem('loggedInAdmin'));
+    if (!adminData || !adminData.isAdmin) {
+        window.location.href = '../index.html'; // Redirect to login if not admin
         return;
     }
-    
-    const adminData = JSON.parse(storedAdmin);
-    
-    // Verificar que sea un administrador
-    if (!adminData.isAdmin) {
-        localStorage.removeItem('loggedInAdmin');
-        sessionStorage.removeItem('loggedInAdmin');
-        window.location.href = '../index.html';
-        return;
+
+    // Logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            sessionStorage.clear();
+            window.location.href = '../index.html';
+        });
     }
     
     // Referencias a elementos del DOM
@@ -65,17 +63,20 @@ document.addEventListener('DOMContentLoaded', function() {
         
         users.forEach(user => {
             const row = document.createElement('tr');
+            const avatar = (user.Nombre?.charAt(0) || '') + (user.Apellido?.charAt(0) || '');
             
             row.innerHTML = `
-                <td>${user.Id}</td>
-                <td>${user.Nombre}</td>
-                <td>${user.Apellido}</td>
+                <td><div class="avatar-circle">${avatar.toUpperCase()}</div></td>
+                <td>${user.Nombre} ${user.Apellido}</td>
                 <td>${user.Email || 'N/A'}</td>
-                <td>${user.Rol}</td>
-                <td>${user.Estado}</td>
+                <td><span class="user-role ${user.Rol.toLowerCase()}">${user.Rol}</span></td>
+                <td><span class="status ${user.Estado.toLowerCase()}">${user.Estado}</span></td>
+                <td>${user.fecha_creacion || new Date().toLocaleDateString('es-ES')}</td>
                 <td>
-                    <button class="btn-edit" data-id="${user.Id}">Editar</button>
-                    <button class="btn-delete" data-id="${user.Id}">Eliminar</button>
+                    <div class="action-buttons">
+                        <button class="edit-btn" data-id="${user.Id}" title="Editar usuario"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn" data-id="${user.Id}" title="Eliminar usuario"><i class="fas fa-trash"></i></button>
+                    </div>
                 </td>
             `;
             
@@ -83,11 +84,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Agregar event listeners a los botones
-        document.querySelectorAll('.btn-edit').forEach(btn => {
+        document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', () => editUser(btn.dataset.id));
         });
         
-        document.querySelectorAll('.btn-delete').forEach(btn => {
+        document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', () => deleteUser(btn.dataset.id));
         });
     }
@@ -107,12 +108,12 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('rol').value = user.Rol;
         document.getElementById('estado').value = user.Estado;
         
-        // Cambiar texto del botón de envío
+        // Cambiar texto del modal y botón
+        modalTitle.textContent = 'Editar Usuario';
         document.getElementById('submitBtn').textContent = 'Actualizar Usuario';
         
-        // Mostrar formulario
-        userForm.style.display = 'block';
-        window.scrollTo(0, userForm.offsetTop);
+        // Mostrar modal
+        userModal.style.display = 'block';
     }
     
     // Eliminar usuario
@@ -145,21 +146,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Mostrar formulario para agregar usuario
+    // Referencias al modal
+    const userModal = document.getElementById('userModal');
+    const closeModal = document.getElementById('closeModal');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const modalTitle = document.getElementById('modalTitle');
+    
+    // Mostrar modal para agregar usuario
     if (addUserBtn) {
         addUserBtn.addEventListener('click', function() {
             // Limpiar formulario
             userForm.reset();
             editingUserId = null;
             
-            // Cambiar texto del botón de envío
+            // Cambiar texto del modal y botón
+            modalTitle.textContent = 'Agregar Usuario';
             document.getElementById('submitBtn').textContent = 'Crear Usuario';
             
-            // Mostrar formulario
-            userForm.style.display = 'block';
-            window.scrollTo(0, userForm.offsetTop);
+            // Mostrar modal
+            userModal.style.display = 'block';
         });
     }
+    
+    // Cerrar modal
+    function closeUserModal() {
+        userModal.style.display = 'none';
+    }
+    
+    if (closeModal) {
+        closeModal.addEventListener('click', closeUserModal);
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', closeUserModal);
+    }
+    
+    // Cerrar modal al hacer clic fuera de él
+    window.addEventListener('click', function(event) {
+        if (event.target === userModal) {
+            closeUserModal();
+        }
+    });
     
     // Manejar envío del formulario
     if (userForm) {
@@ -167,34 +194,47 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault();
             
             const userData = {
-                Nombre: document.getElementById('nombre').value.trim(),
-                Apellido: document.getElementById('apellido').value.trim(),
-                Email: document.getElementById('email').value.trim(),
-                Password: document.getElementById('password').value.trim(),
-                Rol: document.getElementById('rol').value,
-                Estado: document.getElementById('estado').value
+                nombre: document.getElementById('nombre').value.trim(),
+                apellido: document.getElementById('apellido').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value.trim(),
+                rol: document.getElementById('rol').value,
+                estado: document.getElementById('estado').value
             };
             
             // Validar campos
-            if (!userData.Nombre) {
+            if (!userData.nombre) {
                 showMessage('El nombre es obligatorio', 'error');
                 return;
             }
             
-            if (!userData.Apellido) {
+            if (!userData.apellido) {
                 showMessage('El apellido es obligatorio', 'error');
                 return;
             }
             
-            if (!userData.Email) {
+            if (!userData.email) {
                 showMessage('El correo electrónico es obligatorio', 'error');
+                return;
+            }
+            
+            // Validación de formato de email
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(userData.email)) {
+                showMessage('Por favor, ingrese un email válido', 'error');
+                return;
+            }
+            
+            // Validación de contraseña para nuevos usuarios
+            if (!editingUserId && userData.password.length < 6) {
+                showMessage('La contraseña debe tener al menos 6 caracteres', 'error');
                 return;
             }
             
             // Si estamos editando, agregar el ID
             if (editingUserId) {
-                userData.Id = editingUserId;
-            } else if (!userData.Password) {
+                userData.id = editingUserId;
+            } else if (!userData.password) {
                 // Si estamos creando, la contraseña es obligatoria
                 showMessage('La contraseña es obligatoria para nuevos usuarios', 'error');
                 return;
@@ -222,7 +262,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         'success'
                     );
                     userForm.reset();
-                    userForm.style.display = 'none';
+                    closeUserModal(); // Cerrar modal
                     loadUsers(); // Recargar lista
                 } else {
                     showMessage('Error: ' + (data.message || 'Error desconocido'), 'error');

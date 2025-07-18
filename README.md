@@ -1,64 +1,129 @@
-# DitzlerTotes - Panel de Administración
+# DitzlerTotes - Sistema de Gestión Integral
 
 ## Descripción
-Este proyecto implementa un panel de administración para DitzlerTotes, que incluye funcionalidades de inicio de sesión para administradores y gestión de usuarios a través de una interfaz web. La aplicación utiliza SQL Server como base de datos para almacenar la información de los usuarios.
+Sistema completo de gestión para DitzlerTotes que incluye administración de usuarios, gestión de clientes y control de totes. La aplicación utiliza SQL Server como base de datos con restricciones avanzadas, triggers de sincronización automática y validaciones completas tanto en frontend como backend.
 
 ## Estructura del Proyecto
 
 ```
 DitzlerTotes/
-├── index.html              # Página principal de inicio de sesión de administradores
-├── server.js               # Servidor Express y API REST con conexión a SQL Server
-├── package.json            # Configuración y dependencias del proyecto
-├── db-setup.sql            # Script para configurar la base de datos SQL Server
+├── index.html                    # Página principal de inicio de sesión
+├── server.js                     # Servidor Express con API REST completa
+├── package.json                  # Configuración y dependencias del proyecto
 ├── css/
-│   ├── styles.css         # Estilos globales de la aplicación
-│   └── dashboard-styles.css # Estilos específicos para el dashboard
+│   ├── styles.css               # Estilos globales de la aplicación
+│   ├── dashboard-styles.css     # Estilos del panel de control
+│   ├── admin-users-styles.css   # Estilos para gestión de usuarios
+│   ├── clientes-styles.css      # Estilos para gestión de clientes
+│   ├── totes-styles.css         # Estilos para gestión de totes
+│   ├── dark-mode.css            # Estilos para modo oscuro
+│   └── modern-buttons.css       # Estilos modernos para botones
 ├── js/
-│   ├── script.js          # Lógica para la página de inicio de sesión
-│   ├── dashboard.js       # Lógica para el panel de control
-│   └── admin-users.js     # Lógica para la gestión de usuarios
+│   ├── script.js                # Lógica de inicio de sesión
+│   ├── dashboard.js             # Lógica del panel de control
+│   ├── admin-users.js           # Gestión de usuarios con validaciones
+│   ├── clientes.js              # Gestión de clientes con validaciones
+│   ├── totes.js                 # Gestión de totes con validaciones
+│   └── dark-mode.js             # Funcionalidad de modo oscuro
 ├── pages/
-│   ├── dashboard.html     # Panel de control del administrador
-│   └── admin-users.html   # Página de gestión de usuarios
+│   ├── dashboard.html           # Panel de control principal
+│   ├── admin-users.html         # Gestión de usuarios
+│   ├── clientes.html            # Gestión de clientes
+│   └── totes.html               # Gestión de totes
+├── database/
+│   ├── complete_database_script.sql  # Script completo de base de datos
+│   ├── add_sync_triggers.sql          # Triggers de sincronización
+│   └── insert_totes_sample.sql        # Datos de ejemplo para totes
 ├── assets/
-│   └── images/            # Imágenes y recursos gráficos
-└── node_modules/          # Dependencias instaladas (generado por npm)
+│   └── images/                  # Recursos gráficos
+└── node_modules/                # Dependencias (generado por npm)
 ```
 
 ## Funcionalidades
 
-### Autenticación de Administradores
-- Inicio de sesión con nombre de usuario y contraseña
-- Opción "Recordarme" para mantener la sesión activa
-- Recuperación de contraseña (simulada)
-- Verificación de permisos de administrador
+### 🔐 Autenticación y Seguridad
+- Inicio de sesión con validación de credenciales en base de datos
+- Verificación de permisos por roles (Admin, Operator, Viewer)
+- Sesiones seguras con validación de estado
+- Modo oscuro/claro personalizable
 
-### Gestión de Usuarios
-- Visualización de lista de usuarios desde la base de datos
-- Creación de nuevos usuarios por parte de administradores
-- Edición de información de usuarios existentes
-- Eliminación de usuarios
+### 👥 Gestión de Usuarios
+- CRUD completo de usuarios con validaciones avanzadas
+- Validación de email con función de base de datos (`FN_ValidarEmail`)
+- Contraseñas con longitud mínima y encriptación
+- Roles y permisos granulares
+- Validaciones HTML5 y JavaScript en tiempo real
 
-### Panel de Control
-- Visualización de información del administrador
-- Historial de actividad reciente
-- Acceso a módulos de administración
+### 🏢 Gestión de Clientes
+- Administración completa de clientes corporativos
+- Validación de datos de contacto y email opcional
+- Categorización por tipo de cliente (Corporativo, PYME)
+- Estados de cliente (Activo, Inactivo, Suspendido)
+- Sincronización automática con tabla de totes
+
+### 📦 Control de Totes
+- Gestión completa del ciclo de vida de totes
+- Estados: Disponible, En Uso, En Lavado, Con Cliente, En Mantenimiento, Fuera de Servicio
+- Validaciones de fechas (envasado no futura, vencimiento posterior)
+- Códigos únicos con validación de duplicados
+- Alertas automáticas de vencimiento
+- Soft delete para mantener historial
+
+### 🔄 Sincronización Automática
+- Triggers que actualizan automáticamente nombres en totes
+- Cambios en clientes se reflejan instantáneamente
+- Cambios en usuarios se propagan automáticamente
+- Eliminación de actualizaciones manuales
+
+### 📊 Panel de Control
+- Dashboard con estadísticas en tiempo real
+- Visualización de estados de totes
+- Alertas de vencimientos próximos
+- Historial de actividad del sistema
 
 ## Cómo Usar
 
 ### Instalación
 
-1. Asegúrese de tener Node.js y SQL Server instalados en su sistema.
-2. Clone o descargue este repositorio.
-3. Abra una terminal en la carpeta del proyecto.
-4. Instale las dependencias ejecutando:
+#### Requisitos Previos
+- Node.js 14 o superior
+- SQL Server 2016 o superior
+- SQL Server Management Studio (SSMS) o Azure Data Studio
+- Permisos de administrador en SQL Server
+
+#### Pasos de Instalación
+
+1. **Clonar el repositorio**
+   ```bash
+   git clone [url-del-repositorio]
+   cd DitzlerTotes
    ```
+
+2. **Instalar dependencias**
+   ```bash
    npm install
    ```
-5. Configure la base de datos SQL Server:
-   - Ejecute el script `db-setup.sql` en SQL Server Management Studio o mediante sqlcmd
-   - Actualice la configuración de conexión en `server.js` con sus credenciales de SQL Server
+
+3. **Configurar la base de datos**
+   - Abrir SQL Server Management Studio
+   - Ejecutar el script `database/complete_database_script.sql`
+   - Ejecutar `database/add_sync_triggers.sql` para habilitar sincronización automática
+
+4. **Configurar conexión a base de datos**
+   Actualizar las credenciales en `server.js`:
+   ```javascript
+   const sqlConfig = {
+     user: 'sa',                    // Su usuario de SQL Server
+     password: '123',               // Su contraseña
+     database: 'Ditzler',           // Nombre de la base de datos
+     server: 'localhost',           // Servidor
+     port: 1433,                    // Puerto
+     options: {
+       encrypt: false,
+       trustServerCertificate: true
+     }
+   };
+   ```
 
 ### Ejecución del Servidor
 
@@ -76,30 +141,92 @@ DitzlerTotes/
 
 ### Uso de la Aplicación
 
-1. En la página principal, puede iniciar sesión con alguno de los administradores predefinidos:
-   - Usuario: admin, Contraseña: admin123
-   - Usuario: supervisor, Contraseña: super123
-   - Usuario: manager, Contraseña: manager123
-2. Una vez autenticado, accederá al panel de administración donde podrá gestionar usuarios y acceder a otras funcionalidades.
+1. **Iniciar sesión**
+   - Usuario por defecto: admin@ditzler.com
+   - Contraseña: admin123
+   - ⚠️ **Cambiar credenciales por defecto** por seguridad
 
-## Notas Técnicas
+2. **Navegación del sistema**
+   - **Dashboard**: Estadísticas y resumen general
+   - **Usuarios**: Gestión completa de usuarios del sistema
+   - **Clientes**: Administración de clientes corporativos
+   - **Totes**: Control y seguimiento de totes
 
-- Este proyecto utiliza Express.js como servidor web y para implementar la API REST.
-- Se utiliza SQL Server como base de datos para almacenar la información de usuarios.
-- La conexión a la base de datos se realiza mediante el paquete mssql para Node.js.
-- La autenticación de administradores verifica las credenciales contra la base de datos.
-- La gestión de usuarios se realiza a través de una API REST que interactúa con SQL Server.
-- El diseño es responsivo y se adapta a diferentes tamaños de pantalla.
+3. **Características especiales**
+   - Modo oscuro/claro en la esquina superior derecha
+   - Validaciones en tiempo real en todos los formularios
+   - Sincronización automática entre módulos
+   - Alertas de vencimiento en totes
+
+## Características Técnicas Avanzadas
+
+### 🏗️ Arquitectura
+- **Backend**: Express.js con API REST completa
+- **Base de datos**: SQL Server con restricciones avanzadas
+- **Frontend**: JavaScript vanilla con validaciones HTML5
+- **Conexión**: mssql para Node.js con parámetros preparados
+
+### 🔒 Seguridad Implementada
+- **Prevención de inyección SQL**: Parámetros preparados en todas las consultas
+- **Validación doble**: Frontend (HTML5/JS) y backend (SQL Server)
+- **Funciones de base de datos**: `FN_ValidarEmail` para validación de emails
+- **Restricciones CHECK**: Validación de fechas y formatos en base de datos
+
+### 🔄 Sincronización Automática
+- **Triggers de base de datos**: `TR_Clientes_UpdateTotes` y `TR_Usuarios_UpdateTotes`
+- **Actualización en tiempo real**: Cambios se propagan automáticamente
+- **Integridad referencial**: Mantenimiento automático de consistencia
+
+### ✅ Validaciones Implementadas
+- **Emails**: Regex consistente + función de base de datos
+- **Fechas**: Validación de fechas futuras y rangos lógicos
+- **Códigos únicos**: Verificación de duplicados en tiempo real
+- **Campos obligatorios**: Validación HTML5 nativa
+
+### 📊 Base de Datos
+- **Tablas principales**: Usuarios, Clientes, Totes
+- **Índices optimizados**: Para búsquedas y consultas frecuentes
+- **Soft delete**: Mantenimiento de historial en totes
+- **Auditoría automática**: Timestamps de creación y modificación
+
+### 🎨 Interfaz de Usuario
+- **Diseño responsivo**: Adaptable a diferentes pantallas
+- **Modo oscuro/claro**: Personalización de tema
+- **Validación en tiempo real**: Feedback inmediato al usuario
+- **Mensajes específicos**: Errores descriptivos y claros
 
 ## Mejoras Futuras
 
-- Implementar hashing seguro para contraseñas (bcrypt, Argon2, etc.)
-- Agregar validación por correo electrónico para nuevos usuarios
-- Implementar autenticación de dos factores para administradores
-- Expandir las funcionalidades del panel de administración
-- Agregar JWT (JSON Web Tokens) para gestión de sesiones
+### 🔐 Seguridad Avanzada
+- Implementar hashing seguro para contraseñas (bcrypt, Argon2)
+- Autenticación de dos factores (2FA)
+- JWT (JSON Web Tokens) para gestión de sesiones
 - Implementar HTTPS para comunicaciones seguras
-- Agregar roles y permisos más granulares para diferentes tipos de administradores
-- Crear pruebas unitarias y de integración
-- Optimizar el rendimiento y la carga de recursos
-- Implementar un sistema de logs para auditoría
+
+### 📧 Notificaciones
+- Sistema de notificaciones por email
+- Alertas automáticas de vencimiento de totes
+- Notificaciones de cambios importantes
+
+### 📊 Reportes y Analytics
+- Dashboard con gráficos avanzados
+- Reportes de uso de totes
+- Estadísticas de clientes
+- Exportación a Excel/PDF
+
+### 🧪 Testing y Calidad
+- Pruebas unitarias y de integración
+- Pruebas automatizadas de API
+- Cobertura de código
+
+### ⚡ Rendimiento
+- Optimización de consultas SQL
+- Caché de datos frecuentes
+- Paginación en listados grandes
+- Compresión de recursos
+
+### 📱 Funcionalidades Adicionales
+- API móvil para operadores
+- Códigos QR para totes
+- Sistema de logs para auditoría
+- Backup automático de base de datos

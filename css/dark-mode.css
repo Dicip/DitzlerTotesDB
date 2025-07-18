@@ -1,0 +1,795 @@
+/* Dark Mode Styles */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --card-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --sidebar-text: #555555;
+  --border-color: #e0e0e0;
+  --input-bg: #ffffff;
+  --input-border: #ddd;
+  --shadow: rgba(0, 0, 0, 0.1);
+  --hover-bg: #f8f9fa;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #ffffff;
+  --card-bg: #2d2d2d;
+  --sidebar-bg: #2d2d2d;
+  --sidebar-text: #ffffff;
+  --border-color: transparent;
+  --input-bg: #3a3a3a;
+  --input-border: #4a4a4a;
+  --shadow: rgba(0, 0, 0, 0.3);
+  --hover-bg: #3a3a3a;
+  --button-bg: #4a90e2;
+  --button-hover-bg: #357abd;
+  --header-bg: #2d2d2d;
+  --toggle-bg: #4a90e2;
+  --toggle-border: #357abd;
+  --toggle-text: #ffffff;
+  --toggle-hover-bg: #357abd;
+  --toggle-hover-border: #2968a3;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 50px;
+  padding: 8px 16px;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+  margin: 10px;
+}
+
+.dark-mode-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+}
+
+.dark-mode-toggle i {
+  font-size: 16px;
+}
+
+/* Configuration dropdown styles */
+.config-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.config-toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--sidebar-text);
+    padding: 10px 15px;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.config-toggle-btn:hover {
+    background: var(--hover-bg, rgba(255, 255, 255, 0.1));
+    color: #1967d2;
+}
+
+/* Specific styles for light mode */
+:root .config-toggle-btn {
+    color: #555;
+}
+
+:root .config-toggle-btn:hover {
+    background: #e8f0fe;
+    color: #1967d2;
+}
+
+/* Specific styles for dark mode */
+[data-theme="dark"] .config-toggle-btn {
+    color: #ffffff;
+}
+
+[data-theme="dark"] .config-toggle-btn:hover {
+    background: #30363d;
+    color: #58a6ff;
+}
+
+.config-dropdown-menu {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.config-dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.config-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+    width: 100%;
+    text-align: left;
+    transition: background 0.2s ease;
+    font-weight: 500;
+}
+
+.config-option:hover {
+    background: var(--hover-bg, rgba(255, 255, 255, 0.1));
+}
+
+/* Light mode config options */
+:root .config-option {
+    color: #555;
+}
+
+:root .config-option:hover {
+    background: #f8f9fa;
+    color: #1967d2;
+}
+
+/* Dark mode config options */
+[data-theme="dark"] .config-option {
+    color: #ffffff;
+}
+
+[data-theme="dark"] .config-option:hover {
+    background: #30363d;
+    color: #58a6ff;
+}
+
+.config-option:first-child {
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.config-option:last-child {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.dark-mode-option {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.dark-mode-option i {
+    font-size: 16px;
+}
+
+/* Tablas en modo oscuro */
+[data-theme="dark"] .users-table-container table,
+[data-theme="dark"] .totes-table-container {
+  background: var(--card-bg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .totes-table {
+  background: var(--card-bg) !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="dark"] .totes-table-container {
+  background: var(--card-bg) !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="dark"] .totes-table thead th:first-child {
+  border-top-left-radius: 12px !important;
+}
+
+[data-theme="dark"] .totes-table thead th:last-child {
+  border-top-right-radius: 12px !important;
+}
+
+[data-theme="dark"] .totes-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px !important;
+}
+
+[data-theme="dark"] .totes-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px !important;
+}
+
+[data-theme="dark"] .users-table-container table tbody tr:hover,
+[data-theme="dark"] .totes-table tbody tr:hover {
+  background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%) !important;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="dark"] .users-table-container table tbody td,
+[data-theme="dark"] .totes-table tbody td {
+  color: var(--text-color) !important;
+  border-bottom: 1px solid #4a4a4a;
+}
+
+[data-theme="dark"] .users-table-container table tbody tr,
+[data-theme="dark"] .totes-table tbody tr {
+  border-bottom: 1px solid #4a4a4a;
+}
+
+[data-theme="dark"] .totes-table thead {
+  background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%) !important;
+}
+
+[data-theme="dark"] .totes-table thead th {
+  color: var(--text-color) !important;
+}
+
+/* Avatares y logos en modo oscuro */
+[data-theme="dark"] .avatar-circle,
+[data-theme="dark"] .client-logo {
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+[data-theme="dark"] .avatar-circle:hover,
+[data-theme="dark"] .client-logo:hover {
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Estados y badges en modo oscuro - mantienen sus colores pero con mejor contraste */
+[data-theme="dark"] .status,
+[data-theme="dark"] .status-badge,
+[data-theme="dark"] .client-type,
+[data-theme="dark"] .user-role {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .status:hover,
+[data-theme="dark"] .status-badge:hover,
+[data-theme="dark"] .client-type:hover,
+[data-theme="dark"] .user-role:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Botones de acción en modo oscuro */
+[data-theme="dark"] .action-buttons .edit-btn,
+[data-theme="dark"] .action-buttons .delete-btn {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .action-buttons .edit-btn:hover {
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+[data-theme="dark"] .action-buttons .delete-btn:hover {
+  box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4);
+}
+
+/* Formularios en modo oscuro */
+[data-theme="dark"] .modal-body .form-group input,
+[data-theme="dark"] .modal-body .form-group select {
+  background: var(--input-bg);
+  border: 2px solid var(--input-border);
+  color: var(--text-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .modal-body .form-group input:focus,
+[data-theme="dark"] .modal-body .form-group select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="dark"] .modal-body .form-group input:hover,
+[data-theme="dark"] .modal-body .form-group select:hover {
+  border-color: #5a5a5a;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .modal-body .form-group label {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .modal-body .form-group input::placeholder {
+  color: #888;
+}
+
+/* Mensajes en modo oscuro */
+[data-theme="dark"] .message.success {
+  background: linear-gradient(135deg, #4a7c59 0%, #6b8e7d 100%);
+  border-left: 4px solid #56ab2f;
+}
+
+[data-theme="dark"] .message.error {
+  background: linear-gradient(135deg, #8b4a4a 0%, #a66b6b 100%);
+  border-left: 4px solid #ff6b6b;
+}
+
+/* Login Page Dark Mode */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+  background-color: var(--bg-color);
+}
+
+.login-container {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.form-container {
+  background-color: var(--card-bg);
+}
+
+.input-group input {
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+}
+
+.input-group input:focus {
+  border-color: #667eea;
+  background-color: var(--input-bg);
+}
+
+.input-group label {
+  color: var(--text-color);
+}
+
+/* Dashboard Dark Mode */
+.dashboard-wrapper {
+  background-color: var(--bg-color);
+}
+
+[data-theme="dark"] .sidebar {
+  background-color: var(--sidebar-bg) !important;
+  color: var(--sidebar-text) !important;
+  border-right: none !important;
+}
+
+.sidebar .nav-links a {
+  color: var(--sidebar-text);
+}
+
+.sidebar .nav-links a:hover {
+  background-color: var(--hover-bg);
+}
+
+.sidebar-footer a {
+  color: var(--sidebar-text);
+}
+
+.main-content {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .card {
+  background-color: var(--card-bg) !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.card h3 {
+  color: var(--text-color);
+}
+
+/* Table Dark Mode */
+table {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+table th {
+  background-color: var(--hover-bg);
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+table td {
+  border-bottom: 1px solid var(--border-color);
+}
+
+table tr:hover {
+  background-color: var(--hover-bg);
+}
+
+/* Modal Dark Mode */
+[data-theme="dark"] .modal {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Override specific modal styles from other CSS files */
+[data-theme="dark"] .modal .modal-content {
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] #toteForm {
+  background: var(--card-bg) !important;
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .modal-header {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .modal-header h2,
+[data-theme="dark"] .modal-header h3 {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .modal-footer {
+  background-color: var(--card-bg) !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .modal-body {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  background: var(--card-bg) !important;
+}
+
+/* Override modal-body gradients from other CSS files */
+[data-theme="dark"] .modal .modal-body {
+  background: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .modal-footer {
+  background: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .close {
+  color: var(--text-color) !important;
+  opacity: 0.8;
+}
+
+[data-theme="dark"] .close:hover {
+  color: var(--text-color) !important;
+  opacity: 1;
+}
+
+/* Form Elements Dark Mode */
+[data-theme="dark"] input, 
+[data-theme="dark"] select, 
+[data-theme="dark"] textarea {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] input:focus, 
+[data-theme="dark"] select:focus, 
+[data-theme="dark"] textarea:focus {
+  border-color: #667eea !important;
+  background-color: var(--input-bg) !important;
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] label {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-group label {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-actions button {
+  color: white !important;
+}
+
+[data-theme="dark"] .modal-footer button {
+  color: white !important;
+}
+
+[data-theme="dark"] input::placeholder {
+  color: #888 !important;
+}
+
+[data-theme="dark"] select option {
+  background-color: var(--input-bg) !important;
+  color: var(--text-color) !important;
+}
+
+/* Override all modal form elements from all CSS files */
+[data-theme="dark"] .modal-body .form-group input,
+[data-theme="dark"] .modal-body .form-group select,
+[data-theme="dark"] .modal .form-group input,
+[data-theme="dark"] .modal .form-group select {
+  background: var(--input-bg) !important;
+  background-color: var(--input-bg) !important;
+  color: var(--text-color) !important;
+  border-color: var(--input-border) !important;
+}
+
+/* Override all modal backgrounds */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .modal .modal-content,
+[data-theme="dark"] #toteModal .modal-content,
+[data-theme="dark"] #userModal .modal-content,
+[data-theme="dark"] #clientModal .modal-content {
+  background: var(--card-bg) !important;
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .modal-body,
+[data-theme="dark"] .modal .modal-body,
+[data-theme="dark"] #toteForm,
+[data-theme="dark"] .user-form {
+  background: var(--card-bg) !important;
+  background-color: var(--card-bg) !important;
+}
+
+/* Additional Dark Mode Styles */
+[data-theme="dark"] .logo h1 {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-container h2 {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .links a {
+  color: #58a6ff !important;
+}
+
+[data-theme="dark"] .remember-me label {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .metric-description {
+  color: #8b949e !important;
+}
+
+[data-theme="dark"] .details-list li {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .danger-text {
+  color: #f85149 !important;
+}
+
+[data-theme="dark"] .status-active {
+  background-color: #238636 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .avatar-circle {
+  background-color: #3a3a3a !important;
+  color: var(--text-color) !important;
+  border: none !important;
+}
+
+/* Eliminar bordes adicionales en modo oscuro */
+[data-theme="dark"] .sidebar-header {
+  border-bottom: none !important;
+}
+
+[data-theme="dark"] .sidebar-footer {
+  border-top: none !important;
+}
+
+[data-theme="dark"] .nav-links li.active a {
+  border-left: 4px solid #4a90e2 !important;
+}
+
+[data-theme="dark"] .details-list li {
+  border-bottom: 1px solid #3a3a3a !important;
+}
+
+[data-theme="dark"] .details-list li:last-child {
+  border-bottom: none !important;
+}
+
+/* Chart.js canvas dark mode */
+[data-theme="dark"] #totesStatusChart {
+  background-color: transparent !important;
+}
+
+[data-theme="dark"] .chart-container {
+  background-color: transparent !important;
+}
+
+/* Totes Page Dark Mode Fixes */
+[data-theme="dark"] .title-and-actions p {
+  color: #8b949e !important;
+}
+
+[data-theme="dark"] .totes-table-container {
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .totes-table th {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .totes-table td {
+  color: var(--text-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .totes-table tbody tr:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .modal-header {
+  background-color: var(--hover-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .modal-header h2 {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-group label {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .close {
+  color: #8b949e !important;
+}
+
+[data-theme="dark"] .close:hover {
+  color: var(--text-color) !important;
+}
+
+/* Admin Users Page Dark Mode Fixes */
+[data-theme="dark"] .content-card {
+  background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .card-header h2 {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .users-table-container th {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .users-table-container td {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .users-table-container tbody tr:hover {
+  background-color: var(--hover-bg) !important;
+}
+
+/* Status badges dark mode */
+[data-theme="dark"] .status-con-cliente {
+  background-color: #1f2937 !important;
+  color: #60a5fa !important;
+}
+
+[data-theme="dark"] .status-en-lavado {
+  background-color: #374151 !important;
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .status-en-uso {
+  background-color: #065f46 !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .date-warning {
+  color: #f87171 !important;
+}
+
+/* General text color fixes */
+[data-theme="dark"] h1, [data-theme="dark"] h2, [data-theme="dark"] h3 {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] p {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .actions-cell button {
+  color: var(--text-color) !important;
+}
+
+/* Additional Totes Page Fixes */
+[data-theme="dark"] #toteForm {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .form-actions {
+  border-top: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .alert-row {
+  background-color: #3d2914 !important;
+}
+
+[data-theme="dark"] .alert-row:hover {
+  background-color: #4a3319 !important;
+}
+
+/* Status badges for totes - enhanced dark mode */
+[data-theme="dark"] .status-disponible {
+  background-color: #0d4f14 !important;
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .status-en-mantenimiento {
+  background-color: #451a03 !important;
+  color: #fb923c !important;
+}
+
+[data-theme="dark"] .status-fuera-de-servicio {
+  background-color: #450a0a !important;
+  color: #f87171 !important;
+}
+
+/* Filters and search dark mode */
+[data-theme="dark"] .filters-and-search input {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .filter-buttons select {
+  background-color: var(--input-bg) !important;
+  border: 1px solid var(--input-border) !important;
+  color: var(--text-color) !important;
+}
+
+/* Header actions dark mode */
+[data-theme="dark"] .totes-header {
+  color: var(--text-color) !important;
+}
+
+[data-theme="dark"] .title-and-actions h1 {
+  color: var(--text-color) !important;
+}
+
+/* Login Page Toggle Position */
+.login-dark-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Sidebar Toggle Position */
+.sidebar .dark-mode-toggle {
+  margin: 20px 10px 10px 10px;
+  width: calc(100% - 20px);
+  justify-content: center;
+}
