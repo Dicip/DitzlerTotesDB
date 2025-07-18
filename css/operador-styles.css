@@ -1,5 +1,29 @@
 /* Estilos específicos para páginas de operador */
 
+/* Corregir el grid layout para el panel de operador */
+body:has(.sidebar) .cards-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 20px;
+    max-width: 100%;
+}
+
+/* Asegurar que las tarjetas no se desplacen hacia abajo */
+body:has(.sidebar) .card {
+    height: auto;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Específicamente para la tarjeta del gráfico */
+body:has(.sidebar) .card-chart {
+    grid-column: span 2;
+    min-height: 300px;
+}
+
 /* Ajustes para el panel de operador */
 .operador-panel {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

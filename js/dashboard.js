@@ -71,8 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función para actualizar el gráfico de totes
-    function updateTotesChart(statusStats) {
-        const ctx = document.getElementById('totesStatusChart');
+        function updateTotesChart(statusStats) {
+        const ctx = document.getElementById('statusChart');
         if (!ctx) return;
 
         // Definir todos los estados posibles
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para crear leyenda personalizada
     function createCustomLegend(labels, data, backgroundColor) {
-        const legendContainer = document.querySelector('.chart-legend-custom');
+        const legendContainer = document.getElementById('chartLegend');
         if (!legendContainer) return;
 
         legendContainer.innerHTML = '';
@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para actualizar total de totes
     function updateTotalTotes(total) {
-        const totalElement = document.querySelector('.card:nth-child(4) .card-main-metric span');
+        const totalElement = document.getElementById('totalTotes');
         if (totalElement) {
             totalElement.textContent = total;
         }
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalConClientes = totesConClientes.reduce((sum, item) => sum + item.cantidad, 0);
         
         // Actualizar número principal
-        const mainMetric = document.querySelector('.card:nth-child(2) .card-main-metric span');
+        const mainMetric = document.getElementById('totesConClientes');
         if (mainMetric) {
             mainMetric.textContent = totalConClientes;
         }
@@ -270,9 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (detailsList) {
             detailsList.innerHTML = '';
             totesConClientes.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${item.Cliente}</span> <span>${item.cantidad} tote${item.cantidad > 1 ? 's' : ''}</span>`;
-                detailsList.appendChild(li);
+                const detailItem = document.createElement('div');
+                detailItem.className = 'detail-item';
+                detailItem.innerHTML = `
+                    <span class="detail-label">${item.Cliente}</span>
+                    <span class="detail-value">${item.cantidad} tote${item.cantidad > 1 ? 's' : ''}</span>
+                `;
+                detailsList.appendChild(detailItem);
             });
         }
     }
@@ -280,26 +284,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para actualizar totes fuera de plazo
     function updateTotesFueraPlazo(totesFueraPlazo, totalFueraPlazo) {
         // Actualizar número principal
-        const mainMetric = document.querySelector('.card:nth-child(3) .card-main-metric span');
+        const mainMetric = document.getElementById('totesFueraPlazo');
         if (mainMetric) {
             mainMetric.textContent = totalFueraPlazo;
         }
         
         // Actualizar lista de detalles
-        const detailsList = document.querySelector('.card:nth-child(3) .details-list');
+        const detailsList = document.querySelector('.card:nth-child(4) .details-list');
         if (detailsList) {
             detailsList.innerHTML = '';
             totesFueraPlazo.forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<span>${item.Cliente}</span> <span class="danger-text">${item.cantidad} tote${item.cantidad > 1 ? 's' : ''}</span>`;
-                detailsList.appendChild(li);
+                const detailItem = document.createElement('div');
+                detailItem.className = 'detail-item';
+                detailItem.innerHTML = `
+                    <span class="detail-label">${item.Cliente}</span>
+                    <span class="detail-value danger-text">${item.cantidad} tote${item.cantidad > 1 ? 's' : ''}</span>
+                `;
+                detailsList.appendChild(detailItem);
             });
         }
     }
 
     // Función para actualizar usuarios activos
     function updateUsuariosActivos(total) {
-        const totalElement = document.querySelector('.card:nth-child(5) .card-main-metric span');
+        const totalElement = document.getElementById('usuariosActivos');
         if (totalElement) {
             totalElement.textContent = total;
         }

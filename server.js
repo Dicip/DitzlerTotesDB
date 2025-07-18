@@ -511,11 +511,10 @@ app.get('/api/operador/totes', async (req, res) => {
     const result = await pool.request()
       .input('operador', sql.VarChar, operadorName)
       .query(`
-        SELECT t.*, c.Nombre as ClienteNombre
-        FROM Totes t
-        LEFT JOIN Clientes c ON t.ClienteId = c.Id
-        WHERE t.Operador = @operador AND t.Estado != 'Fuera de Servicio'
-        ORDER BY t.FechaModificacion DESC
+        SELECT *
+        FROM Totes
+        WHERE Operador = @operador AND Estado != 'Fuera de Servicio'
+        ORDER BY FechaModificacion DESC
       `);
     
     res.json(result.recordset);

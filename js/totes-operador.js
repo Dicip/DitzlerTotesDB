@@ -42,11 +42,13 @@ function checkOperadorAuth() {
 // Cargar totes del operador
 async function loadOperadorTotes() {
     try {
+        // Usar solo el nombre del operador para el filtrado (coincide con el campo Operador en BD)
+        const operadorName = currentUser.username;
         const response = await fetch('/api/operador/totes', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.username}`
+                'Authorization': `Bearer ${operadorName}`
             }
         });
         
@@ -119,11 +121,13 @@ function closeUpdateModal() {
 // Actualizar estado del tote
 async function updateToteStatus(formData) {
     try {
+        // Usar solo el nombre del operador para autorización (coincide con el campo Operador en BD)
+        const operadorName = currentUser.username;
         const response = await fetch('/api/operador/totes/update-status', {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentUser.username}`
+                'Authorization': `Bearer ${operadorName}`
             },
             body: JSON.stringify(formData)
         });
