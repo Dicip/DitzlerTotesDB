@@ -102,7 +102,7 @@ async function cargarEventos(page = 1) {
 // Mostrar/ocultar loading
 function mostrarLoading(show) {
     const spinner = document.getElementById('loadingSpinner');
-    const container = document.getElementById('eventosContainer');
+    const container = document.getElementById('tablaEventos');
     const noEventos = document.getElementById('noEventos');
     
     if (show) {
@@ -116,11 +116,17 @@ function mostrarLoading(show) {
 
 // Mostrar lista de eventos
 function mostrarEventos(eventos) {
-    const container = document.getElementById('eventosContainer');
+    const container = document.getElementById('tablaEventos');
     const noEventos = document.getElementById('noEventos');
+    const contadorEventos = document.getElementById('contadorEventos');
+    
+    // Actualizar contador
+    if (contadorEventos) {
+        contadorEventos.textContent = eventos.length;
+    }
     
     if (eventos.length === 0) {
-        container.innerHTML = '';
+        container.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron eventos</td></tr>';
         noEventos.classList.remove('d-none');
         return;
     }
@@ -128,52 +134,28 @@ function mostrarEventos(eventos) {
     noEventos.classList.add('d-none');
     
     const html = eventos.map(evento => {
-        const cardClass = getEventCardClass(evento);
-        const iconClass = getEventIcon(evento.TipoEvento);
-        const badgeClass = getEventBadgeClass(evento.TipoEvento);
+        const statusBadge = evento.Exitoso ? 
+            '<span class="status-badge success">Exitoso</span>' : 
+            '<span class="status-badge error">Fallido</span>';
         
         return `
-            <div class="event-card card mb-3 ${cardClass}" onclick="mostrarDetalleEvento(${evento.Id})" style="cursor: pointer;">
-                <div class="card-body">
-                    <div class="row align-items-center">
-                        <div class="col-md-1 text-center">
-                            <i class="${iconClass} fa-2x"></i>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge ${badgeClass} event-type-badge me-2">${evento.TipoEvento}</span>
-                                <span class="badge bg-secondary event-type-badge me-2">${evento.Modulo}</span>
-                                ${evento.Exitoso ? 
-                                    '<span class="badge bg-success event-type-badge">Exitoso</span>' : 
-                                    '<span class="badge bg-danger event-type-badge">Fallido</span>'
-                                }
-                            </div>
-                            <h6 class="card-title mb-1">${evento.Descripcion}</h6>
-                            <div class="text-muted small">
-                                <i class="fas fa-user me-1"></i>
-                                ${evento.UsuarioNombre} (${evento.UsuarioRol})
-                                ${evento.ObjetoId ? `<span class="ms-3"><i class="fas fa-tag me-1"></i>ID: ${evento.ObjetoId}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="col-md-3 text-end">
-                            <div class="text-muted small">
-                                <i class="fas fa-clock me-1"></i>
-                                ${evento.TiempoTranscurrido}
-                            </div>
-                            <div class="text-muted small mt-1">
-                                <i class="fas fa-calendar me-1"></i>
-                                ${formatearFecha(evento.FechaEvento)}
-                            </div>
-                            ${evento.DireccionIP ? 
-                                `<div class="text-muted small mt-1">
-                                    <i class="fas fa-globe me-1"></i>
-                                    ${evento.DireccionIP}
-                                </div>` : ''
-                            }
-                        </div>
+            <tr onclick="mostrarDetalleEvento(${evento.Id})" style="cursor: pointer;">
+                <td>${evento.Id}</td>
+                <td>${formatearFecha(evento.FechaEvento)}</td>
+                <td><span class="type-badge">${evento.TipoEvento}</span></td>
+                <td>${evento.Modulo}</td>
+                <td>${evento.UsuarioNombre || 'N/A'}</td>
+                <td>${evento.Descripcion}</td>
+                <td>${statusBadge}</td>
+                <td>${evento.DireccionIP || 'N/A'}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-modern info" onclick="event.stopPropagation(); mostrarDetalleEvento(${evento.Id})" title="Ver detalle">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
-                </div>
-            </div>
+                </td>
+            </tr>
         `;
     }).join('');
     
@@ -250,21 +232,29 @@ function formatearFecha(fechaString) {
 // Mostrar paginación
 function mostrarPaginacion(pagination) {
     const container = document.getElementById('paginationContainer');
+    const infoContainer = document.getElementById('paginationInfo');
+    
+    // Actualizar información de paginación
+    const inicio = ((pagination.page - 1) * eventsPerPage) + 1;
+    const fin = Math.min(pagination.page * eventsPerPage, pagination.total);
+    infoContainer.textContent = `Mostrando ${inicio}-${fin} de ${pagination.total} eventos`;
     
     if (pagination.totalPages <= 1) {
         container.innerHTML = '';
         return;
     }
     
-    let html = '<nav><ul class="pagination">';
+    let html = '';
     
     // Botón anterior
     if (pagination.page > 1) {
-        html += `<li class="page-item">
-                    <a class="page-link" href="#" onclick="cargarEventos(${pagination.page - 1})">
-                        <i class="fas fa-chevron-left"></i>
-                    </a>
-                </li>`;
+        html += `<a class="pagination-btn" href="#" onclick="cargarEventos(${pagination.page - 1})">
+                    <i class="fas fa-chevron-left"></i>
+                </a>`;
+    } else {
+        html += `<span class="pagination-btn disabled">
+                    <i class="fas fa-chevron-left"></i>
+                </span>`;
     }
     
     // Páginas
@@ -272,36 +262,35 @@ function mostrarPaginacion(pagination) {
     const endPage = Math.min(pagination.totalPages, pagination.page + 2);
     
     if (startPage > 1) {
-        html += `<li class="page-item"><a class="page-link" href="#" onclick="cargarEventos(1)">1</a></li>`;
+        html += `<a class="pagination-btn" href="#" onclick="cargarEventos(1)">1</a>`;
         if (startPage > 2) {
-            html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            html += '<span class="pagination-btn disabled">...</span>';
         }
     }
     
     for (let i = startPage; i <= endPage; i++) {
         const activeClass = i === pagination.page ? 'active' : '';
-        html += `<li class="page-item ${activeClass}">
-                    <a class="page-link" href="#" onclick="cargarEventos(${i})">${i}</a>
-                </li>`;
+        html += `<a class="pagination-btn ${activeClass}" href="#" onclick="cargarEventos(${i})">${i}</a>`;
     }
     
     if (endPage < pagination.totalPages) {
         if (endPage < pagination.totalPages - 1) {
-            html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            html += '<span class="pagination-btn disabled">...</span>';
         }
-        html += `<li class="page-item"><a class="page-link" href="#" onclick="cargarEventos(${pagination.totalPages})">${pagination.totalPages}</a></li>`;
+        html += `<a class="pagination-btn" href="#" onclick="cargarEventos(${pagination.totalPages})">${pagination.totalPages}</a>`;
     }
     
     // Botón siguiente
     if (pagination.page < pagination.totalPages) {
-        html += `<li class="page-item">
-                    <a class="page-link" href="#" onclick="cargarEventos(${pagination.page + 1})">
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>`;
+        html += `<a class="pagination-btn" href="#" onclick="cargarEventos(${pagination.page + 1})">
+                    <i class="fas fa-chevron-right"></i>
+                </a>`;
+    } else {
+        html += `<span class="pagination-btn disabled">
+                    <i class="fas fa-chevron-right"></i>
+                </span>`;
     }
     
-    html += '</ul></nav>';
     container.innerHTML = html;
 }
 
@@ -346,87 +335,81 @@ async function mostrarDetalleEvento(eventoId) {
             const evento = data.evento;
             
             const html = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-info-circle me-2"></i>Información General</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>ID:</strong></td><td>${evento.Id}</td></tr>
-                            <tr><td><strong>Tipo:</strong></td><td><span class="badge ${getEventBadgeClass(evento.TipoEvento)}">${evento.TipoEvento}</span></td></tr>
-                            <tr><td><strong>Módulo:</strong></td><td><span class="badge bg-secondary">${evento.Modulo}</span></td></tr>
-                            <tr><td><strong>Estado:</strong></td><td>${evento.Exitoso ? '<span class="badge bg-success">Exitoso</span>' : '<span class="badge bg-danger">Fallido</span>'}</td></tr>
-                            <tr><td><strong>Fecha:</strong></td><td>${formatearFecha(evento.FechaEvento)}</td></tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-user me-2"></i>Usuario</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>ID:</strong></td><td>${evento.UsuarioId || 'N/A'}</td></tr>
-                            <tr><td><strong>Nombre:</strong></td><td>${evento.UsuarioNombre}</td></tr>
-                            <tr><td><strong>Email:</strong></td><td>${evento.UsuarioEmail || 'N/A'}</td></tr>
-                            <tr><td><strong>Rol:</strong></td><td>${evento.UsuarioRol}</td></tr>
-                            <tr><td><strong>IP:</strong></td><td>${evento.DireccionIP || 'N/A'}</td></tr>
-                        </table>
+                <div class="detail-section">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h6><i class="fas fa-info-circle" style="margin-right: 8px;"></i>Información General</h6>
+                            <table class="detail-table">
+                                <tr><td>ID:</td><td>${evento.Id}</td></tr>
+                                <tr><td>Tipo:</td><td><span class="detail-badge ${getEventBadgeClass(evento.TipoEvento)}">${evento.TipoEvento}</span></td></tr>
+                                <tr><td>Módulo:</td><td><span class="detail-badge secondary">${evento.Modulo}</span></td></tr>
+                                <tr><td>Estado:</td><td>${evento.Exitoso ? '<span class="detail-badge success">Exitoso</span>' : '<span class="detail-badge danger">Fallido</span>'}</td></tr>
+                                <tr><td>Fecha:</td><td>${formatearFecha(evento.FechaEvento)}</td></tr>
+                            </table>
+                        </div>
+                        <div>
+                            <h6><i class="fas fa-user" style="margin-right: 8px;"></i>Usuario</h6>
+                            <table class="detail-table">
+                                <tr><td>ID:</td><td>${evento.UsuarioId || 'N/A'}</td></tr>
+                                <tr><td>Nombre:</td><td>${evento.UsuarioNombre}</td></tr>
+                                <tr><td>Email:</td><td>${evento.UsuarioEmail || 'N/A'}</td></tr>
+                                <tr><td>Rol:</td><td>${evento.UsuarioRol}</td></tr>
+                                <tr><td>IP:</td><td>${evento.DireccionIP || 'N/A'}</td></tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6><i class="fas fa-file-alt me-2"></i>Descripción</h6>
-                        <p class="border p-2 rounded bg-light">${evento.Descripcion}</p>
-                    </div>
+                <div class="detail-section">
+                    <h6><i class="fas fa-file-alt" style="margin-right: 8px;"></i>Descripción</h6>
+                    <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 6px; padding: 12px;">${evento.Descripcion}</div>
                 </div>
                 
                 ${evento.ObjetoId ? `
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-tag me-2"></i>Objeto Afectado</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>ID:</strong></td><td>${evento.ObjetoId}</td></tr>
-                            <tr><td><strong>Tipo:</strong></td><td>${evento.ObjetoTipo || 'N/A'}</td></tr>
-                        </table>
-                    </div>
-                    <div class="col-md-6">
-                        <h6><i class="fas fa-globe me-2"></i>Información Técnica</h6>
-                        <table class="table table-sm">
-                            <tr><td><strong>Sesión:</strong></td><td>${evento.Sesion || 'N/A'}</td></tr>
-                            <tr><td><strong>User Agent:</strong></td><td class="text-break small">${evento.UserAgent || 'N/A'}</td></tr>
-                        </table>
+                <div class="detail-section">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                        <div>
+                            <h6><i class="fas fa-tag" style="margin-right: 8px;"></i>Objeto Afectado</h6>
+                            <table class="detail-table">
+                                <tr><td>ID:</td><td>${evento.ObjetoId}</td></tr>
+                                <tr><td>Tipo:</td><td>${evento.ObjetoTipo || 'N/A'}</td></tr>
+                            </table>
+                        </div>
+                        <div>
+                            <h6><i class="fas fa-globe" style="margin-right: 8px;"></i>Información Técnica</h6>
+                            <table class="detail-table">
+                                <tr><td>Sesión:</td><td>${evento.Sesion || 'N/A'}</td></tr>
+                                <tr><td>User Agent:</td><td style="word-break: break-all; font-size: 11px;">${evento.UserAgent || 'N/A'}</td></tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 ` : ''}
                 
                 ${!evento.Exitoso && evento.MensajeError ? `
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6><i class="fas fa-exclamation-triangle me-2 text-danger"></i>Error</h6>
-                        <div class="alert alert-danger">${evento.MensajeError}</div>
-                    </div>
+                <div class="detail-section">
+                    <h6><i class="fas fa-exclamation-triangle" style="margin-right: 8px; color: #dc3545;"></i>Error</h6>
+                    <div class="alert alert-danger">${evento.MensajeError}</div>
                 </div>
                 ` : ''}
                 
                 ${evento.ValoresAnteriores ? `
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6><i class="fas fa-history me-2"></i>Valores Anteriores</h6>
-                        <div class="json-viewer">${typeof evento.ValoresAnteriores === 'object' ? JSON.stringify(evento.ValoresAnteriores, null, 2) : evento.ValoresAnteriores}</div>
-                    </div>
+                <div class="detail-section">
+                    <h6><i class="fas fa-history" style="margin-right: 8px;"></i>Valores Anteriores</h6>
+                    <div class="json-viewer">${typeof evento.ValoresAnteriores === 'object' ? JSON.stringify(evento.ValoresAnteriores, null, 2) : evento.ValoresAnteriores}</div>
                 </div>
                 ` : ''}
                 
                 ${evento.ValoresNuevos ? `
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <h6><i class="fas fa-plus me-2"></i>Valores Nuevos</h6>
-                        <div class="json-viewer">${typeof evento.ValoresNuevos === 'object' ? JSON.stringify(evento.ValoresNuevos, null, 2) : evento.ValoresNuevos}</div>
-                    </div>
+                <div class="detail-section">
+                    <h6><i class="fas fa-plus" style="margin-right: 8px;"></i>Valores Nuevos</h6>
+                    <div class="json-viewer">${typeof evento.ValoresNuevos === 'object' ? JSON.stringify(evento.ValoresNuevos, null, 2) : evento.ValoresNuevos}</div>
                 </div>
                 ` : ''}
             `;
             
             document.getElementById('eventoDetailContent').innerHTML = html;
-            
-            const modal = new bootstrap.Modal(document.getElementById('eventoDetailModal'));
-            modal.show();
+            abrirModal();
         } else {
             mostrarError(data.message || 'Error al cargar el detalle del evento');
         }
@@ -436,42 +419,79 @@ async function mostrarDetalleEvento(eventoId) {
     }
 }
 
+// Abrir modal personalizado
+function abrirModal() {
+    const modal = document.getElementById('eventoDetailModal');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+// Cerrar modal personalizado
+function cerrarModal() {
+    const modal = document.getElementById('eventoDetailModal');
+    modal.classList.remove('show');
+    document.body.style.overflow = 'auto';
+}
+
+// Cerrar modal al hacer clic fuera del contenido
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('eventoDetailModal');
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            cerrarModal();
+        }
+    });
+    
+    // Cerrar modal con tecla Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('show')) {
+            cerrarModal();
+        }
+    });
+});
+
 // Mostrar mensaje de error
 function mostrarError(mensaje) {
-    // Crear toast de error
+    // Crear toast de error simple sin Bootstrap
     const toastHtml = `
-        <div class="toast align-items-center text-white bg-danger border-0" role="alert">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    ${mensaje}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        <div class="custom-toast error" style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+        ">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>${mensaje}</span>
+                <button onclick="this.parentElement.parentElement.remove()" style="
+                    background: none;
+                    border: none;
+                    color: white;
+                    cursor: pointer;
+                    margin-left: auto;
+                    font-size: 16px;
+                ">&times;</button>
             </div>
         </div>
     `;
     
     // Agregar toast al DOM
-    let toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toastContainer';
-        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-        toastContainer.style.zIndex = '9999';
-        document.body.appendChild(toastContainer);
-    }
+    document.body.insertAdjacentHTML('beforeend', toastHtml);
     
-    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-    
-    // Mostrar toast
-    const toastElement = toastContainer.lastElementChild;
-    const toast = new bootstrap.Toast(toastElement, { delay: 5000 });
-    toast.show();
-    
-    // Remover del DOM después de que se oculte
-    toastElement.addEventListener('hidden.bs.toast', () => {
-        toastElement.remove();
-    });
+    // Auto-remover después de 5 segundos
+    const toastElement = document.body.lastElementChild;
+    setTimeout(() => {
+        if (toastElement && toastElement.parentNode) {
+            toastElement.remove();
+        }
+    }, 5000);
 }
 
 // Función de logout

@@ -16,6 +16,7 @@ DitzlerTotes/
 │   ├── admin-users-styles.css   # Estilos para gestión de usuarios
 │   ├── clientes-styles.css      # Estilos para gestión de clientes
 │   ├── totes-styles.css         # Estilos para gestión de totes
+│   ├── operador-styles.css      # Estilos específicos para operarios
 │   ├── dark-mode.css            # Estilos para modo oscuro
 │   └── modern-buttons.css       # Estilos modernos para botones
 ├── js/
@@ -24,15 +25,27 @@ DitzlerTotes/
 │   ├── admin-users.js           # Gestión de usuarios con validaciones
 │   ├── clientes.js              # Gestión de clientes con validaciones
 │   ├── totes.js                 # Gestión de totes con validaciones
+│   ├── operador.js              # Lógica del dashboard de operarios
+│   ├── totes-operador.js        # Gestión de totes para operarios
 │   └── dark-mode.js             # Funcionalidad de modo oscuro
 ├── pages/
 │   ├── dashboard.html           # Panel de control principal
 │   ├── admin-users.html         # Gestión de usuarios
 │   ├── clientes.html            # Gestión de clientes
-│   └── totes.html               # Gestión de totes
+│   ├── totes.html               # Gestión de totes
+│   ├── operador.html            # Dashboard específico para operarios
+│   └── totes-operador.html      # Gestión de totes para operarios
+├── public/
+│   ├── eventos.html             # Interfaz de registro de eventos
+│   └── js/
+│       └── eventos.js           # Lógica del sistema de auditoría
+├── middleware/
+│   └── audit.js                 # Sistema de auditoría y logging
 ├── database/
 │   ├── complete_database_script.sql  # Script completo de base de datos
+│   ├── create_eventos_table.sql       # Tabla y SP para sistema de auditoría
 │   ├── add_sync_triggers.sql          # Triggers de sincronización
+│   ├── update_estados_script.sql      # Script de actualización de estados
 │   └── insert_totes_sample.sql        # Datos de ejemplo para totes
 ├── assets/
 │   └── images/                  # Recursos gráficos
@@ -46,13 +59,15 @@ DitzlerTotes/
 - Verificación de permisos por roles (Admin, Operator, Viewer)
 - Sesiones seguras con validación de estado
 - Modo oscuro/claro personalizable
+- Sistema de auditoría completo con registro de eventos
 
 ### 👥 Gestión de Usuarios
 - CRUD completo de usuarios con validaciones avanzadas
 - Validación de email con función de base de datos (`FN_ValidarEmail`)
 - Contraseñas con longitud mínima y encriptación
-- Roles y permisos granulares
+- Roles y permisos granulares (Admin, Operario, Viewer)
 - Validaciones HTML5 y JavaScript en tiempo real
+- Auditoría automática de cambios de usuarios
 
 ### 🏢 Gestión de Clientes
 - Administración completa de clientes corporativos
@@ -60,6 +75,7 @@ DitzlerTotes/
 - Categorización por tipo de cliente (Corporativo, PYME)
 - Estados de cliente (Activo, Inactivo, Suspendido)
 - Sincronización automática con tabla de totes
+- Registro de eventos en todas las operaciones
 
 ### 📦 Control de Totes
 - Gestión completa del ciclo de vida de totes
@@ -68,18 +84,40 @@ DitzlerTotes/
 - Códigos únicos con validación de duplicados
 - Alertas automáticas de vencimiento
 - Soft delete para mantener historial
+- **Interfaz específica para operarios** con funcionalidades limitadas
+- **Auditoría completa** de cambios de estado y ubicación
+
+### 👷 Gestión de Operarios
+- **Dashboard específico** para usuarios con rol "Operario"
+- **Gestión limitada de totes**: solo pueden ver y actualizar estado/ubicación
+- **Interfaz simplificada** enfocada en operaciones diarias
+- **Filtros avanzados** por estado, cliente y código
+- **Validación de permisos** para acceso solo a totes asignados
+- **Registro automático** de todas las acciones en el sistema de auditoría
 
 ### 🔄 Sincronización Automática
 - Triggers que actualizan automáticamente nombres en totes
 - Cambios en clientes se reflejan instantáneamente
 - Cambios en usuarios se propagan automáticamente
 - Eliminación de actualizaciones manuales
+- **Sincronización en tiempo real** entre interfaces de admin y operarios
 
 ### 📊 Panel de Control
 - Dashboard con estadísticas en tiempo real
 - Visualización de estados de totes
 - Alertas de vencimientos próximos
 - Historial de actividad del sistema
+- **Dashboards diferenciados** por rol de usuario
+
+### 📋 Sistema de Auditoría y Eventos
+- **Registro completo de eventos** del sistema
+- **Auditoría automática** de todas las operaciones CRUD
+- **Seguimiento de usuarios** con IP, navegador y timestamps
+- **Categorización por módulos**: USUARIOS, TOTES, CLIENTES, SISTEMA
+- **Tipos de eventos**: LOGIN, LOGOUT, CREATE, UPDATE, DELETE, VIEW, ERROR
+- **Interfaz de consulta** con filtros avanzados y búsqueda
+- **Exportación de logs** para análisis y cumplimiento
+- **Detección de errores** y registro automático de fallos
 
 ## Cómo Usar
 
@@ -142,21 +180,42 @@ DitzlerTotes/
 ### Uso de la Aplicación
 
 1. **Iniciar sesión**
-   - Usuario por defecto: admin@ditzler.com
+   
+   **Usuario Administrador:**
+   - Email: admin@ditzler.com
    - Contraseña: admin123
-   - ⚠️ **Cambiar credenciales por defecto** por seguridad
+   - Permisos: Acceso completo al sistema
+   
+   **Usuario Operario (ejemplo):**
+   - Email: diego@ditzler.com
+   - Contraseña: [configurar según necesidades]
+   - Permisos: Solo gestión de totes (estado y ubicación)
+   
+   ⚠️ **Cambiar credenciales por defecto** por seguridad
 
 2. **Navegación del sistema**
-   - **Dashboard**: Estadísticas y resumen general
+   
+   **Para Administradores:**
+   - **Dashboard**: Estadísticas y resumen general del sistema
    - **Usuarios**: Gestión completa de usuarios del sistema
    - **Clientes**: Administración de clientes corporativos
-   - **Totes**: Control y seguimiento de totes
+   - **Totes**: Control y seguimiento completo de totes
+   - **Registro de Eventos**: Auditoría y logs del sistema
+   
+   **Para Operarios:**
+   - **Dashboard**: Vista simplificada con estadísticas básicas
+   - **Gestión de Totes**: Solo actualización de estado y ubicación
+   - **Registro de Eventos**: Consulta de logs (solo lectura)
 
 3. **Características especiales**
-   - Modo oscuro/claro en la esquina superior derecha
-   - Validaciones en tiempo real en todos los formularios
-   - Sincronización automática entre módulos
-   - Alertas de vencimiento en totes
+   - **Modo oscuro/claro** en la esquina superior derecha
+   - **Validaciones en tiempo real** en todos los formularios
+   - **Sincronización automática** entre módulos
+   - **Alertas de vencimiento** en totes
+   - **Sistema de auditoría** que registra todas las acciones
+   - **Interfaces diferenciadas** según rol de usuario
+   - **Filtros avanzados** en gestión de totes
+   - **Navegación consistente** con acceso a eventos desde todas las secciones
 
 ## Características Técnicas Avanzadas
 
@@ -195,6 +254,30 @@ DitzlerTotes/
 - **Validación en tiempo real**: Feedback inmediato al usuario
 - **Mensajes específicos**: Errores descriptivos y claros
 
+## Correcciones y Mejoras Implementadas
+
+### 🔧 Correcciones Técnicas Recientes
+- **Corrección de consultas SQL**: Solucionado error de columna 'Username' inexistente en tabla Usuarios
+- **Sistema de auditoría**: Implementado sistema completo de logging y auditoría
+- **Gestión de operarios**: Corregidos problemas de actualización de datos en interfaz de operarios
+- **Navegación mejorada**: Agregados enlaces a "Registro de Eventos" en todas las secciones
+- **Sincronización de base de datos**: Verificación y corrección de stored procedures
+- **Manejo de errores**: Implementado logging automático de errores del sistema
+
+### 🚀 Nuevas Funcionalidades Implementadas
+- **Dashboard de operarios**: Interfaz específica y simplificada para usuarios operarios
+- **Sistema de eventos**: Registro completo de todas las acciones del sistema
+- **Auditoría automática**: Tracking de cambios con información de usuario, IP y timestamp
+- **Filtros avanzados**: Búsqueda y filtrado mejorado en gestión de totes
+- **Validación de permisos**: Control granular de acceso según rol de usuario
+- **Interfaz de eventos**: Consulta y visualización de logs del sistema
+
+### 🛠️ Mejoras de Estabilidad
+- **Manejo de conexiones**: Optimización de conexiones a base de datos
+- **Prevención de errores**: Validación mejorada de parámetros en stored procedures
+- **Logging robusto**: Sistema de auditoría que no interrumpe operaciones principales
+- **Recuperación de errores**: Manejo graceful de fallos de conexión
+
 ## Mejoras Futuras
 
 ### 🔐 Seguridad Avanzada
@@ -228,5 +311,5 @@ DitzlerTotes/
 ### 📱 Funcionalidades Adicionales
 - API móvil para operadores
 - Códigos QR para totes
-- Sistema de logs para auditoría
 - Backup automático de base de datos
+- Integración con sistemas externos
