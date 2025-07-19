@@ -197,6 +197,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Función para cargar totes desde la base de datos ---
     async function loadTotes() {
         try {
+            // Verificar que tenemos los datos de autenticación
+            if (!storedAdminData || !storedAdminData.username) {
+                console.error('Datos de autenticación no válidos:', storedAdminData);
+                showMessage('Error de autenticación. Por favor, inicie sesión nuevamente.', 'error');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+                return;
+            }
+            
+            console.log('Cargando totes con usuario:', storedAdminData.username);
+            
             const response = await fetch('/api/admin/totes', {
                 method: 'POST',
                 headers: {
@@ -208,7 +220,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
             
+            console.log('Respuesta del servidor - Status:', response.status);
+            console.log('Respuesta del servidor - OK:', response.ok);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Error HTTP:', response.status, errorText);
+                showMessage(`Error del servidor (${response.status}): ${errorText}`, 'error');
+                return;
+            }
+            
             const data = await response.json();
+            console.log('Datos recibidos:', data);
             
             if (data.success) {
                 totesData = data.totes.map(tote => ({
@@ -225,7 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
                      fDespacho: tote.fDespacho || '-',
                      alerta: tote.Alerta
                  }));
+                 console.log('Totes procesados:', totesData.length);
                  renderTable(totesData);
+                 cargarOpcionesFiltros();
             } else {
                 console.error('Error al cargar totes:', data.message);
                 showMessage('Error al cargar los totes: ' + data.message, 'error');
@@ -447,16 +472,21 @@ document.addEventListener('DOMContentLoaded', () => {
              toteData.id = editingToteId;
          }
          
+         const requestBody = {
+             action: action,
+             toteData: toteData
+         };
+         
+         console.log('Datos a enviar:', requestBody);
+         console.log('JSON a enviar:', JSON.stringify(requestBody));
+         
          const response = await fetch('/api/admin/totes', {
              method: 'POST',
              headers: {
                  'Content-Type': 'application/json',
-                 'Authorization': 'Bearer admin-token'
+                 'Authorization': 'Bearer ' + storedAdminData.username
              },
-             body: JSON.stringify({
-                 action: action,
-                 toteData: toteData
-             })
+             body: JSON.stringify(requestBody)
          });
          
          const data = await response.json();
@@ -516,10 +546,23 @@ document.addEventListener('DOMContentLoaded', () => {
         fechaVencimientoInput.addEventListener('change', validateDates);
     }
      
-     const tableBody = document.querySelector('.system-table tbody');
-
     function renderTable(data) {
+        const tableBody = document.querySelector('.system-table tbody');
+        console.log('renderTable llamada con:', data.length, 'totes');
+        console.log('tableBody elemento:', tableBody);
+        
+        if (!tableBody) {
+            console.error('No se encontró el elemento tableBody');
+            return;
+        }
+        
         tableBody.innerHTML = '';
+        
+        if (!data || data.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="11" class="text-center">No hay totes para mostrar</td></tr>';
+            return;
+        }
+        
         data.forEach(tote => {
             const row = document.createElement('tr');
             
@@ -566,17 +609,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         try {
-            const response = await fetch('/api/admin/totes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer admin-token'
-                },
-                body: JSON.stringify({
-                    action: 'delete',
-                    toteData: { id: toteId }
-                })
-            });
+            const requestBody = {
+             action: 'delete',
+             toteData: { id: toteId }
+         };
+         
+         console.log('Datos de eliminación a enviar:', requestBody);
+         console.log('JSON de eliminación a enviar:', JSON.stringify(requestBody));
+         
+         const response = await fetch('/api/admin/totes', {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'Authorization': 'Bearer ' + storedAdminData.username
+             },
+             body: JSON.stringify(requestBody)
+         });
             
             const data = await response.json();
             
@@ -597,3 +645,190 @@ document.addEventListener('DOMContentLoaded', () => {
     
     renderTable(totesData);
 });
+
+// Funciones de filtrado para totes
+function aplicarFiltrosTotes() {
+    console.log('=== APLICANDO FILTROS ===');
+    if (!totesData || totesData.length === 0) {
+        console.warn('No hay datos de totes para filtrar');
+        return;
+    }
+
+    // Validar que los elementos de filtro existan
+    const filtroEstado = document.getElementById('filtroEstado');
+    const filtroCliente = document.getElementById('filtroCliente');
+    const filtroOperador = document.getElementById('filtroOperador');
+    const filtroUbicacion = document.getElementById('filtroUbicacion');
+    const fechaInicio = document.getElementById('fechaEnvasadoInicio');
+    const fechaFin = document.getElementById('fechaEnvasadoFin');
+
+    if (!filtroEstado || !filtroCliente || !filtroOperador || !filtroUbicacion || !fechaInicio || !fechaFin) {
+        console.error('No se encontraron todos los elementos de filtro');
+        return;
+    }
+
+    const valorEstado = filtroEstado.value || '';
+    const valorCliente = filtroCliente.value || '';
+    const valorOperador = filtroOperador.value || '';
+    const valorUbicacion = filtroUbicacion.value.toLowerCase() || '';
+    const valorFechaInicio = fechaInicio.value || '';
+    const valorFechaFin = fechaFin.value || '';
+    
+    console.log('Filtros aplicados:', {
+        estado: valorEstado,
+        cliente: valorCliente,
+        operador: valorOperador,
+        ubicacion: valorUbicacion,
+        fechaInicio: valorFechaInicio,
+        fechaFin: valorFechaFin
+    });
+    console.log('Total totes antes del filtro:', totesData.length);
+
+    const totesFiltrados = totesData.filter((tote, index) => {
+        if (index < 3) { // Solo log para los primeros 3 totes
+            console.log(`Evaluando tote ${index}:`, {
+                codigo: tote.codigo,
+                estado: tote.estado,
+                cliente: tote.cliente,
+                operador: tote.operador,
+                ubicacion: tote.ubicacion
+            });
+        }
+        
+        // Filtro por estado
+        if (valorEstado && tote.estado !== valorEstado) {
+            if (index < 3) console.log(`Tote ${index} excluido por estado: ${tote.estado} !== ${valorEstado}`);
+            return false;
+        }
+        
+        // Filtro por cliente
+        if (valorCliente && tote.cliente !== valorCliente) {
+            if (index < 3) console.log(`Tote ${index} excluido por cliente: ${tote.cliente} !== ${valorCliente}`);
+            return false;
+        }
+        
+        // Filtro por operador
+        if (valorOperador && tote.operador !== valorOperador) {
+            if (index < 3) console.log(`Tote ${index} excluido por operador: ${tote.operador} !== ${valorOperador}`);
+            return false;
+        }
+        
+        // Filtro por ubicación
+        if (valorUbicacion && !tote.ubicacion.toLowerCase().includes(valorUbicacion)) {
+            if (index < 3) console.log(`Tote ${index} excluido por ubicación: ${tote.ubicacion} no contiene ${valorUbicacion}`);
+            return false;
+        }
+        
+        // Filtro por fecha de envasado
+         if (valorFechaInicio || valorFechaFin) {
+             if (tote.fEnvasado && tote.fEnvasado !== '-') {
+                 // Convertir fecha de dd/MM/yyyy a Date
+                 const fechaParts = tote.fEnvasado.split('/');
+                 if (fechaParts.length === 3) {
+                     const fechaEnvasado = new Date(fechaParts[2], fechaParts[1] - 1, fechaParts[0]);
+                     if (valorFechaInicio && fechaEnvasado < new Date(valorFechaInicio)) return false;
+                     if (valorFechaFin && fechaEnvasado > new Date(valorFechaFin)) return false;
+                 }
+             } else {
+                 // Si no tiene fecha de envasado y se está filtrando por fecha, excluir
+                 return false;
+             }
+         }
+        
+        return true;
+    });
+
+    console.log('Totes filtrados:', totesFiltrados.length);
+    renderTable(totesFiltrados);
+    
+    if (totesFiltrados.length === 0) {
+        showMessage('No se encontraron totes que coincidan con los filtros aplicados', 'info');
+    }
+}
+
+function limpiarFiltrosTotes() {
+    // Validar que los elementos de filtro existan
+    const filtroEstado = document.getElementById('filtroEstado');
+    const filtroCliente = document.getElementById('filtroCliente');
+    const filtroOperador = document.getElementById('filtroOperador');
+    const filtroUbicacion = document.getElementById('filtroUbicacion');
+    const fechaInicio = document.getElementById('fechaEnvasadoInicio');
+    const fechaFin = document.getElementById('fechaEnvasadoFin');
+    
+    // Limpiar solo los elementos que existan
+    if (filtroEstado) filtroEstado.value = '';
+    if (filtroCliente) filtroCliente.value = '';
+    if (filtroOperador) filtroOperador.value = '';
+    if (filtroUbicacion) filtroUbicacion.value = '';
+    if (fechaInicio) fechaInicio.value = '';
+    if (fechaFin) fechaFin.value = '';
+    
+    // Mostrar todos los totes
+    if (totesData && totesData.length > 0) {
+        renderTable(totesData);
+    }
+}
+
+// Función para cargar opciones de filtros dinámicamente
+async function cargarOpcionesFiltros() {
+    try {
+        // Validar que los elementos existan antes de proceder
+        const filtroCliente = document.getElementById('filtroCliente');
+        const filtroOperador = document.getElementById('filtroOperador');
+        
+        if (!filtroCliente || !filtroOperador) {
+            console.warn('Elementos de filtro no encontrados, saltando carga de opciones');
+            return;
+        }
+
+        // Cargar clientes
+        const clientesResponse = await fetch('/api/admin/clientes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + storedAdminData.username
+            },
+            body: JSON.stringify({ action: 'list' })
+        });
+
+        if (clientesResponse.ok) {
+            const clientesData = await clientesResponse.json();
+            if (clientesData.clientes) {
+                // Limpiar opciones existentes (excepto "Todos")
+                filtroCliente.innerHTML = '<option value="">Todos</option>';
+                clientesData.clientes.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.nombre;
+                     option.textContent = cliente.nombre;
+                    filtroCliente.appendChild(option);
+                });
+            }
+        }
+
+        // Cargar operadores
+        const operadoresResponse = await fetch('/api/admin/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + storedAdminData.username
+            },
+            body: JSON.stringify({ action: 'list' })
+        });
+
+        if (operadoresResponse.ok) {
+            const operadoresData = await operadoresResponse.json();
+            if (operadoresData.users) {
+                // Limpiar opciones existentes (excepto "Todos")
+                filtroOperador.innerHTML = '<option value="">Todos</option>';
+                operadoresData.users.filter(user => !user.isAdmin).forEach(user => {
+                     const option = document.createElement('option');
+                     option.value = user.username;
+                     option.textContent = user.username;
+                    filtroOperador.appendChild(option);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error al cargar opciones de filtros:', error);
+    }
+}
