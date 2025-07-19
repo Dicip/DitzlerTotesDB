@@ -25,7 +25,7 @@ function checkOperadorAuth() {
         }
         
         // Verificar que sea operador o admin
-        if (userData.role !== 'Operario' && userData.role !== 'Admin') {
+        if (userData.role !== 'Operador' && userData.role !== 'Admin') {
             alert('Acceso denegado. Esta página es solo para operadores.');
             window.location.href = '../index.html';
             return null;
@@ -161,7 +161,7 @@ function showMessage(message, type) {
         messageContainer = document.createElement('div');
         messageContainer.id = 'messageContainer';
         messageContainer.className = 'message';
-        document.querySelector('.content-card').insertBefore(messageContainer, document.querySelector('.totes-table-container'));
+        document.querySelector('.content-card').insertBefore(messageContainer, document.querySelector('.system-table-container'));
     }
     
     messageContainer.textContent = message;

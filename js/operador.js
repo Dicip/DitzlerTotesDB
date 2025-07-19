@@ -21,7 +21,7 @@ function checkOperadorAuth() {
         }
         
         // Verificar que sea operador o admin
-        if (userData.role !== 'Operario' && userData.role !== 'Admin') {
+        if (userData.role !== 'Operador' && userData.role !== 'Admin') {
             alert('Acceso denegado. Esta página es solo para operadores.');
             window.location.href = '../index.html';
             return null;

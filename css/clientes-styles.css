@@ -155,9 +155,31 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* COMENTADO - Ahora se usa unified-table-styles.css
 .users-table-container table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     color: white;
+    position: relative;
+}
+
+.users-table-container table thead::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff);
+    background-size: 400% 400%;
+    animation: rainbow-clientes 3s ease infinite;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+@keyframes rainbow-clientes {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 .users-table-container table thead th {
@@ -168,18 +190,25 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     border: none;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8), 0 1px 2px rgba(0,0,0,0.6);
+    position: relative;
+    z-index: 2;
 }
+*/
 
 .users-table-container table tbody tr {
     border-bottom: 1px solid #f0f0f0;
     transition: all 0.3s ease;
 }
 
+/* COMENTADO - Eliminamos hover que causa problemas de color
 .users-table-container table tbody tr:hover {
     background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
 }
+*/
 
 .users-table-container table tbody td {
     padding: 16px 12px;
@@ -328,13 +357,9 @@
     }
     
     /* Table improvements */
-    .users-table-container {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
     
     .users-table-container table {
-        min-width: 600px;
+        min-width: 100%;
     }
     
     .users-table-container table thead th,

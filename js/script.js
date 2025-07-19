@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Redirigiendo según rol:', data.role);
                 if (data.role === 'Admin') {
                     window.location.href = 'pages/dashboard.html';
-                } else if (data.role === 'Operario') {
+                } else if (data.role === 'Operador') {
                     window.location.href = 'pages/operador.html';
                 } else {
                     // Por defecto redirigir al dashboard para otros roles
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Redirigir según el rol del usuario
                 if (adminData.role === 'Admin') {
                     window.location.href = 'pages/dashboard.html';
-                } else if (adminData.role === 'Operario') {
+                } else if (adminData.role === 'Operador') {
                     window.location.href = 'pages/operador.html';
                 } else if (adminData.isAdmin) {
                     // Fallback para compatibilidad con sesiones anteriores

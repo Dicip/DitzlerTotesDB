@@ -61,10 +61,15 @@ async function cargarEstadisticas() {
         
         if (data.success) {
             const stats = data.estadisticas.generales;
-            document.getElementById('totalEventos').textContent = stats.TotalEventos.toLocaleString();
-            document.getElementById('eventosExitosos').textContent = stats.EventosExitosos.toLocaleString();
-            document.getElementById('eventosFallidos').textContent = stats.EventosFallidos.toLocaleString();
-            document.getElementById('eventosUltimas24h').textContent = stats.EventosUltimas24h.toLocaleString();
+            const totalEventos = document.getElementById('totalEventos');
+            const eventosExitosos = document.getElementById('eventosExitosos');
+            const eventosFallidos = document.getElementById('eventosFallidos');
+            const eventosUltimas24h = document.getElementById('eventosUltimas24h');
+            
+            if (totalEventos) totalEventos.textContent = stats.TotalEventos.toLocaleString();
+            if (eventosExitosos) eventosExitosos.textContent = stats.EventosExitosos.toLocaleString();
+            if (eventosFallidos) eventosFallidos.textContent = stats.EventosFallidos.toLocaleString();
+            if (eventosUltimas24h) eventosUltimas24h.textContent = stats.EventosUltimas24h.toLocaleString();
         }
     } catch (error) {
         console.error('Error al cargar estadísticas:', error);
@@ -75,6 +80,7 @@ async function cargarEstadisticas() {
 // Cargar eventos con filtros y paginación
 async function cargarEventos(page = 1) {
     try {
+        console.log('Iniciando carga de eventos...');
         mostrarLoading(true);
         currentPage = page;
         
@@ -85,18 +91,24 @@ async function cargarEventos(page = 1) {
             ...currentFilters
         });
         
+        console.log('URL de petición:', `/api/eventos?${params}`);
         const response = await fetch(`/api/eventos?${params}`);
+        console.log('Respuesta del servidor:', response.status, response.statusText);
+        
         const data = await response.json();
+        console.log('Datos recibidos:', data);
         
         if (data.success) {
+            console.log('Eventos encontrados:', data.eventos.length);
             mostrarEventos(data.eventos);
             mostrarPaginacion(data.pagination);
         } else {
+            console.error('Error en respuesta:', data.message);
             mostrarError(data.message || 'Error al cargar eventos');
         }
     } catch (error) {
         console.error('Error al cargar eventos:', error);
-        mostrarError('Error al cargar los eventos');
+        mostrarError('Error al cargar los eventos: ' + error.message);
     } finally {
         mostrarLoading(false);
     }
@@ -123,13 +135,10 @@ function mostrarEventos(eventos) {
     const noEventos = document.getElementById('noEventos');
     const contadorEventos = document.getElementById('contadorEventos');
     
-    // Actualizar contador
-    if (contadorEventos) {
-        contadorEventos.textContent = eventos.length;
-    }
+    // Contador eliminado para evitar errores
     
     if (eventos.length === 0) {
-        container.innerHTML = '<tr><td colspan="9" class="text-center">No se encontraron eventos</td></tr>';
+        container.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron eventos</td></tr>';
         noEventos.classList.remove('d-none');
         return;
     }
@@ -143,14 +152,12 @@ function mostrarEventos(eventos) {
         
         return `
             <tr onclick="mostrarDetalleEvento(${evento.Id})" style="cursor: pointer;">
-                <td>${evento.Id}</td>
                 <td>${formatearFecha(evento.FechaEvento)}</td>
                 <td><span class="type-badge">${evento.TipoEvento}</span></td>
                 <td>${evento.Modulo}</td>
                 <td>${evento.UsuarioNombre || 'N/A'}</td>
                 <td>${evento.Descripcion}</td>
                 <td>${statusBadge}</td>
-                <td>${evento.DireccionIP || 'N/A'}</td>
                 <td>
                     <div class="action-buttons">
                         <button class="btn-modern info" onclick="event.stopPropagation(); mostrarDetalleEvento(${evento.Id})" title="Ver detalle">
@@ -162,7 +169,9 @@ function mostrarEventos(eventos) {
         `;
     }).join('');
     
-    container.innerHTML = html;
+    if (container) {
+        container.innerHTML = html;
+    }
 }
 
 // Obtener clase CSS para la tarjeta del evento
@@ -240,10 +249,12 @@ function mostrarPaginacion(pagination) {
     // Actualizar información de paginación
     const inicio = ((pagination.page - 1) * eventsPerPage) + 1;
     const fin = Math.min(pagination.page * eventsPerPage, pagination.total);
-    infoContainer.textContent = `Mostrando ${inicio}-${fin} de ${pagination.total} eventos`;
+    if (infoContainer) {
+        infoContainer.textContent = `Mostrando ${inicio}-${fin} de ${pagination.total} eventos`;
+    }
     
     if (pagination.totalPages <= 1) {
-        container.innerHTML = '';
+        if (container) container.innerHTML = '';
         return;
     }
     
@@ -294,7 +305,9 @@ function mostrarPaginacion(pagination) {
                 </span>`;
     }
     
-    container.innerHTML = html;
+    if (container) {
+        container.innerHTML = html;
+    }
 }
 
 // Aplicar filtros
@@ -411,7 +424,10 @@ async function mostrarDetalleEvento(eventoId) {
                 ` : ''}
             `;
             
-            document.getElementById('eventoDetailContent').innerHTML = html;
+            const detailContent = document.getElementById('eventoDetailContent');
+            if (detailContent) {
+                detailContent.innerHTML = html;
+            }
             abrirModal();
         } else {
             mostrarError(data.message || 'Error al cargar el detalle del evento');

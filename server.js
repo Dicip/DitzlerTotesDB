@@ -3,7 +3,7 @@ const path = require('path');
 const sql = require('mssql');
 const auditLogger = require('./middleware/audit');
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Función helper para obtener datos completos del usuario
 async function getUserFromToken(email) {
@@ -232,7 +232,7 @@ app.post('/api/admin/users', async (req, res) => {
         .input('apellido', sql.VarChar, userData.apellido)
         .input('email', sql.VarChar, userData.email)
         .input('password', sql.VarChar, userData.password)
-        .input('rol', sql.VarChar, userData.rol || 'Operario')
+        .input('rol', sql.VarChar, userData.rol || 'Operador')
         .query(`
           INSERT INTO Usuarios (Nombre, Apellido, Email, Password, Rol, Estado, FechaCreacion, FechaModificacion)
           VALUES (@nombre, @apellido, @email, @password, @rol, 'Activo', GETDATE(), GETDATE())
@@ -243,7 +243,7 @@ app.post('/api/admin/users', async (req, res) => {
         nombre: userData.nombre, 
         apellido: userData.apellido, 
         email: userData.email, 
-        rol: userData.rol || 'Operario' 
+        rol: userData.rol || 'Operador' 
       };
       const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
       await auditLogger.auditCreate(
@@ -253,7 +253,7 @@ app.post('/api/admin/users', async (req, res) => {
         'Usuario', 
         null, 
         newUserData,
-        `Usuario ${userData.email} creado con rol ${userData.rol || 'Operario'}`
+        `Usuario ${userData.email} creado con rol ${userData.rol || 'Operador'}`
       );
       
       res.json({ success: true, message: 'Usuario creado correctamente' });
@@ -456,7 +456,7 @@ app.post('/api/admin/clientes', async (req, res) => {
       if (clientData.email && clientData.email.trim() !== '') {
         const emailValidationResult = await pool.request()
         .input('email', sql.VarChar, clientData.email)
-        .query('SELECT FN_ValidarEmail(@email) as isValid');
+        .query('SELECT dbo.FN_ValidarEmail(@email) as isValid');
         
         if (!emailValidationResult.recordset[0].isValid) {
           return res.status(400).json({ 

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Clientes - Ditzler Chile</title>
+    <link rel="stylesheet" href="../css/unified-table-styles.css">
     <link rel="stylesheet" href="../css/admin-users-styles.css">
     <link rel="stylesheet" href="../css/clientes-styles.css">
     <link rel="stylesheet" href="../css/totes-styles.css">
@@ -42,11 +43,10 @@
             <div class="content-card">
                 <div id="messageContainer" class="message"></div>
                 
-                <div class="totes-table-container">
-                    <table class="totes-table">
+                <div class="system-table-container">
+                <table class="system-table">
                         <thead>
                             <tr>
-                                <th>Logo</th>
                                 <th>Nombre Empresa</th>
                                 <th>Contacto Principal</th>
                                 <th>Email</th>
@@ -98,10 +98,8 @@
                         <label for="tipo">Tipo de Cliente:</label>
                         <select id="tipo" name="tipo" required>
                             <option value="">Seleccionar tipo</option>
-                            <option value="Distribuidor">Distribuidor</option>
-                            <option value="Mayorista">Mayorista</option>
-                            <option value="Minorista">Minorista</option>
-                            <option value="Exportador">Exportador</option>
+                            <option value="Empresa">Empresa</option>
+                            <option value="Particular">Particular</option>
                         </select>
                     </div>
                     

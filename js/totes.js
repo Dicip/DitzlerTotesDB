@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fechaVencimientoInput.addEventListener('change', validateDates);
     }
      
-     const tableBody = document.querySelector('.totes-table tbody');
+     const tableBody = document.querySelector('.system-table tbody');
 
     function renderTable(data) {
         tableBody.innerHTML = '';

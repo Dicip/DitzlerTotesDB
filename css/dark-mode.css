@@ -78,7 +78,6 @@
     align-items: center;
     justify-content: space-between;
     border-radius: 5px;
-    transition: all 0.3s ease;
     font-weight: 500;
 }
 
@@ -119,7 +118,6 @@
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px);
-    transition: all 0.3s ease;
     z-index: 1000;
     margin-bottom: 5px;
 }
@@ -143,7 +141,6 @@
     font-size: 14px;
     width: 100%;
     text-align: left;
-    transition: background 0.2s ease;
     font-weight: 500;
 }
 
@@ -222,11 +219,13 @@
   border-bottom-right-radius: 12px !important;
 }
 
+/* COMENTADO - Eliminamos hover para unificar comportamiento
 [data-theme="dark"] .users-table-container table tbody tr:hover,
 [data-theme="dark"] .totes-table tbody tr:hover {
   background: linear-gradient(135deg, #3a3a3a 0%, #4a4a4a 100%) !important;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
 }
+*/
 
 [data-theme="dark"] .users-table-container table tbody td,
 [data-theme="dark"] .totes-table tbody td {
@@ -239,6 +238,7 @@
   border-bottom: 1px solid #4a4a4a;
 }
 
+/* ELIMINADO - Estilos específicos de thead para permitir que use los estilos unificados rojos
 [data-theme="dark"] .totes-table thead {
   background: linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%) !important;
 }
@@ -246,6 +246,7 @@
 [data-theme="dark"] .totes-table thead th {
   color: var(--text-color) !important;
 }
+*/
 
 /* Avatares y logos en modo oscuro */
 [data-theme="dark"] .avatar-circle,
@@ -331,7 +332,6 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -417,9 +417,11 @@ table td {
   border-bottom: 1px solid var(--border-color);
 }
 
+/* COMENTADO - Causaba problemas de hover en thead
 table tr:hover {
   background-color: var(--hover-bg);
 }
+*/
 
 /* Modal Dark Mode */
 [data-theme="dark"] .modal {
@@ -686,9 +688,11 @@ table tr:hover {
   color: var(--text-color) !important;
 }
 
+/* COMENTADO - Eliminamos hover para unificar comportamiento
 [data-theme="dark"] .users-table-container tbody tr:hover {
   background-color: var(--hover-bg) !important;
 }
+*/
 
 /* Status badges dark mode */
 [data-theme="dark"] .status-con-cliente {

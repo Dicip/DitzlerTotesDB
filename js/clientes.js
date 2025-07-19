@@ -259,7 +259,7 @@ function renderClients() {
     if (clients.length === 0) {
         clientsList.innerHTML = `
             <tr>
-                <td colspan="8" style="text-align: center; padding: 40px; color: #666;">
+                <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
                     <i class="fas fa-user-friends" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
                     No hay clientes registrados
                 </td>
@@ -273,11 +273,6 @@ function renderClients() {
         const nombreEmpresa = client.nombre_empresa || client.nombreEmpresa || '';
         const contactoPrincipal = client.contacto_principal || client.contactoPrincipal || '';
         row.innerHTML = `
-            <td>
-                <div class="client-logo">
-                    ${getClientInitials(nombreEmpresa)}
-                </div>
-            </td>
             <td>${nombreEmpresa}</td>
             <td>${contactoPrincipal}</td>
             <td>${client.email}</td>

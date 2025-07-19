@@ -141,8 +141,21 @@ class DarkModeManager {
     }
 
     setTheme(theme) {
+        // Disable transitions temporarily to prevent flash
+        document.documentElement.style.transition = 'none';
+        document.body.style.transition = 'none';
+        
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
+        
+        // Force immediate style application
+        document.documentElement.offsetHeight;
+        
+        // Re-enable transitions after a brief delay
+        setTimeout(() => {
+            document.documentElement.style.transition = '';
+            document.body.style.transition = '';
+        }, 50);
         
         // Update all toggle buttons
         const toggleButtons = document.querySelectorAll('.dark-mode-toggle, .dark-mode-option');

@@ -57,16 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
         usersList.innerHTML = '';
         
         if (users.length === 0) {
-            usersList.innerHTML = '<tr><td colspan="7" class="text-center">No hay usuarios registrados</td></tr>';
+            usersList.innerHTML = '<tr><td colspan="6" class="text-center">No hay usuarios registrados</td></tr>';
             return;
         }
         
         users.forEach(user => {
             const row = document.createElement('tr');
-            const avatar = (user.Nombre?.charAt(0) || '') + (user.Apellido?.charAt(0) || '');
             
             row.innerHTML = `
-                <td><div class="avatar-circle">${avatar.toUpperCase()}</div></td>
                 <td>${user.Nombre} ${user.Apellido}</td>
                 <td>${user.Email || 'N/A'}</td>
                 <td><span class="user-role ${user.Rol.toLowerCase()}">${user.Rol}</span></td>

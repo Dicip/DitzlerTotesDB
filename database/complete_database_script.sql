@@ -448,6 +448,23 @@ PRINT 'Vista VW_EventosResumen creada exitosamente.';
 GO
 
 -- =============================================
+-- DATOS DE EJEMPLO PARA EVENTOS
+-- =============================================
+IF NOT EXISTS (SELECT * FROM Eventos WHERE TipoEvento = 'SISTEMA' AND Descripcion LIKE '%Datos de ejemplo%')
+BEGIN
+    INSERT INTO Eventos (TipoEvento, Modulo, Descripcion, UsuarioNombre, UsuarioRol, Exitoso, FechaEvento)
+    VALUES 
+    ('LOGIN', 'USUARIOS', 'Usuario admin@ditzler.com inició sesión exitosamente', 'Admin Sistema', 'Admin', 1, DATEADD(HOUR, -2, GETDATE())),
+    ('CREATE', 'TOTES', 'Nuevo tote creado con código T001', 'Admin Sistema', 'Admin', 1, DATEADD(HOUR, -1, GETDATE())),
+    ('UPDATE', 'CLIENTES', 'Cliente actualizado: Empresa ABC', 'Admin Sistema', 'Admin', 1, DATEADD(MINUTE, -30, GETDATE())),
+    ('VIEW', 'EVENTOS', 'Consulta de eventos realizada', 'Admin Sistema', 'Admin', 1, DATEADD(MINUTE, -15, GETDATE())),
+    ('SISTEMA', 'SISTEMA', 'Datos de ejemplo insertados para pruebas', 'Sistema', 'Sistema', 1, GETDATE());
+    
+    PRINT 'Datos de ejemplo para Eventos insertados exitosamente.';
+END
+GO
+
+-- =============================================
 -- PROCEDIMIENTOS ALMACENADOS
 -- =============================================
 
@@ -624,6 +641,8 @@ GO
 -- =============================================
 
 -- Restricciones CHECK para validación de datos
+
+-- 1. Validación de formato de email para Usuarios
 IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Email_Format')
 BEGIN
     ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Email_Format 
@@ -631,6 +650,7 @@ BEGIN
     PRINT 'Restricción CK_Usuarios_Email_Format agregada.';
 END
 
+-- 2. Validación de formato de email para Clientes (opcional)
 IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Email_Format')
 BEGIN
     ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Email_Format 
@@ -638,18 +658,257 @@ BEGIN
     PRINT 'Restricción CK_Clientes_Email_Format agregada.';
 END
 
-IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_FechaVencimiento_Future')
+-- 3. Validación de longitud mínima de contraseña para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Password_Length')
 BEGIN
-    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_FechaVencimiento_Future 
-    CHECK (FechaVencimiento IS NULL OR FechaVencimiento >= FechaCreacion);
-    PRINT 'Restricción CK_Totes_FechaVencimiento_Future agregada.';
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Password_Length 
+    CHECK (LEN(Password) >= 6);
+    PRINT 'Restricción CK_Usuarios_Password_Length agregada.';
 END
 
+-- 4. Validación de estados válidos para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Estado_Valid')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Estado_Valid 
+    CHECK (Estado IN ('Activo', 'Inactivo'));
+    PRINT 'Restricción CK_Usuarios_Estado_Valid agregada.';
+END
+
+-- 5. Validación de roles válidos para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Rol_Valid')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Rol_Valid 
+    CHECK (Rol IN ('Admin', 'Operador'));
+    PRINT 'Restricción CK_Usuarios_Rol_Valid agregada.';
+END
+
+-- 6. Validación de estados válidos para Clientes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Estado_Valid')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Estado_Valid 
+    CHECK (estado IN ('Activo', 'Inactivo'));
+    PRINT 'Restricción CK_Clientes_Estado_Valid agregada.';
+END
+
+-- 7. Validación de tipos válidos para Clientes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Tipo_Valid')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Tipo_Valid 
+    CHECK (tipo IN ('Empresa', 'Particular'));
+    PRINT 'Restricción CK_Clientes_Tipo_Valid agregada.';
+END
+
+-- 8. Validación de formato de teléfono para Clientes (solo números, espacios, guiones, paréntesis y +)
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Telefono_Format')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Telefono_Format 
+    CHECK (telefono IS NULL OR telefono LIKE '%[0-9]%' AND telefono NOT LIKE '%[^0-9 \-+()]%');
+    PRINT 'Restricción CK_Clientes_Telefono_Format agregada.';
+END
+
+-- 9. Validación de longitud mínima del código de Tote
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Codigo_Length')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Codigo_Length 
+    CHECK (LEN(Codigo) >= 3);
+    PRINT 'Restricción CK_Totes_Codigo_Length agregada.';
+END
+
+-- 10. Validación de estados válidos para Totes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Estado_Valid')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Estado_Valid 
+    CHECK (Estado IN ('Disponible', 'En Uso', 'Mantenimiento', 'Fuera de Servicio'));
+    PRINT 'Restricción CK_Totes_Estado_Valid agregada.';
+END
+
+-- 11. Validación de fecha de envasado no futura
 IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_FechaEnvasado_Valid')
 BEGIN
     ALTER TABLE Totes ADD CONSTRAINT CK_Totes_FechaEnvasado_Valid 
     CHECK (FechaEnvasado IS NULL OR FechaEnvasado <= GETDATE());
     PRINT 'Restricción CK_Totes_FechaEnvasado_Valid agregada.';
+END
+
+-- 12. Validación de fecha de vencimiento posterior a fecha de envasado
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_FechaVencimiento_Valid')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_FechaVencimiento_Valid 
+    CHECK (FechaVencimiento IS NULL OR FechaEnvasado IS NULL OR FechaVencimiento > FechaEnvasado);
+    PRINT 'Restricción CK_Totes_FechaVencimiento_Valid agregada.';
+END
+
+-- 13. Validación de estados válidos para Eventos
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Eventos_Estado_Valid')
+BEGIN
+    ALTER TABLE Eventos ADD CONSTRAINT CK_Eventos_Estado_Valid 
+    CHECK (Estado IN ('Pendiente', 'En Progreso', 'Completado', 'Cancelado'));
+    PRINT 'Restricción CK_Eventos_Estado_Valid agregada.';
+END
+
+-- 14. Validación de tipos válidos para Eventos
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Eventos_Tipo_Valid')
+BEGIN
+    ALTER TABLE Eventos ADD CONSTRAINT CK_Eventos_Tipo_Valid 
+    CHECK (Tipo IN ('Creación', 'Actualización', 'Eliminación', 'Mantenimiento', 'Alerta'));
+    PRINT 'Restricción CK_Eventos_Tipo_Valid agregada.';
+END
+
+-- 15. Validación de prioridades válidas para Eventos
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Eventos_Prioridad_Valid')
+BEGIN
+    ALTER TABLE Eventos ADD CONSTRAINT CK_Eventos_Prioridad_Valid 
+    CHECK (Prioridad IN ('Baja', 'Media', 'Alta', 'Crítica'));
+    PRINT 'Restricción CK_Eventos_Prioridad_Valid agregada.';
+END
+
+-- 16. Validación de campos obligatorios para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Campos_Obligatorios')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Campos_Obligatorios 
+    CHECK (Nombre IS NOT NULL AND LEN(TRIM(Nombre)) > 0 AND 
+           Apellido IS NOT NULL AND LEN(TRIM(Apellido)) > 0 AND 
+           Email IS NOT NULL AND LEN(TRIM(Email)) > 0 AND 
+           Password IS NOT NULL AND LEN(TRIM(Password)) > 0);
+    PRINT 'Restricción CK_Usuarios_Campos_Obligatorios agregada.';
+END
+
+-- 17. Validación de campos obligatorios para Clientes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Campos_Obligatorios')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Campos_Obligatorios 
+    CHECK (nombreEmpresa IS NOT NULL AND LEN(TRIM(nombreEmpresa)) > 0 AND 
+           contactoPrincipal IS NOT NULL AND LEN(TRIM(contactoPrincipal)) > 0 AND 
+           tipo IS NOT NULL AND LEN(TRIM(tipo)) > 0 AND 
+           estado IS NOT NULL AND LEN(TRIM(estado)) > 0);
+    PRINT 'Restricción CK_Clientes_Campos_Obligatorios agregada.';
+END
+
+-- 18. Validación de campos obligatorios para Totes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Campos_Obligatorios')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Campos_Obligatorios 
+    CHECK (Codigo IS NOT NULL AND LEN(TRIM(Codigo)) > 0 AND 
+           Estado IS NOT NULL AND LEN(TRIM(Estado)) > 0 AND 
+           Ubicacion IS NOT NULL AND LEN(TRIM(Ubicacion)) > 0 AND 
+           Operador IS NOT NULL AND LEN(TRIM(Operador)) > 0);
+    PRINT 'Restricción CK_Totes_Campos_Obligatorios agregada.';
+END
+
+-- 19. Validación de campos obligatorios para Eventos
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Eventos_Campos_Obligatorios')
+BEGIN
+    ALTER TABLE Eventos ADD CONSTRAINT CK_Eventos_Campos_Obligatorios 
+    CHECK (Tipo IS NOT NULL AND LEN(TRIM(Tipo)) > 0 AND 
+           Estado IS NOT NULL AND LEN(TRIM(Estado)) > 0 AND 
+           Prioridad IS NOT NULL AND LEN(TRIM(Prioridad)) > 0 AND 
+           Descripcion IS NOT NULL AND LEN(TRIM(Descripcion)) > 0);
+    PRINT 'Restricción CK_Eventos_Campos_Obligatorios agregada.';
+END
+
+-- 20. Validación de longitud máxima para campos de texto
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Longitud_Campos')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Longitud_Campos 
+    CHECK (LEN(Nombre) <= 100 AND LEN(Apellido) <= 100 AND LEN(Email) <= 255);
+    PRINT 'Restricción CK_Usuarios_Longitud_Campos agregada.';
+END
+
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Longitud_Campos')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Longitud_Campos 
+    CHECK (LEN(nombreEmpresa) <= 255 AND LEN(contactoPrincipal) <= 100 AND 
+           (email IS NULL OR LEN(email) <= 255) AND 
+           (telefono IS NULL OR LEN(telefono) <= 20));
+    PRINT 'Restricción CK_Clientes_Longitud_Campos agregada.';
+END
+
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Longitud_Campos')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Longitud_Campos 
+    CHECK (LEN(Codigo) <= 50 AND LEN(Estado) <= 50 AND LEN(Ubicacion) <= 100 AND 
+           LEN(Operador) <= 100 AND 
+           (Cliente IS NULL OR LEN(Cliente) <= 255) AND 
+           (Producto IS NULL OR LEN(Producto) <= 255) AND 
+           (Lote IS NULL OR LEN(Lote) <= 100));
+    PRINT 'Restricción CK_Totes_Longitud_Campos agregada.';
+END
+
+-- =============================================
+-- ÍNDICES ÚNICOS ADICIONALES
+-- =============================================
+
+-- Índice único para email de usuarios (si no existe)
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'UQ_Usuarios_Email' AND object_id = OBJECT_ID('Usuarios'))
+BEGIN
+    CREATE UNIQUE INDEX UQ_Usuarios_Email ON Usuarios(Email);
+    PRINT 'Índice único UQ_Usuarios_Email creado.';
+END
+
+-- Índice único para código de totes (si no existe)
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'UQ_Totes_Codigo' AND object_id = OBJECT_ID('Totes'))
+BEGIN
+    CREATE UNIQUE INDEX UQ_Totes_Codigo ON Totes(Codigo);
+    PRINT 'Índice único UQ_Totes_Codigo creado.';
+END
+
+-- Índice único para email de clientes (si no es NULL)
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'UQ_Clientes_Email' AND object_id = OBJECT_ID('Clientes'))
+BEGIN
+    CREATE UNIQUE INDEX UQ_Clientes_Email ON Clientes(email) WHERE email IS NOT NULL;
+    PRINT 'Índice único UQ_Clientes_Email creado.';
+END
+
+-- =============================================
+-- RESTRICCIONES DE INTEGRIDAD REFERENCIAL ADICIONALES
+-- =============================================
+
+-- 21. Validación de que el operador existe en la tabla Usuarios
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Totes_Operador')
+BEGIN
+    -- Primero verificamos que todos los operadores existan
+    IF NOT EXISTS (
+        SELECT 1 FROM Totes t 
+        LEFT JOIN Usuarios u ON t.Operador = u.Email 
+        WHERE t.Operador IS NOT NULL AND u.Email IS NULL
+    )
+    BEGIN
+        ALTER TABLE Totes ADD CONSTRAINT FK_Totes_Operador 
+        FOREIGN KEY (Operador) REFERENCES Usuarios(Email);
+        PRINT 'Restricción FK_Totes_Operador agregada.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'ADVERTENCIA: No se pudo crear FK_Totes_Operador - existen operadores que no están en la tabla Usuarios.';
+    END
+END
+
+-- 22. Validación de que el cliente existe en la tabla Clientes (si se especifica)
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Totes_Cliente')
+BEGIN
+    -- Primero verificamos que todos los clientes existan
+    IF NOT EXISTS (
+        SELECT 1 FROM Totes t 
+        LEFT JOIN Clientes c ON t.Cliente = c.nombreEmpresa 
+        WHERE t.Cliente IS NOT NULL AND c.nombreEmpresa IS NULL
+    )
+    BEGIN
+        ALTER TABLE Totes ADD CONSTRAINT FK_Totes_Cliente 
+        FOREIGN KEY (Cliente) REFERENCES Clientes(nombreEmpresa);
+        PRINT 'Restricción FK_Totes_Cliente agregada.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'ADVERTENCIA: No se pudo crear FK_Totes_Cliente - existen clientes que no están en la tabla Clientes.';
+    END
+END
+
+-- 23. Validación adicional para alertas (solo 0 o 1)
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Alerta_Valid')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Alerta_Valid 
+    CHECK (Alerta IN (0, 1));
+    PRINT 'Restricción CK_Totes_Alerta_Valid agregada.';
 END
 
 -- =============================================
@@ -731,6 +990,318 @@ FROM Clientes
 GROUP BY estado;
 GO
 
+-- =============================================
+-- RESTRICCIONES DE INTEGRIDAD Y VALIDACIÓN
+-- =============================================
+
+PRINT 'Aplicando restricciones de integridad y validación...';
+GO
+
+-- Limpieza de datos inconsistentes
+UPDATE Usuarios 
+SET Rol = 'Admin' 
+WHERE Rol NOT IN ('Admin', 'Operador') AND Rol IS NOT NULL;
+
+UPDATE Clientes 
+SET tipo = 'Empresa' 
+WHERE tipo NOT IN ('Empresa', 'Particular') AND tipo IS NOT NULL;
+
+-- 1. Validación de formato de email para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Email_Format')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Email_Format 
+    CHECK (dbo.FN_ValidarEmail(Email) = 1);
+    PRINT 'Restricción CK_Usuarios_Email_Format agregada.';
+END
+GO
+
+-- 2. Validación de formato de email para Clientes (opcional)
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Email_Format')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Email_Format 
+    CHECK (email IS NULL OR dbo.FN_ValidarEmail(email) = 1);
+    PRINT 'Restricción CK_Clientes_Email_Format agregada.';
+END
+GO
+
+-- 3. Validación de longitud mínima de contraseña para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Password_Length')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Password_Length 
+    CHECK (LEN(Password) >= 6);
+    PRINT 'Restricción CK_Usuarios_Password_Length agregada.';
+END
+GO
+
+-- 4. Validación de estados válidos para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Estado_Valid')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Estado_Valid 
+    CHECK (Estado IN ('Activo', 'Inactivo'));
+    PRINT 'Restricción CK_Usuarios_Estado_Valid agregada.';
+END
+GO
+
+-- 5. Validación de roles válidos para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Rol_Valid')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Rol_Valid 
+    CHECK (Rol IN ('Admin', 'Operador'));
+    PRINT 'Restricción CK_Usuarios_Rol_Valid agregada.';
+END
+GO
+
+-- 6. Validación de estados válidos para Clientes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Estado_Valid')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Estado_Valid 
+    CHECK (estado IN ('Activo', 'Inactivo'));
+    PRINT 'Restricción CK_Clientes_Estado_Valid agregada.';
+END
+GO
+
+-- 7. Validación de tipos válidos para Clientes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Tipo_Valid')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Tipo_Valid 
+    CHECK (tipo IN ('Empresa', 'Particular'));
+    PRINT 'Restricción CK_Clientes_Tipo_Valid agregada.';
+END
+GO
+
+-- 8. Validación de formato de teléfono para Clientes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Telefono_Format')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Telefono_Format 
+    CHECK (telefono IS NULL OR telefono LIKE '%[0-9]%' AND telefono NOT LIKE '%[^0-9 \\-+()]%');
+    PRINT 'Restricción CK_Clientes_Telefono_Format agregada.';
+END
+GO
+
+-- 9. Validación de longitud mínima del código de Tote
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Codigo_Length')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Codigo_Length 
+    CHECK (LEN(Codigo) >= 3);
+    PRINT 'Restricción CK_Totes_Codigo_Length agregada.';
+END
+GO
+
+-- 10. Validación de estados válidos para Totes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Estado_Valid')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Estado_Valid 
+    CHECK (Estado IN ('Disponible', 'En Uso', 'Mantenimiento', 'Fuera de Servicio'));
+    PRINT 'Restricción CK_Totes_Estado_Valid agregada.';
+END
+GO
+
+-- 11. Validación de fecha de envasado no futura
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_FechaEnvasado_Valid')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_FechaEnvasado_Valid 
+    CHECK (FechaEnvasado IS NULL OR FechaEnvasado <= GETDATE());
+    PRINT 'Restricción CK_Totes_FechaEnvasado_Valid agregada.';
+END
+GO
+
+-- 12. Validación de fecha de vencimiento posterior a fecha de envasado
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_FechaVencimiento_Valid')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_FechaVencimiento_Valid 
+    CHECK (FechaVencimiento IS NULL OR FechaEnvasado IS NULL OR FechaVencimiento > FechaEnvasado);
+    PRINT 'Restricción CK_Totes_FechaVencimiento_Valid agregada.';
+END
+GO
+
+-- 13. Validación de tipos válidos para Eventos
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Eventos_TipoEvento_Valid')
+BEGIN
+    ALTER TABLE Eventos ADD CONSTRAINT CK_Eventos_TipoEvento_Valid 
+    CHECK (TipoEvento IN ('LOGIN', 'LOGOUT', 'CREATE', 'UPDATE', 'DELETE', 'VIEW', 'SISTEMA', 'ERROR', 'Creación', 'Actualización', 'Eliminación', 'Mantenimiento', 'Alerta'));
+    PRINT 'Restricción CK_Eventos_TipoEvento_Valid agregada.';
+END
+GO
+
+-- 14. Validación de módulos válidos para Eventos
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Eventos_Modulo_Valid')
+BEGIN
+    ALTER TABLE Eventos ADD CONSTRAINT CK_Eventos_Modulo_Valid 
+    CHECK (Modulo IN ('USUARIOS', 'TOTES', 'CLIENTES', 'SISTEMA', 'EVENTOS'));
+    PRINT 'Restricción CK_Eventos_Modulo_Valid agregada.';
+END
+GO
+
+-- 15. Validación de campos obligatorios para Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Campos_Obligatorios')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Campos_Obligatorios 
+    CHECK (Nombre IS NOT NULL AND LEN(TRIM(Nombre)) > 0 AND 
+           Apellido IS NOT NULL AND LEN(TRIM(Apellido)) > 0 AND 
+           Email IS NOT NULL AND LEN(TRIM(Email)) > 0 AND 
+           Password IS NOT NULL AND LEN(TRIM(Password)) > 0);
+    PRINT 'Restricción CK_Usuarios_Campos_Obligatorios agregada.';
+END
+GO
+
+-- 16. Validación de campos obligatorios para Clientes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Campos_Obligatorios')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Campos_Obligatorios 
+    CHECK (nombre_empresa IS NOT NULL AND LEN(TRIM(nombre_empresa)) > 0 AND 
+           contacto_principal IS NOT NULL AND LEN(TRIM(contacto_principal)) > 0 AND 
+           tipo IS NOT NULL AND LEN(TRIM(tipo)) > 0 AND 
+           estado IS NOT NULL AND LEN(TRIM(estado)) > 0);
+    PRINT 'Restricción CK_Clientes_Campos_Obligatorios agregada.';
+END
+GO
+
+-- 17. Validación de campos obligatorios para Totes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Campos_Obligatorios')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Campos_Obligatorios 
+    CHECK (Codigo IS NOT NULL AND LEN(TRIM(Codigo)) > 0 AND 
+           Estado IS NOT NULL AND LEN(TRIM(Estado)) > 0 AND 
+           Ubicacion IS NOT NULL AND LEN(TRIM(Ubicacion)) > 0 AND 
+           Operador IS NOT NULL AND LEN(TRIM(Operador)) > 0);
+    PRINT 'Restricción CK_Totes_Campos_Obligatorios agregada.';
+END
+GO
+
+-- 18. Validación de campos obligatorios para Eventos
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Eventos_Campos_Obligatorios')
+BEGIN
+    ALTER TABLE Eventos ADD CONSTRAINT CK_Eventos_Campos_Obligatorios 
+    CHECK (TipoEvento IS NOT NULL AND LEN(TRIM(TipoEvento)) > 0 AND 
+           Modulo IS NOT NULL AND LEN(TRIM(Modulo)) > 0 AND 
+           Descripcion IS NOT NULL AND LEN(TRIM(Descripcion)) > 0 AND 
+           UsuarioNombre IS NOT NULL AND LEN(TRIM(UsuarioNombre)) > 0);
+    PRINT 'Restricción CK_Eventos_Campos_Obligatorios agregada.';
+END
+GO
+
+-- 19. Validación de longitud máxima para campos de Usuarios
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Longitud_Campos')
+BEGIN
+    ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Longitud_Campos 
+    CHECK (LEN(Nombre) <= 100 AND LEN(Apellido) <= 100 AND LEN(Email) <= 255);
+    PRINT 'Restricción CK_Usuarios_Longitud_Campos agregada.';
+END
+GO
+
+-- 20. Validación de longitud máxima para campos de Clientes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Clientes_Longitud_Campos')
+BEGIN
+    ALTER TABLE Clientes ADD CONSTRAINT CK_Clientes_Longitud_Campos 
+    CHECK (LEN(nombre_empresa) <= 255 AND LEN(contacto_principal) <= 100 AND 
+           (email IS NULL OR LEN(email) <= 255) AND 
+           (telefono IS NULL OR LEN(telefono) <= 20));
+    PRINT 'Restricción CK_Clientes_Longitud_Campos agregada.';
+END
+GO
+
+-- 21. Validación de longitud máxima para campos de Totes
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Longitud_Campos')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Longitud_Campos 
+    CHECK (LEN(Codigo) <= 50 AND LEN(Estado) <= 50 AND LEN(Ubicacion) <= 100 AND 
+           LEN(Operador) <= 100 AND 
+           (Cliente IS NULL OR LEN(Cliente) <= 255) AND 
+           (Producto IS NULL OR LEN(Producto) <= 255) AND 
+           (Lote IS NULL OR LEN(Lote) <= 100));
+    PRINT 'Restricción CK_Totes_Longitud_Campos agregada.';
+END
+GO
+
+-- 22. Validación adicional para alertas (solo 0 o 1)
+IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Alerta_Valid')
+BEGIN
+    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Alerta_Valid 
+    CHECK (Alerta IN (0, 1));
+    PRINT 'Restricción CK_Totes_Alerta_Valid agregada.';
+END
+GO
+
+-- =============================================
+-- ÍNDICES ÚNICOS ADICIONALES
+-- =============================================
+
+PRINT 'Creando índices únicos adicionales...';
+GO
+
+-- Índice único para email de usuarios (si no existe)
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'UQ_Usuarios_Email' AND object_id = OBJECT_ID('Usuarios'))
+BEGIN
+    CREATE UNIQUE INDEX UQ_Usuarios_Email ON Usuarios(Email);
+    PRINT 'Índice único UQ_Usuarios_Email creado.';
+END
+GO
+
+-- Índice único para código de totes (si no existe)
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'UQ_Totes_Codigo' AND object_id = OBJECT_ID('Totes'))
+BEGIN
+    CREATE UNIQUE INDEX UQ_Totes_Codigo ON Totes(Codigo);
+    PRINT 'Índice único UQ_Totes_Codigo creado.';
+END
+GO
+
+-- Índice único para email de clientes (cuando no es NULL)
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'UQ_Clientes_Email' AND object_id = OBJECT_ID('Clientes'))
+BEGIN
+    CREATE UNIQUE INDEX UQ_Clientes_Email ON Clientes(email) WHERE email IS NOT NULL;
+    PRINT 'Índice único UQ_Clientes_Email creado.';
+END
+GO
+
+-- =============================================
+-- RESTRICCIONES DE INTEGRIDAD REFERENCIAL
+-- =============================================
+
+PRINT 'Aplicando restricciones de integridad referencial...';
+GO
+
+-- Validación de que el operador existe en la tabla Usuarios
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Totes_Operador')
+BEGIN
+    -- Verificar que todos los operadores existan
+    IF NOT EXISTS (
+        SELECT 1 FROM Totes t 
+        LEFT JOIN Usuarios u ON t.Operador = u.Email 
+        WHERE t.Operador IS NOT NULL AND u.Email IS NULL
+    )
+    BEGIN
+        ALTER TABLE Totes ADD CONSTRAINT FK_Totes_Operador 
+        FOREIGN KEY (Operador) REFERENCES Usuarios(Email);
+        PRINT 'Restricción FK_Totes_Operador agregada.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'ADVERTENCIA: No se pudo crear FK_Totes_Operador - existen operadores que no están en la tabla Usuarios.';
+    END
+END
+GO
+
+-- Validación de que el cliente existe en la tabla Clientes (si se especifica)
+IF NOT EXISTS (SELECT * FROM sys.foreign_keys WHERE name = 'FK_Totes_Cliente')
+BEGIN
+    -- Verificar que todos los clientes existan
+    IF NOT EXISTS (
+        SELECT 1 FROM Totes t 
+        LEFT JOIN Clientes c ON t.Cliente = c.nombre_empresa 
+        WHERE t.Cliente IS NOT NULL AND c.nombre_empresa IS NULL
+    )
+    BEGIN
+        ALTER TABLE Totes ADD CONSTRAINT FK_Totes_Cliente 
+        FOREIGN KEY (Cliente) REFERENCES Clientes(nombre_empresa);
+        PRINT 'Restricción FK_Totes_Cliente agregada.';
+    END
+    ELSE
+    BEGIN
+        PRINT 'ADVERTENCIA: No se pudo crear FK_Totes_Cliente - existen clientes que no están en la tabla Clientes.';
+    END
+END
+GO
+
 PRINT '=============================================';
 PRINT 'SCRIPT CONSOLIDADO COMPLETADO EXITOSAMENTE';
 PRINT '=============================================';
@@ -741,7 +1312,10 @@ PRINT 'Sistema de auditoría: Configurado';
 PRINT 'Datos de ejemplo: Insertados';
 PRINT 'Estados: Actualizados a español';
 PRINT 'Índices, vistas y procedimientos: Creados';
+PRINT 'Restricciones de integridad: 22 CHECK constraints aplicadas';
+PRINT 'Índices únicos: 3 índices únicos creados';
+PRINT 'Claves foráneas: 2 restricciones de integridad referencial';
 PRINT '=============================================';
-PRINT 'SISTEMA LISTO PARA USAR';
+PRINT 'SISTEMA LISTO PARA USAR CON VALIDACIONES COMPLETAS';
 PRINT '=============================================';
 GO

@@ -234,7 +234,6 @@ body {
         display: block;
         background: rgba(52, 152, 219, 0.1);
         border-radius: 8px;
-        transition: background 0.3s ease;
     }
     
     .links a:hover {
