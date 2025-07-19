@@ -239,14 +239,75 @@
     color: #555;
 }
 
-/* Responsive para totes */
+/* Enhanced Responsive Design for Totes */
+/* Large tablets and small desktops */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px !important;
+    }
+    
+    .main-content {
+        margin-left: 220px !important;
+        width: calc(100% - 220px) !important;
+        padding: 25px;
+    }
+    
+    .cards-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+}
+
+/* Tablets */
 @media (max-width: 768px) {
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 80px 20px 20px;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        width: 280px !important;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .cards-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .card {
+        margin-bottom: 0;
+    }
+    
+    .card-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    /* Table improvements */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
     .totes-table-container {
         overflow-x: auto;
     }
     
     .totes-table {
-        min-width: 1000px;
+        min-width: 600px;
+    }
+    
+    .totes-table th,
+    .totes-table td {
+        padding: 12px 8px;
+        font-size: 0.9rem;
     }
     
     .action-buttons .edit-btn,
@@ -271,13 +332,48 @@
     .filters-and-search input {
         width: 100%;
     }
+    
+    /* Form improvements */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group input,
+    .form-group select {
+        padding: 12px 15px;
+        font-size: 16px;
+        min-height: 45px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+        min-height: 45px;
+    }
 }
 
+/* Mobile phones */
 @media (max-width: 480px) {
+    .main-content {
+        padding: 70px 15px 15px;
+    }
+    
+    .card-header {
+        padding: 15px;
+    }
+    
+    .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .card-content {
+        padding: 15px;
+    }
+    
     .totes-table thead th,
     .totes-table tbody td {
-        padding: 12px 8px;
-        font-size: 12px;
+        padding: 10px 6px;
+        font-size: 0.8rem;
     }
     
     .totes-header {
@@ -290,6 +386,79 @@
         width: 100%;
         display: flex;
         justify-content: space-between;
+    }
+    
+    /* Improved form elements for mobile */
+    .form-group input,
+    .form-group select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 15px;
+        min-height: 50px;
+    }
+    
+    .btn {
+        padding: 15px 20px;
+        font-size: 16px;
+        min-height: 50px;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* Table improvements for mobile */
+    .totes-table {
+        font-size: 0.8rem;
+        min-width: 500px;
+    }
+    
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        min-width: 60px;
+    }
+    
+    /* Modal improvements for mobile */
+    .modal-content {
+        width: 98vw;
+        margin: 5px;
+        border-radius: 12px;
+    }
+    
+    .modal-header {
+        padding: 15px;
+    }
+    
+    .modal-title {
+        font-size: 1rem;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .main-content {
+        padding: 65px 10px 10px;
+    }
+    
+    .card-header,
+    .card-content {
+        padding: 12px;
+    }
+    
+    .card-header h3 {
+        font-size: 1rem;
+    }
+    
+    .totes-table {
+        min-width: 450px;
+    }
+    
+    .btn {
+        font-size: 14px;
+        padding: 12px 15px;
+        min-height: 45px;
     }
 }
 

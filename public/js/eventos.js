@@ -25,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
             logout();
         });
     }
+    
+    // Mobile menu functionality
+    initializeMobileMenu();
 });
 
 // Función de logout
@@ -497,6 +500,67 @@ function mostrarError(mensaje) {
 // Función de logout
 function logout() {
     if (confirm('¿Está seguro que desea cerrar sesión?')) {
-        window.location.href = 'login.html';
+        window.location.href = '../index.html';
+    }
+}
+
+// Mobile menu functionality
+function initializeMobileMenu() {
+    // Create mobile menu toggle button
+    const mobileToggle = document.createElement('button');
+    mobileToggle.className = 'mobile-menu-toggle';
+    mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
+    mobileToggle.setAttribute('aria-label', 'Toggle mobile menu');
+    
+    // Insert the button at the beginning of the body
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        document.body.appendChild(mobileToggle);
+    }
+    
+    // Toggle sidebar function
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        const icon = mobileToggle.querySelector('i');
+        
+        if (sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        } else {
+            sidebar.classList.add('active');
+            if (overlay) overlay.classList.add('active');
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-times');
+        }
+    }
+    
+    mobileToggle.addEventListener('click', toggleSidebar);
+    
+    // Close sidebar when clicking on navigation links (mobile)
+    const navLinks = document.querySelectorAll('.sidebar .nav-links a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            const icon = mobileToggle.querySelector('i');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+                if (overlay) overlay.classList.remove('active');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    });
+    
+    // Create overlay for mobile
+    if (!document.querySelector('.sidebar-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        overlay.addEventListener('click', toggleSidebar);
+        document.body.appendChild(overlay);
     }
 }

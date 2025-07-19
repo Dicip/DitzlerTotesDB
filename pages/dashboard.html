@@ -35,82 +35,160 @@
             <div class="cards-container">
                 <!-- Panel grande: Estado de Totes (ocupa 2 columnas) -->
                 <div class="card large-card card-chart-layout">
-                    <div class="card-header">
-                        <h3>Estado de Totes</h3>
-                    </div>
                     <div class="card-content chart-layout">
                         <div class="chart-section">
-                            <canvas id="statusChart" width="250" height="250"></canvas>
+                            <canvas id="statusChart" width="160" height="160"></canvas>
                         </div>
                         <div class="chart-data-section">
+                            <div class="metric-header">
+                                <div class="metric-title">Estado de Totes</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    +2.3%
+                                </div>
+                            </div>
                             <div class="chart-legend" id="chartLegend"></div>
+                            <div class="metric-trend">
+                                <div class="metric-period">Distribución actual</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Totes con Clientes -->
                 <div class="card">
-                    <div class="card-header">
-                        <h3>Totes con Clientes</h3>
-                        <button class="card-menu-btn">⋮</button>
-                    </div>
                     <div class="card-content">
                         <div class="card-main-metric">
-                            <span class="metric-icon">📦</span>
-                            <span class="metric-value" id="totesConClientes">-</span>
-                        </div>
-                        <div class="metric-description">Unidades actualmente con clientes</div>
-                        <div class="details-list">
-                            <!-- Los datos se cargarán dinámicamente -->
+                            <div class="metric-header">
+                                <div class="metric-title">Totes con Clientes</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    +5.1%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="totesConClientes">162</span>
+                                <span class="metric-unit">of 298</span>
+                            </div>
+                            <div class="metric-description">Unidades actualmente con clientes</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Total de Totes en Sistema -->
                 <div class="card">
-                    <div class="card-header">
-                        <h3>Total de Totes en Sistema</h3>
-                        <button class="card-menu-btn">⋮</button>
-                    </div>
                     <div class="card-content">
                         <div class="card-main-metric">
-                            <span class="metric-icon">🏢</span>
-                            <span class="metric-value" id="totalTotes">-</span>
+                            <div class="metric-header">
+                                <div class="metric-title">Total de Totes</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    +3.4%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="totalTotes">27,883</span>
+                            </div>
+                            <div class="metric-description">Unidades totales en el sistema</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
                         </div>
-                        <div class="metric-description">Unidades totales (sin contar bajas)</div>
                     </div>
                 </div>
 
                 <!-- Totes Fuera de Plazo -->
                 <div class="card">
-                    <div class="card-header">
-                        <h3>Totes Fuera de Plazo</h3>
-                        <button class="card-menu-btn">⋮</button>
-                    </div>
                     <div class="card-content">
                         <div class="card-main-metric">
-                            <span class="metric-icon">⚠️</span>
-                            <span class="metric-value" id="totesFueraPlazo">-</span>
-                        </div>
-                        <div class="metric-description">Unidades vencidas o con despacho > 30 días</div>
-                        <div class="details-list">
-                            <!-- Los datos se cargarán dinámicamente -->
+                            <div class="metric-header">
+                                <div class="metric-title">Fuera de Plazo</div>
+                                <div class="metric-change negative">
+                                    <i class="fas fa-arrow-down"></i>
+                                    -2.1%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="totesFueraPlazo">4.8%</span>
+                            </div>
+                            <div class="metric-description">Totes vencidos o con despacho > 30 días</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Usuarios Activos -->
                 <div class="card">
-                    <div class="card-header">
-                        <h3>Usuarios Activos</h3>
-                        <button class="card-menu-btn">⋮</button>
-                    </div>
                     <div class="card-content">
                         <div class="card-main-metric">
-                            <span class="metric-icon">👥</span>
-                            <span class="metric-value" id="usuariosActivos">-</span>
+                            <div class="metric-header">
+                                <div class="metric-title">Usuarios Activos</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    +5.2%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="usuariosActivos">32%</span>
+                            </div>
+                            <div class="metric-description">Usuarios con sesión activa en 24h</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
                         </div>
-                        <div class="metric-description">Usuarios con acceso al sistema</div>
                     </div>
                 </div>
             </div>

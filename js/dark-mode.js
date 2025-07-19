@@ -51,36 +51,37 @@ class DarkModeManager {
         // Clear the sidebar footer content
         sidebarFooter.innerHTML = '';
         
-        // Create a dropdown container for configuration
-        const configContainer = document.createElement('div');
-        configContainer.className = 'config-dropdown';
+        // Create dark mode toggle button
+        const darkModeBtn = document.createElement('button');
+        darkModeBtn.className = 'config-option dark-mode-option';
+        darkModeBtn.innerHTML = this.getToggleContent();
+        darkModeBtn.style.display = 'flex';
+        darkModeBtn.style.alignItems = 'center';
+        darkModeBtn.style.color = 'var(--sidebar-text)';
+        darkModeBtn.style.textDecoration = 'none';
+        darkModeBtn.style.marginBottom = '10px';
+        darkModeBtn.style.padding = '10px 15px';
+        darkModeBtn.style.borderRadius = '5px';
+        darkModeBtn.style.transition = 'all 0.3s ease';
+        darkModeBtn.style.fontWeight = '500';
+        darkModeBtn.style.background = 'transparent';
+        darkModeBtn.style.border = 'none';
+        darkModeBtn.style.width = '100%';
+        darkModeBtn.style.textAlign = 'left';
+        darkModeBtn.style.cursor = 'pointer';
         
-        // Create the main config button
-        const configBtn = document.createElement('button');
-        configBtn.className = 'config-toggle-btn';
-        configBtn.innerHTML = '<i class="fas fa-cog"></i> Configuración <i class="fas fa-chevron-down"></i>';
+        darkModeBtn.addEventListener('click', () => this.toggleTheme());
         
-        // Create dropdown menu
-        const dropdownMenu = document.createElement('div');
-        dropdownMenu.className = 'config-dropdown-menu';
+        // Add hover effect for dark mode button
+        darkModeBtn.addEventListener('mouseenter', () => {
+            darkModeBtn.style.background = 'var(--hover-bg, rgba(255, 255, 255, 0.1))';
+            darkModeBtn.style.color = document.documentElement.getAttribute('data-theme') === 'dark' ? '#58a6ff' : '#1967d2';
+        });
         
-        // Create dark mode toggle option
-        const darkModeOption = document.createElement('button');
-        darkModeOption.className = 'config-option dark-mode-option';
-        darkModeOption.innerHTML = this.getToggleContent();
-        darkModeOption.addEventListener('click', () => this.toggleTheme());
-        
-        // Add other config options
-        const generalOption = document.createElement('a');
-        generalOption.className = 'config-option';
-        generalOption.href = '#';
-        generalOption.innerHTML = '<i class="fas fa-sliders-h"></i> Configuración General';
-        
-        dropdownMenu.appendChild(darkModeOption);
-        dropdownMenu.appendChild(generalOption);
-        
-        configContainer.appendChild(configBtn);
-        configContainer.appendChild(dropdownMenu);
+        darkModeBtn.addEventListener('mouseleave', () => {
+            darkModeBtn.style.background = 'transparent';
+            darkModeBtn.style.color = 'var(--sidebar-text)';
+        });
         
         // Create logout link
         const logoutLink = document.createElement('a');
@@ -119,21 +120,9 @@ class DarkModeManager {
             logoutLink.style.color = 'var(--sidebar-text)';
         });
         
-        // Add elements to sidebar footer
-        sidebarFooter.appendChild(configContainer);
+        // Add elements to sidebar footer in correct order
+        sidebarFooter.appendChild(darkModeBtn);
         sidebarFooter.appendChild(logoutLink);
-        
-        // Add click event to toggle dropdown
-        configBtn.addEventListener('click', () => {
-            dropdownMenu.classList.toggle('show');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (event) => {
-            if (!configContainer.contains(event.target)) {
-                dropdownMenu.classList.remove('show');
-            }
-        });
     }
 
     getToggleContent() {
@@ -156,7 +145,7 @@ class DarkModeManager {
         localStorage.setItem('theme', theme);
         
         // Update all toggle buttons
-        const toggleButtons = document.querySelectorAll('.dark-mode-toggle');
+        const toggleButtons = document.querySelectorAll('.dark-mode-toggle, .dark-mode-option');
         toggleButtons.forEach(btn => {
             btn.innerHTML = this.getToggleContent();
         });

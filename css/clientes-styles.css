@@ -276,14 +276,71 @@
     }
 }
 
-/* Responsive para clientes */
+/* Enhanced Responsive Design for Clientes */
+/* Large tablets and small desktops */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px !important;
+    }
+    
+    .main-content {
+        margin-left: 220px !important;
+        width: calc(100% - 220px) !important;
+        padding: 25px;
+    }
+    
+    .cards-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+}
+
+/* Tablets */
 @media (max-width: 768px) {
+    .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 80px 20px 20px;
+    }
+    
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        width: 280px !important;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .cards-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .card {
+        margin-bottom: 0;
+    }
+    
+    .card-header h3 {
+        font-size: 1.3rem;
+    }
+    
+    /* Table improvements */
     .users-table-container {
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
     
     .users-table-container table {
-        min-width: 800px;
+        min-width: 600px;
+    }
+    
+    .users-table-container table thead th,
+    .users-table-container table tbody td {
+        padding: 12px 8px;
+        font-size: 0.9rem;
     }
     
     .client-logo {
@@ -305,22 +362,124 @@
         padding: 4px 8px;
         min-width: 60px;
     }
-}
-
-@media (max-width: 480px) {
-    .users-table-container table thead th,
-    .users-table-container table tbody td {
-        padding: 12px 8px;
-        font-size: 12px;
-    }
     
+    /* Form improvements */
     .modal-body .form-group {
         margin-bottom: 20px;
     }
     
     .modal-body .form-group input,
     .modal-body .form-group select {
-        padding: 10px 12px;
-        font-size: 13px;
+        padding: 12px 15px;
+        font-size: 16px;
+        min-height: 45px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 16px;
+        min-height: 45px;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 70px 15px 15px;
+    }
+    
+    .card-header {
+        padding: 15px;
+    }
+    
+    .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .card-content {
+        padding: 15px;
+    }
+    
+    .users-table-container table thead th,
+    .users-table-container table tbody td {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+    }
+    
+    /* Improved form elements for mobile */
+    .modal-body .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .modal-body .form-group input,
+    .modal-body .form-group select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 15px;
+        min-height: 50px;
+    }
+    
+    .btn {
+        padding: 15px 20px;
+        font-size: 16px;
+        min-height: 50px;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* Table improvements for mobile */
+    .users-table-container table {
+        font-size: 0.8rem;
+        min-width: 500px;
+    }
+    
+    .status {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        min-width: 60px;
+    }
+    
+    /* Modal improvements for mobile */
+    .modal-content {
+        width: 98vw;
+        margin: 5px;
+        border-radius: 12px;
+    }
+    
+    .modal-header {
+        padding: 15px;
+    }
+    
+    .modal-title {
+        font-size: 1rem;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+    .main-content {
+        padding: 65px 10px 10px;
+    }
+    
+    .card-header,
+    .card-content {
+        padding: 12px;
+    }
+    
+    .card-header h3 {
+        font-size: 1rem;
+    }
+    
+    .users-table-container table {
+        min-width: 450px;
+    }
+    
+    .btn {
+        font-size: 14px;
+        padding: 12px 15px;
+        min-height: 45px;
     }
 }
