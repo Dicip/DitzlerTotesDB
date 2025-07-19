@@ -42,6 +42,13 @@ body {
     font-weight: 600;
 }
 
+.login-logo {
+    max-width: 250px;
+    height: auto;
+    max-height: 80px;
+    object-fit: contain;
+}
+
 .form-container {
     padding: 30px;
 }

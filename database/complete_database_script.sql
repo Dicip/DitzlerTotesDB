@@ -1,7 +1,9 @@
--- Script completo de base de datos para DitzlerTotes
+-- =============================================
+-- SCRIPT COMPLETO DE BASE DE DATOS DITZLER TOTES
 -- Sistema de Gestión Ditzler Chile
 -- SQL Server
--- Fecha: $(date)
+-- Consolidado de todos los scripts de la carpeta database
+-- =============================================
 
 -- Crear la base de datos si no existe
 IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'Ditzler')
@@ -134,9 +136,59 @@ END
 GO
 
 -- =============================================
+-- TABLA DE EVENTOS/AUDITORÍA
+-- =============================================
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Eventos' AND xtype='U')
+BEGIN
+    CREATE TABLE Eventos (
+        Id INT IDENTITY(1,1) PRIMARY KEY,
+        TipoEvento NVARCHAR(50) NOT NULL, -- 'LOGIN', 'LOGOUT', 'CREATE', 'UPDATE', 'DELETE', 'VIEW'
+        Modulo NVARCHAR(50) NOT NULL, -- 'USUARIOS', 'TOTES', 'CLIENTES', 'SISTEMA'
+        Descripcion NVARCHAR(500) NOT NULL,
+        UsuarioId INT NULL, -- ID del usuario que realizó la acción
+        UsuarioNombre NVARCHAR(200) NOT NULL, -- Nombre completo del usuario
+        UsuarioEmail NVARCHAR(255) NULL, -- Email del usuario
+        UsuarioRol NVARCHAR(20) NOT NULL, -- Rol del usuario
+        ObjetoId NVARCHAR(50) NULL, -- ID del objeto afectado (ej: ID del tote, cliente, etc.)
+        ObjetoTipo NVARCHAR(50) NULL, -- Tipo de objeto afectado
+        ValoresAnteriores NVARCHAR(MAX) NULL, -- JSON con valores anteriores (para updates)
+        ValoresNuevos NVARCHAR(MAX) NULL, -- JSON con valores nuevos
+        DireccionIP NVARCHAR(45) NULL, -- IP del usuario
+        UserAgent NVARCHAR(500) NULL, -- Información del navegador
+        Exitoso BIT DEFAULT 1, -- Si la operación fue exitosa
+        MensajeError NVARCHAR(500) NULL, -- Mensaje de error si falló
+        FechaEvento DATETIME DEFAULT GETDATE(),
+        Sesion NVARCHAR(100) NULL -- ID de sesión
+    );
+    
+    -- Crear índices para optimizar consultas
+    CREATE INDEX IX_Eventos_TipoEvento ON Eventos(TipoEvento);
+    CREATE INDEX IX_Eventos_Modulo ON Eventos(Modulo);
+    CREATE INDEX IX_Eventos_UsuarioId ON Eventos(UsuarioId);
+    CREATE INDEX IX_Eventos_UsuarioEmail ON Eventos(UsuarioEmail);
+    CREATE INDEX IX_Eventos_FechaEvento ON Eventos(FechaEvento);
+    CREATE INDEX IX_Eventos_ObjetoId ON Eventos(ObjetoId);
+    CREATE INDEX IX_Eventos_ObjetoTipo ON Eventos(ObjetoTipo);
+    CREATE INDEX IX_Eventos_Exitoso ON Eventos(Exitoso);
+    CREATE INDEX IX_Eventos_UsuarioRol ON Eventos(UsuarioRol);
+    
+    -- Índices compuestos para consultas complejas
+    CREATE INDEX IX_Eventos_TipoModulo ON Eventos(TipoEvento, Modulo);
+    CREATE INDEX IX_Eventos_UsuarioFecha ON Eventos(UsuarioId, FechaEvento);
+    CREATE INDEX IX_Eventos_ModuloFecha ON Eventos(Modulo, FechaEvento);
+    CREATE INDEX IX_Eventos_ExitosoFecha ON Eventos(Exitoso, FechaEvento);
+    
+    PRINT 'Tabla Eventos creada exitosamente.';
+END
+ELSE
+BEGIN
+    PRINT 'La tabla Eventos ya existe.';
+END
+GO
+
+-- =============================================
 -- USUARIO ADMINISTRADOR POR DEFECTO
 -- =============================================
--- Crear usuario administrador por defecto para acceso inicial
 IF NOT EXISTS (SELECT * FROM Usuarios WHERE Email = 'admin@ditzler.com')
 BEGIN
     INSERT INTO Usuarios (Nombre, Apellido, Password, Email, Rol, Estado, FechaCreacion, FechaModificacion)
@@ -151,12 +203,6 @@ BEGIN
     PRINT 'Ya existe un usuario administrador.';
 END
 GO
-
--- =============================================
--- ESTRUCTURA DE BASE DE DATOS COMPLETADA
--- =============================================
--- Las tablas están listas para recibir datos
--- Los usuarios, clientes y totes deben crearse según las necesidades del negocio
 
 -- =============================================
 -- TRIGGERS PARA ACTUALIZAR FECHA DE MODIFICACIÓN
@@ -217,6 +263,116 @@ END
 GO
 
 -- =============================================
+-- TRIGGERS PARA SINCRONIZACIÓN DE DATOS
+-- =============================================
+
+-- Trigger para actualizar nombres de clientes en Totes cuando se modifica Clientes
+IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'TR_Clientes_UpdateTotes')
+BEGIN
+    EXEC('CREATE TRIGGER TR_Clientes_UpdateTotes
+    ON Clientes
+    AFTER UPDATE
+    AS
+    BEGIN
+        -- Solo actualizar si cambió el nombre de la empresa
+        IF UPDATE(nombre_empresa)
+        BEGIN
+            UPDATE Totes
+            SET Cliente = i.nombre_empresa,
+                FechaModificacion = GETDATE(),
+                UsuarioModificacion = ''sistema''
+            FROM Totes t
+            INNER JOIN inserted i ON t.Cliente = (SELECT nombre_empresa FROM deleted WHERE id = i.id)
+            WHERE t.Activo = 1;
+        END
+    END');
+    
+    PRINT 'Trigger TR_Clientes_UpdateTotes creado.';
+END
+ELSE
+BEGIN
+    PRINT 'Trigger TR_Clientes_UpdateTotes ya existe.';
+END
+GO
+
+-- Trigger para actualizar nombres de operadores en Totes cuando se modifica Usuarios
+IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'TR_Usuarios_UpdateTotes')
+BEGIN
+    EXEC('CREATE TRIGGER TR_Usuarios_UpdateTotes
+    ON Usuarios
+    AFTER UPDATE
+    AS
+    BEGIN
+        -- Solo actualizar si cambió el nombre o apellido
+        IF UPDATE(Nombre) OR UPDATE(Apellido)
+        BEGIN
+            UPDATE Totes
+            SET Operador = i.Nombre + '' '' + i.Apellido,
+                FechaModificacion = GETDATE(),
+                UsuarioModificacion = ''sistema''
+            FROM Totes t
+            INNER JOIN inserted i ON t.Operador = (SELECT Nombre + '' '' + Apellido FROM deleted WHERE Id = i.Id)
+            WHERE t.Activo = 1;
+        END
+    END');
+    
+    PRINT 'Trigger TR_Usuarios_UpdateTotes creado.';
+END
+ELSE
+BEGIN
+    PRINT 'Trigger TR_Usuarios_UpdateTotes ya existe.';
+END
+GO
+
+-- =============================================
+-- PROCEDIMIENTO ALMACENADO PARA REGISTRAR EVENTOS
+-- =============================================
+IF EXISTS (SELECT * FROM sys.procedures WHERE name = 'SP_RegistrarEvento')
+BEGIN
+    DROP PROCEDURE SP_RegistrarEvento;
+END
+GO
+
+CREATE PROCEDURE SP_RegistrarEvento
+    @TipoEvento NVARCHAR(50),
+    @Modulo NVARCHAR(50),
+    @Descripcion NVARCHAR(500),
+    @UsuarioId INT = NULL,
+    @UsuarioNombre NVARCHAR(200),
+    @UsuarioEmail NVARCHAR(255) = NULL,
+    @UsuarioRol NVARCHAR(20),
+    @ObjetoId NVARCHAR(50) = NULL,
+    @ObjetoTipo NVARCHAR(50) = NULL,
+    @ValoresAnteriores NVARCHAR(MAX) = NULL,
+    @ValoresNuevos NVARCHAR(MAX) = NULL,
+    @DireccionIP NVARCHAR(45) = NULL,
+    @UserAgent NVARCHAR(500) = NULL,
+    @Exitoso BIT = 1,
+    @MensajeError NVARCHAR(500) = NULL,
+    @Sesion NVARCHAR(100) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    INSERT INTO Eventos (
+        TipoEvento, Modulo, Descripcion, UsuarioId, UsuarioNombre, 
+        UsuarioEmail, UsuarioRol, ObjetoId, ObjetoTipo, ValoresAnteriores, 
+        ValoresNuevos, DireccionIP, UserAgent, Exitoso, MensajeError, 
+        FechaEvento, Sesion
+    )
+    VALUES (
+        @TipoEvento, @Modulo, @Descripcion, @UsuarioId, @UsuarioNombre,
+        @UsuarioEmail, @UsuarioRol, @ObjetoId, @ObjetoTipo, @ValoresAnteriores,
+        @ValoresNuevos, @DireccionIP, @UserAgent, @Exitoso, @MensajeError,
+        GETDATE(), @Sesion
+    );
+END
+GO
+
+PRINT 'Procedimiento almacenado SP_RegistrarEvento creado exitosamente.';
+GO
+
+-- =============================================
 -- VISTAS ÚTILES
 -- =============================================
 
@@ -257,6 +413,38 @@ BEGIN
     
     PRINT 'Vista VW_TotesVencimiento creada.';
 END
+GO
+
+-- Vista para consultas simplificadas de eventos
+IF EXISTS (SELECT * FROM sys.views WHERE name = 'VW_EventosResumen')
+BEGIN
+    DROP VIEW VW_EventosResumen;
+END
+GO
+
+CREATE VIEW VW_EventosResumen AS
+SELECT 
+    Id,
+    TipoEvento,
+    Modulo,
+    Descripcion,
+    UsuarioNombre,
+    UsuarioRol,
+    ObjetoId,
+    ObjetoTipo,
+    Exitoso,
+    FechaEvento,
+    CASE 
+        WHEN DATEDIFF(MINUTE, FechaEvento, GETDATE()) < 60 
+        THEN CAST(DATEDIFF(MINUTE, FechaEvento, GETDATE()) AS NVARCHAR) + ' minutos atrás'
+        WHEN DATEDIFF(HOUR, FechaEvento, GETDATE()) < 24 
+        THEN CAST(DATEDIFF(HOUR, FechaEvento, GETDATE()) AS NVARCHAR) + ' horas atrás'
+        ELSE CAST(DATEDIFF(DAY, FechaEvento, GETDATE()) AS NVARCHAR) + ' días atrás'
+    END AS TiempoTranscurrido
+FROM Eventos;
+GO
+
+PRINT 'Vista VW_EventosResumen creada exitosamente.';
 GO
 
 -- =============================================
@@ -464,82 +652,96 @@ BEGIN
     PRINT 'Restricción CK_Totes_FechaEnvasado_Valid agregada.';
 END
 
-IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Peso_Positive')
-BEGIN
-    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Peso_Positive 
-    CHECK (Peso IS NULL OR Peso > 0);
-    PRINT 'Restricción CK_Totes_Peso_Positive agregada.';
-END
-
-IF NOT EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Totes_Capacidad_Positive')
-BEGIN
-    ALTER TABLE Totes ADD CONSTRAINT CK_Totes_Capacidad_Positive 
-    CHECK (Capacidad IS NULL OR Capacidad > 0);
-    PRINT 'Restricción CK_Totes_Capacidad_Positive agregada.';
-END
-
 -- =============================================
--- TRIGGERS PARA SINCRONIZACIÓN DE DATOS
+-- ACTUALIZACIÓN DE ESTADOS A ESPAÑOL
 -- =============================================
 
--- Trigger para actualizar nombres de clientes en Totes cuando se modifica Clientes
-IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'TR_Clientes_UpdateTotes')
-BEGIN
-    EXEC('CREATE TRIGGER TR_Clientes_UpdateTotes
-    ON Clientes
-    AFTER UPDATE
-    AS
-    BEGIN
-        -- Solo actualizar si cambió el nombre de la empresa
-        IF UPDATE(nombre_empresa)
-        BEGIN
-            UPDATE Totes
-            SET Cliente = i.nombre_empresa,
-                FechaModificacion = GETDATE(),
-                UsuarioModificacion = ''sistema''
-            FROM Totes t
-            INNER JOIN inserted i ON t.Cliente = (SELECT nombre_empresa FROM deleted WHERE id = i.id)
-            WHERE t.Activo = 1;
-        END
-    END');
-    
-    PRINT 'Trigger TR_Clientes_UpdateTotes creado.';
-END
+-- Actualizar estados en tabla Usuarios
+UPDATE Usuarios 
+SET Estado = 'Activo' 
+WHERE Estado = 'Active';
+
+UPDATE Usuarios 
+SET Estado = 'Inactivo' 
+WHERE Estado = 'Inactive';
+
+-- Actualizar estados en tabla Clientes (si existen registros con valores en inglés)
+UPDATE Clientes 
+SET estado = 'Activo' 
+WHERE estado = 'Active';
+
+UPDATE Clientes 
+SET estado = 'Inactivo' 
+WHERE estado = 'Inactive';
+
+PRINT 'Estados actualizados correctamente a español.';
 GO
 
--- Trigger para actualizar nombres de operadores en Totes cuando se modifica Usuarios
-IF NOT EXISTS (SELECT * FROM sys.triggers WHERE name = 'TR_Usuarios_UpdateTotes')
-BEGIN
-    EXEC('CREATE TRIGGER TR_Usuarios_UpdateTotes
-    ON Usuarios
-    AFTER UPDATE
-    AS
-    BEGIN
-        -- Solo actualizar si cambió el nombre o apellido
-        IF UPDATE(Nombre) OR UPDATE(Apellido)
-        BEGIN
-            UPDATE Totes
-            SET Operador = i.Nombre + '' '' + i.Apellido,
-                FechaModificacion = GETDATE(),
-                UsuarioModificacion = ''sistema''
-            FROM Totes t
-            INNER JOIN inserted i ON t.Operador = (SELECT Nombre + '' '' + Apellido FROM deleted WHERE Id = i.Id)
-            WHERE t.Activo = 1;
-        END
-    END');
-    
-    PRINT 'Trigger TR_Usuarios_UpdateTotes creado.';
-END
+-- =============================================
+-- INSERTAR DATOS DE EJEMPLO EN TOTES
+-- =============================================
+
+-- Insertar totes de ejemplo
+INSERT INTO Totes (Codigo, Estado, Ubicacion, Cliente, Operador, Producto, FechaCreacion, FechaVencimiento)
+VALUES 
+    ('TOT-001', 'Disponible', 'Almacén A-01', 'Empresa ABC S.A.', 'Admin Sistema', 'Componentes Electrónicos', GETDATE(), DATEADD(MONTH, 6, GETDATE())),
+    ('TOT-002', 'En Uso', 'Línea Prod-1', 'Industrias XYZ Ltda.', 'Admin Sistema', 'Piezas Metálicas', GETDATE(), DATEADD(MONTH, 3, GETDATE())),
+    ('TOT-003', 'Disponible', 'Almacén B-02', 'Manufacturas DEF Corp.', 'Admin Sistema', 'Materiales Plásticos', GETDATE(), DATEADD(MONTH, 12, GETDATE())),
+    ('TOT-004', 'Mantenimiento', 'Taller', 'Empresa ABC S.A.', 'Admin Sistema', 'Componentes Electrónicos', GETDATE(), DATEADD(MONTH, 1, GETDATE())),
+    ('TOT-005', 'En Uso', 'Distribución', 'Logística GHI S.A.S.', 'Admin Sistema', 'Productos Químicos', GETDATE(), DATEADD(MONTH, 9, GETDATE())),
+    ('TOT-006', 'Disponible', 'Almacén C-03', 'Industrias XYZ Ltda.', 'Admin Sistema', 'Herramientas', GETDATE(), DATEADD(MONTH, 4, GETDATE())),
+    ('TOT-007', 'Fuera de Servicio', 'Reparaciones', 'Manufacturas DEF Corp.', 'Admin Sistema', 'Materiales Plásticos', GETDATE(), DATEADD(MONTH, 2, GETDATE())),
+    ('TOT-008', 'Disponible', 'Almacén A-04', 'Empresa JKL Inc.', 'Admin Sistema', 'Textiles', GETDATE(), DATEADD(MONTH, 8, GETDATE())),
+    ('TOT-009', 'En Uso', 'Línea Prod-2', 'Distribuidora MNO', 'Admin Sistema', 'Alimentos Procesados', GETDATE(), DATEADD(MONTH, 5, GETDATE())),
+    ('TOT-010', 'Disponible', 'Almacén B-05', 'Logística GHI S.A.S.', 'Admin Sistema', 'Productos Farmacéuticos', GETDATE(), DATEADD(MONTH, 7, GETDATE())),
+    ('TOT-011', 'Mantenimiento', 'Limpieza', 'Empresa JKL Inc.', 'Admin Sistema', 'Textiles', GETDATE(), DATEADD(MONTH, 3, GETDATE())),
+    ('TOT-012', 'En Uso', 'Cliente Premium', 'Industrias PQR S.A.', 'Admin Sistema', 'Autopartes', GETDATE(), DATEADD(MONTH, 6, GETDATE())),
+    ('TOT-013', 'Disponible', 'Almacén C-06', 'Distribuidora MNO', 'Admin Sistema', 'Bebidas', GETDATE(), DATEADD(MONTH, 10, GETDATE())),
+    ('TOT-014', 'Disponible', 'Almacén D-01', 'Empresa STU Corp.', 'Admin Sistema', 'Equipos Industriales', GETDATE(), DATEADD(MONTH, 11, GETDATE())),
+    ('TOT-015', 'En Uso', 'Obra Construcción', 'Manufacturas VWX', 'Admin Sistema', 'Materiales de Construcción', GETDATE(), DATEADD(MONTH, 4, GETDATE()));
+
+PRINT 'Se han insertado 15 totes de ejemplo exitosamente.';
+PRINT 'Estados disponibles: Disponible, En Uso, Mantenimiento, Fuera de Servicio';
+PRINT 'Códigos generados: TOT-001 a TOT-015';
+GO
+
+-- =============================================
+-- INSERTAR EVENTO INICIAL
+-- =============================================
+EXEC SP_RegistrarEvento 
+    @TipoEvento = 'SISTEMA',
+    @Modulo = 'SISTEMA',
+    @Descripcion = 'Sistema de auditoría inicializado correctamente',
+    @UsuarioNombre = 'Sistema',
+    @UsuarioRol = 'Sistema',
+    @Exitoso = 1;
+
+PRINT 'Sistema de eventos/auditoría configurado exitosamente.';
+GO
+
+-- =============================================
+-- VERIFICAR LOS CAMBIOS
+-- =============================================
+SELECT 'Usuarios' as Tabla, Estado, COUNT(*) as Cantidad
+FROM Usuarios 
+GROUP BY Estado
+UNION ALL
+SELECT 'Clientes' as Tabla, estado as Estado, COUNT(*) as Cantidad
+FROM Clientes 
+GROUP BY estado;
 GO
 
 PRINT '=============================================';
-PRINT 'SCRIPT DE BASE DE DATOS COMPLETADO';
+PRINT 'SCRIPT CONSOLIDADO COMPLETADO EXITOSAMENTE';
 PRINT '=============================================';
 PRINT 'Base de datos: Ditzler';
-PRINT 'Tablas creadas: Usuarios, Clientes, Totes';
-PRINT 'Índices, triggers y vistas creados';
-PRINT 'Sistema listo para recibir datos';
+PRINT 'Tablas creadas: Usuarios, Clientes, Totes, Eventos';
+PRINT 'Triggers de sincronización: Activados';
+PRINT 'Sistema de auditoría: Configurado';
+PRINT 'Datos de ejemplo: Insertados';
+PRINT 'Estados: Actualizados a español';
+PRINT 'Índices, vistas y procedimientos: Creados';
 PRINT '=============================================';
-PRINT 'NOTA: Crear usuarios a través del sistema';
-PRINT 'No se incluyen datos por defecto';
+PRINT 'SISTEMA LISTO PARA USAR';
 PRINT '=============================================';
+GO
