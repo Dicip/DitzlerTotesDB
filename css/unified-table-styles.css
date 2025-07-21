@@ -15,15 +15,9 @@
     border: 2px solid transparent;
     background-clip: padding-box;
     margin: 20px 0;
-    transition: var(--hover-transition);
 }
 
-.table-container:hover,
-.system-table-container:hover,
-.users-table-container:hover {
-    box-shadow: var(--shadow-hover-primary);
-    transform: var(--hover-transform);
-}
+
 
 /* Estilos base para tablas */
 .unified-table,
@@ -112,7 +106,6 @@ table thead th:last-child,
 .system-table tbody tr,
 .users-table-container table tbody tr {
     border-bottom: 1px solid #f0f0f0;
-    transition: all 0.3s ease;
 }
 
 /* ELIMINAMOS el hover que causa el problema del color blanco */
@@ -156,6 +149,25 @@ table thead th:last-child,
 }
 
 /* Estilos hover eliminados para evitar oscurecimiento del header */
+
+/* Estilos para badges de estado */
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+    transition: var(--hover-transition);
+    cursor: pointer;
+}
+
+.status-badge:hover {
+    transform: var(--hover-transform);
+}
 
 /* Responsive design */
 @media (max-width: 768px) {

@@ -33,6 +33,26 @@
   --toggle-hover-border: #2968a3;
 }
 
+/* Botón secundario específico para modo oscuro */
+[data-theme="dark"] .btn-secondary {
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%) !important;
+  color: #e5e7eb !important;
+  border: 2px solid #6b7280 !important;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%) !important;
+  color: #f9fafb !important;
+  border-color: #9ca3af !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(75, 85, 99, 0.4) !important;
+}
+
+[data-theme="dark"] .btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(75, 85, 99, 0.3) !important;
+}
+
 /* Dark Mode Toggle Button */
 .dark-mode-toggle {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

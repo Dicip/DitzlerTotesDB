@@ -188,12 +188,6 @@
 }
 
 /* Aplicar animaciones a elementos con colores del sistema */
-.stat-card,
-.card,
-.content-card,
-.system-table-container,
-.table-container,
-.users-table-container,
 .status-badge,
 .user-role,
 .type-badge,
@@ -205,15 +199,7 @@
     transition: var(--hover-transition) !important;
 }
 
-.stat-card:hover,
-.card:hover,
-.content-card:hover,
-.system-table-container:hover,
-.table-container:hover,
-.users-table-container:hover {
-    transform: var(--hover-transform) !important;
-    box-shadow: var(--shadow-hover-primary) !important;
-}
+
 
 .status-badge:hover,
 .user-role:hover,

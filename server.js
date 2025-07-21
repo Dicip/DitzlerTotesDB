@@ -3,7 +3,7 @@ const path = require('path');
 const sql = require('mssql');
 const auditLogger = require('./middleware/audit');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Función helper para obtener datos completos del usuario
 async function getUserFromToken(email) {

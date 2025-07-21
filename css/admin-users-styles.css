@@ -332,8 +332,8 @@ body {
 }
 
 .status:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 /* Roles de usuario */
@@ -395,9 +395,9 @@ body {
 }
 
 .action-buttons .edit-btn:hover {
-    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+    background: var(--primary-hover-gradient);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 .action-buttons .delete-btn {
@@ -406,9 +406,9 @@ body {
 }
 
 .action-buttons .delete-btn:hover {
-    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+    background: var(--primary-hover-gradient);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 /* Enhanced Responsive Design for Admin Users */
@@ -774,7 +774,7 @@ body {
     border: 2px solid #e1e8ed;
     border-radius: 12px;
     font-size: 15px;
-    transition: all 0.3s ease;
+    transition: var(--hover-transition);
     background: white;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     box-sizing: border-box;
@@ -897,8 +897,8 @@ body {
     background: #f8f9fa;
     border-color: #cbd5e0;
     color: #495057;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 .btn-cancel:active {

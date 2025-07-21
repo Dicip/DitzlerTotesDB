@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showError('');
         
         // Autenticar usando la API REST
-        fetch(CONFIG.API.ENDPOINTS.LOGIN, {
+        fetch(CONFIG.API.BASE_URL + CONFIG.API.ENDPOINTS.LOGIN, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

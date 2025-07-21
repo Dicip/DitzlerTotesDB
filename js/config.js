@@ -61,7 +61,7 @@ const CONFIG = {
     
     // Configuración de API
     API: {
-        BASE_URL: '',
+        BASE_URL: 'http://localhost:3001',
         ENDPOINTS: {
             LOGIN: '/api/login',
             DASHBOARD_STATS: '/api/dashboard/stats',

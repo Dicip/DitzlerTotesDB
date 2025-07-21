@@ -129,9 +129,9 @@
 }
 
 .action-buttons .edit-btn:hover {
-    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+    background: var(--primary-hover-gradient);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 .action-buttons .delete-btn {
@@ -140,9 +140,9 @@
 }
 
 .action-buttons .delete-btn:hover {
-    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+    background: var(--primary-hover-gradient);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 /* Tabla específica para clientes */

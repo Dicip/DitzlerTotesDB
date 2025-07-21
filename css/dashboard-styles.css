@@ -238,13 +238,19 @@ body {
     height: 40px;
     width: 100%;
     box-sizing: border-box;
+    transition: var(--hover-transition);
 }
 
 .modern-select:focus, .modern-input:focus {
     outline: none;
-    border-color: #4f46e5;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+    transform: var(--hover-transform);
+}
+
+.modern-select:hover, .modern-input:hover {
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2);
 }
 
 .filter-actions {
@@ -260,11 +266,11 @@ body {
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--hover-transition);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     height: 40px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-base-primary);
 }
 
 .btn-modern.primary,
@@ -275,9 +281,9 @@ body {
 
 .btn-modern.primary:hover,
 .eventos-page .btn-modern.primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
-    background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%) !important;
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
+    background: var(--primary-hover-gradient) !important;
 }
 
 .btn-modern.secondary {
@@ -289,7 +295,8 @@ body {
 .btn-modern.secondary:hover {
     background: #f3f4f6;
     border-color: #d1d5db;
-    transform: translateY(-1px);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 /* Estilos específicos de eventos eliminados - usando estilos unificados */
@@ -305,13 +312,14 @@ body {
     display: inline-block;
     min-width: 80px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
+    box-shadow: var(--shadow-base-primary);
+    transition: var(--hover-transition);
+    cursor: pointer;
 }
 
 .eventos-page .status-badge:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 .eventos-page .status-badge.success {
@@ -355,10 +363,20 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 14px;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: var(--hover-transition);
+    box-shadow: var(--shadow-base-primary);
     padding: 0;
     min-height: auto;
+}
+
+.eventos-page .action-buttons .btn-modern:hover {
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
+}
+
+.eventos-page .action-buttons .btn-modern:active {
+    transform: var(--active-transform);
+    box-shadow: var(--shadow-active-primary);
 }
 
 /* Modal personalizado para eventos */
@@ -1160,7 +1178,6 @@ body {
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
     border: 1px solid #f0f0f0;
     margin-bottom: 1rem;
     position: relative;
