@@ -510,7 +510,7 @@ function mostrarError(mensaje) {
         if (toastElement && toastElement.parentNode) {
             toastElement.remove();
         }
-    }, 5000);
+    }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
 }
 
 // Función de logout

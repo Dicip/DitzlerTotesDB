@@ -86,7 +86,7 @@
 }
 
 .totes-table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #990000 100%);
     color: white;
     position: relative;
 }
@@ -188,39 +188,39 @@
 }
 
 .status-con-cliente {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #990000 100%);
     color: white;
-    box-shadow: 0 3px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 3px 8px rgba(255, 0, 0, 0.4);
 }
 
 .status-en-lavado {
-    background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 50%, #667eea 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #990000 100%);
     color: white;
-    box-shadow: 0 3px 8px rgba(54, 209, 220, 0.4);
+    box-shadow: 0 3px 8px rgba(255, 0, 0, 0.4);
 }
 
 .status-en-uso {
-    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 50%, #4facfe 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #990000 100%);
     color: white;
-    box-shadow: 0 3px 8px rgba(86, 171, 47, 0.4);
+    box-shadow: 0 3px 8px rgba(255, 0, 0, 0.4);
 }
 
 .status-disponible {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #a8edea 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #990000 100%);
     color: white;
-    box-shadow: 0 3px 8px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 3px 8px rgba(255, 0, 0, 0.4);
 }
 
 .status-mantenimiento {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 50%, #ff9a9e 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #990000 100%);
     color: white;
-    box-shadow: 0 3px 8px rgba(240, 147, 251, 0.4);
+    box-shadow: 0 3px 8px rgba(255, 0, 0, 0.4);
 }
 
 .status-fuera-servicio {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 50%, #ff9a9e 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 50%, #990000 100%);
     color: white;
-    box-shadow: 0 3px 8px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 3px 8px rgba(255, 0, 0, 0.4);
 }
 
 
@@ -257,33 +257,33 @@
 }
 
 .action-buttons .edit-btn {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
 }
 
 .action-buttons .edit-btn:hover {
-    background: linear-gradient(135deg, #3d8bfe 0%, #00d4fe 100%);
+    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
 }
 
 .action-buttons .delete-btn {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
 }
 
 .action-buttons .delete-btn:hover {
-    background: linear-gradient(135deg, #ff5252 0%, #ff9999 100%);
+    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
 }
 
 .action-buttons .view-btn {
-    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
 }
 
 .action-buttons .view-btn:hover {
-    background: linear-gradient(135deg, #4a9429 0%, #96d9b8 100%);
+    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+    box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
 }
 
 .action-buttons .edit-btn {

@@ -97,14 +97,7 @@ function createMisTotesChart(data) {
     
     const labels = data.map(item => item.estado);
     const values = data.map(item => item.cantidad);
-    const colors = {
-        'Disponible': '#28a745',
-        'En Uso': '#007bff',
-        'En Lavado': '#17a2b8',
-        'Con Cliente': '#ffc107',
-        'En Mantenimiento': '#fd7e14',
-        'Fuera de Servicio': '#dc3545'
-    };
+    const colors = CONFIG.COLORS.OPERADOR_STATES;
     
     window.misTotesChart = new Chart(ctx, {
         type: 'doughnut',
@@ -112,7 +105,7 @@ function createMisTotesChart(data) {
             labels: labels,
             datasets: [{
                 data: values,
-                backgroundColor: labels.map(label => colors[label] || '#6c757d'),
+                backgroundColor: labels.map(label => colors[label] || CONFIG.COLORS.BACKGROUND.gray),
                 borderWidth: 2,
                 borderColor: '#fff'
             }]
@@ -157,8 +150,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Actualizar estadísticas cada 30 segundos
-    setInterval(loadOperadorStats, 30000);
+    // Actualizar automáticamente
+    setInterval(loadOperadorStats, CONFIG.TIMING.DATA_REFRESH_INTERVAL);
     
     // Mobile menu functionality
     initializeMobileMenu();

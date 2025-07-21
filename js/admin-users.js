@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Ocultar mensaje después de 5 segundos
         setTimeout(() => {
             messageContainer.style.display = 'none';
-        }, 5000);
+        }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
     }
     
     // Cargar usuarios al iniciar

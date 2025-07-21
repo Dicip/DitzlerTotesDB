@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DitzlerTotes - Panel de Administrador</title>
+    <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/dashboard-styles.css">
     <link rel="stylesheet" href="../css/modern-buttons.css">
     <link rel="stylesheet" href="../css/dark-mode.css">
@@ -21,7 +22,7 @@
                 <li><a href="totes.html"><i class="fas fa-box"></i> Totes</a></li>
                 <li><a href="admin-users.html"><i class="fas fa-users"></i> Usuarios</a></li>
                 <li><a href="clientes.html"><i class="fas fa-user-friends"></i> Clientes</a></li>
-                <li><a href="../public/eventos.html"><i class="fas fa-history"></i> Registro de Eventos</a></li>
+                <li><a href="eventos.html"><i class="fas fa-history"></i> Registro de Eventos</a></li>
             </ul>
             <div class="sidebar-footer">
                 <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
@@ -30,7 +31,7 @@
         </nav>
         <main class="main-content">
             <header>
-                <h1>Panel de Administrador</h1>
+                <h1><i class="fas fa-th-large"></i> Panel de Administrador</h1>
             </header>
             <div class="cards-container">
                 <!-- Panel grande: Estado de Totes (ocupa 2 columnas) -->
@@ -67,8 +68,8 @@
                                 </div>
                             </div>
                             <div class="metric-value-container">
-                                <span class="metric-value" id="totesConClientes">162</span>
-                                <span class="metric-unit">of 298</span>
+                                <span class="metric-value" id="totesConClientes">-</span>
+                                <span class="metric-unit">of -</span>
                             </div>
                             <div class="metric-description">Unidades actualmente con clientes</div>
                             <div class="metric-trend">
@@ -102,7 +103,7 @@
                                 </div>
                             </div>
                             <div class="metric-value-container">
-                                <span class="metric-value" id="totalTotes">27,883</span>
+                                <span class="metric-value" id="totalTotes">-</span>
                             </div>
                             <div class="metric-description">Unidades totales en el sistema</div>
                             <div class="metric-trend">
@@ -136,7 +137,7 @@
                                 </div>
                             </div>
                             <div class="metric-value-container">
-                                <span class="metric-value" id="totesFueraPlazo">4.8%</span>
+                                <span class="metric-value" id="totesFueraPlazo">-%</span>
                             </div>
                             <div class="metric-description">Totes vencidos o con despacho > 30 días</div>
                             <div class="metric-trend">
@@ -170,7 +171,7 @@
                                 </div>
                             </div>
                             <div class="metric-value-container">
-                                <span class="metric-value" id="usuariosActivos">32%</span>
+                                <span class="metric-value" id="usuariosActivos">-%</span>
                             </div>
                             <div class="metric-description">Usuarios con sesión activa en 24h</div>
                             <div class="metric-trend">
@@ -194,6 +195,7 @@
             </div>
         </main>
     </div>
+    <script src="../js/config.js"></script>
     <script src="../js/dark-mode.js"></script>
     <script src="../js/dashboard.js"></script>
 </body>

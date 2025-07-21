@@ -1,0 +1,231 @@
+/* Variables CSS centralizadas para el sistema */
+:root {
+    /* Colores principales del sistema (rojos) */
+    --primary-color: #ff0000;
+    --primary-dark: #cc0000;
+    --primary-darker: #990000;
+    --primary-hover: #e60000;
+    --primary-hover-dark: #b30000;
+    
+    /* Gradientes principales */
+    --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    --primary-hover-gradient: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-hover-dark) 100%);
+    --primary-gradient-3: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 50%, var(--primary-darker) 100%);
+    
+    /* Colores de fondo */
+    --bg-white: #ffffff;
+    --bg-light: #f8f9fa;
+    --bg-gray-light: #f0f2f5;
+    --bg-dark: #2c3e50;
+    --bg-gradient-light: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 50%, #fff0f8 100%);
+    --bg-gradient-header: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+    
+    /* Colores de texto */
+    --text-primary: #333;
+    --text-secondary: #555;
+    --text-muted: #666;
+    --text-gray: #6c757d;
+    --text-dark: #2c3e50;
+    --text-white: #ffffff;
+    
+    /* Colores de borde */
+    --border-light: #e0e0e0;
+    --border-gray: #ccc;
+    --border-light-gray: #f0f0f0;
+    --border-input: #e1e8ed;
+    --border-focus: #667eea;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 8px 0 rgba(0, 0, 0, 0.12);
+    --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --shadow-primary: 0 4px 15px rgba(255, 0, 0, 0.3);
+    --shadow-primary-hover: 0 6px 20px rgba(255, 0, 0, 0.4);
+    --shadow-primary-sm: 0 2px 10px rgba(255, 0, 0, 0.3);
+    
+    /* Colores de estado */
+    --status-success: #28a745;
+    --status-error: #dc3545;
+    --status-warning: #ffc107;
+    --status-info: #17a2b8;
+    
+    /* Colores de estado de totes */
+    --tote-con-cliente: #4A90E2;
+    --tote-disponible: #50E3C2;
+    --tote-en-lavado: #7ED321;
+    --tote-en-mantenimiento: #F5A623;
+    --tote-en-uso: #9013FE;
+    --tote-fuera-servicio: #D0021B;
+    
+    /* Colores de estado para operador */
+    --operador-disponible: #28a745;
+    --operador-en-uso: #007bff;
+    --operador-en-lavado: #17a2b8;
+    --operador-con-cliente: #ffc107;
+    --operador-en-mantenimiento: #fd7e14;
+    --operador-fuera-servicio: #dc3545;
+    
+    /* Colores de notificación */
+    --notification-success-bg: #d4edda;
+    --notification-success-text: #155724;
+    --notification-success-border: #c3e6cb;
+    
+    --notification-error-bg: #f8d7da;
+    --notification-error-text: #721c24;
+    --notification-error-border: #f5c6cb;
+    
+    --notification-warning-bg: #fff3cd;
+    --notification-warning-text: #856404;
+    --notification-warning-border: #ffeaa7;
+    
+    --notification-info-bg: #d1ecf1;
+    --notification-info-text: #0c5460;
+    --notification-info-border: #bee5eb;
+    
+    /* Espaciado */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-xxl: 24px;
+    
+    /* Bordes redondeados */
+    --border-radius-sm: 4px;
+    --border-radius-md: 6px;
+    --border-radius-lg: 8px;
+    
+    /* Transiciones */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    
+    /* Transiciones de animación unificadas */
+    --hover-transform: translateY(-2px);
+    --active-transform: translateY(0);
+    --hover-transition: all 0.3s ease;
+    --shadow-hover-primary: 0 6px 20px rgba(255, 0, 0, 0.4);
+    --shadow-active-primary: 0 2px 10px rgba(255, 0, 0, 0.3);
+    --shadow-base-primary: 0 4px 15px rgba(255, 0, 0, 0.3);
+    
+    /* Z-index */
+    --z-dropdown: 1000;
+    --z-modal: 1050;
+    --z-notification: 1100;
+    
+    /* Breakpoints para responsive */
+    --mobile-max: 768px;
+    --tablet-max: 1024px;
+}
+
+/* Clases utilitarias para colores */
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-muted { color: var(--text-muted) !important; }
+.text-white { color: var(--text-white) !important; }
+.text-success { color: var(--status-success) !important; }
+.text-error { color: var(--status-error) !important; }
+.text-warning { color: var(--status-warning) !important; }
+.text-info { color: var(--status-info) !important; }
+
+.bg-primary { background-color: var(--primary-color) !important; }
+.bg-white { background-color: var(--bg-white) !important; }
+.bg-light { background-color: var(--bg-light) !important; }
+.bg-success { background-color: var(--status-success) !important; }
+.bg-error { background-color: var(--status-error) !important; }
+.bg-warning { background-color: var(--status-warning) !important; }
+.bg-info { background-color: var(--status-info) !important; }
+
+/* Clases utilitarias para sombras */
+.shadow-sm { box-shadow: var(--shadow-sm) !important; }
+.shadow-md { box-shadow: var(--shadow-md) !important; }
+.shadow-lg { box-shadow: var(--shadow-lg) !important; }
+.shadow-xl { box-shadow: var(--shadow-xl) !important; }
+.shadow-primary { box-shadow: var(--shadow-primary) !important; }
+
+/* Clases utilitarias para bordes */
+.border-light { border: 1px solid var(--border-light) !important; }
+.border-gray { border: 1px solid var(--border-gray) !important; }
+.border-primary { border: 1px solid var(--primary-color) !important; }
+
+.rounded-sm { border-radius: var(--border-radius-sm) !important; }
+.rounded-md { border-radius: var(--border-radius-md) !important; }
+.rounded-lg { border-radius: var(--border-radius-lg) !important; }
+
+/* Clases utilitarias para espaciado */
+.p-xs { padding: var(--spacing-xs) !important; }
+.p-sm { padding: var(--spacing-sm) !important; }
+.p-md { padding: var(--spacing-md) !important; }
+.p-lg { padding: var(--spacing-lg) !important; }
+.p-xl { padding: var(--spacing-xl) !important; }
+
+.m-xs { margin: var(--spacing-xs) !important; }
+.m-sm { margin: var(--spacing-sm) !important; }
+.m-md { margin: var(--spacing-md) !important; }
+.m-lg { margin: var(--spacing-lg) !important; }
+.m-xl { margin: var(--spacing-xl) !important; }
+
+/* Transiciones comunes */
+.transition-fast { transition: all var(--transition-fast) !important; }
+.transition-normal { transition: all var(--transition-normal) !important; }
+.transition-slow { transition: all var(--transition-slow) !important; }
+
+/* Animaciones unificadas para elementos interactivos */
+.animated-element {
+    transition: var(--hover-transition) !important;
+    cursor: pointer;
+}
+
+.animated-element:hover {
+    transform: var(--hover-transform) !important;
+    box-shadow: var(--shadow-hover-primary) !important;
+}
+
+.animated-element:active {
+    transform: var(--active-transform) !important;
+    box-shadow: var(--shadow-active-primary) !important;
+}
+
+/* Aplicar animaciones a elementos con colores del sistema */
+.stat-card,
+.card,
+.content-card,
+.system-table-container,
+.table-container,
+.users-table-container,
+.status-badge,
+.user-role,
+.type-badge,
+.detail-badge,
+.filter-group select,
+.filter-group input,
+.modern-select,
+.modern-input {
+    transition: var(--hover-transition) !important;
+}
+
+.stat-card:hover,
+.card:hover,
+.content-card:hover,
+.system-table-container:hover,
+.table-container:hover,
+.users-table-container:hover {
+    transform: var(--hover-transform) !important;
+    box-shadow: var(--shadow-hover-primary) !important;
+}
+
+.status-badge:hover,
+.user-role:hover,
+.type-badge:hover,
+.detail-badge:hover {
+    transform: var(--hover-transform) !important;
+}
+
+.filter-group select:hover,
+.filter-group input:hover,
+.modern-select:hover,
+.modern-input:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.2) !important;
+}

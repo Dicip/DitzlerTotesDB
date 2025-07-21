@@ -284,12 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Establecer color según el tipo
-        const colors = {
-            success: '#28a745',
-            error: '#dc3545',
-            warning: '#ffc107',
-            info: '#17a2b8'
-        };
+        const colors = CONFIG.COLORS.NOTIFICATIONS;
         
         messageContainer.style.backgroundColor = colors[type] || colors.info;
         messageContainer.textContent = message;
@@ -298,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ocultar mensaje después de 5 segundos
         setTimeout(() => {
             messageContainer.style.display = 'none';
-        }, 5000);
+        }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
     }
     
     // --- Función para validar fechas en tiempo real ---

@@ -235,7 +235,7 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -243,13 +243,13 @@ body {
     font-weight: bold;
     font-size: 14px;
     margin: 0 auto;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 .avatar-circle:hover {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
 }
 
 /* Estados de usuario */
@@ -268,7 +268,7 @@ body {
 }
 
 .status.activo {
-    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -279,12 +279,12 @@ body {
     display: inline-block;
     min-width: 70px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(86, 171, 47, 0.3);
+    box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 .status.inactivo {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -295,12 +295,12 @@ body {
     display: inline-block;
     min-width: 70px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 .status.active {
-    background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -311,12 +311,12 @@ body {
     display: inline-block;
     min-width: 70px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(86, 171, 47, 0.3);
+    box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 .status.inactive {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
     padding: 6px 12px;
     border-radius: 20px;
@@ -327,7 +327,7 @@ body {
     display: inline-block;
     min-width: 70px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 2px 4px rgba(255, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
@@ -352,12 +352,12 @@ body {
 }
 
 .user-role.admin {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
 }
 
 .user-role.operario {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
 }
 
@@ -390,25 +390,25 @@ body {
 }
 
 .action-buttons .edit-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
 }
 
 .action-buttons .edit-btn:hover {
-    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
 }
 
 .action-buttons .delete-btn {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
     color: white;
 }
 
 .action-buttons .delete-btn:hover {
-    background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
+    background: linear-gradient(135deg, #e60000 0%, #b30000 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
 }
 
 /* Enhanced Responsive Design for Admin Users */

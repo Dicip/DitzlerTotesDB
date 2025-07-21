@@ -171,7 +171,7 @@ function showMessage(message, type) {
     // Ocultar mensaje después de 5 segundos
     setTimeout(() => {
         messageContainer.style.display = 'none';
-    }, 5000);
+    }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
 }
 
 // Manejar cierre de sesión

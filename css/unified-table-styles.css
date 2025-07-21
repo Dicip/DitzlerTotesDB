@@ -9,11 +9,20 @@
 .users-table-container {
     background: white;
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-base-primary);
     overflow: hidden;
     position: relative;
     border: 2px solid transparent;
     background-clip: padding-box;
+    margin: 20px 0;
+    transition: var(--hover-transition);
+}
+
+.table-container:hover,
+.system-table-container:hover,
+.users-table-container:hover {
+    box-shadow: var(--shadow-hover-primary);
+    transform: var(--hover-transform);
 }
 
 /* Estilos base para tablas */
@@ -32,7 +41,7 @@ table thead,
 .system-table thead,
 .users-table-container table thead,
 .eventos-page .system-table thead {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 50%, #bd2130 100%) !important;
+    background: var(--primary-gradient-3) !important;
     color: white !important;
     position: relative !important;
 }

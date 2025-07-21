@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validar campos
         if (!email || !password) {
-            showError('Por favor, complete todos los campos.');
+            showError(CONFIG.MESSAGES.ERROR_FIELDS);
             return;
         }
         
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showError('');
         
         // Autenticar usando la API REST
-        fetch('/api/login', {
+        fetch(CONFIG.API.ENDPOINTS.LOGIN, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -45,9 +45,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 
                 if (remember) {
-                    localStorage.setItem('loggedInAdmin', JSON.stringify(adminData));
+                    localStorage.setItem(CONFIG.SESSION.STORAGE_KEY, JSON.stringify(adminData));
                 } else {
-                    sessionStorage.setItem('loggedInAdmin', JSON.stringify(adminData));
+                    sessionStorage.setItem(CONFIG.SESSION.STORAGE_KEY, JSON.stringify(adminData));
                 }
                 
                 // Redirigir según el rol del usuario
@@ -61,12 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = 'pages/dashboard.html';
                 }
             } else {
-                showError(data.message || 'Credenciales incorrectas. Inténtelo de nuevo.');
+                showError(data.message || CONFIG.MESSAGES.ERROR_CREDENTIALS);
             }
         })
         .catch(error => {
             console.error('Error de autenticación:', error);
-            showError('Error al conectar con el servidor. Inténtelo de nuevo más tarde.');
+            showError(CONFIG.MESSAGES.ERROR_CONNECTION);
         });
     });
     
@@ -92,29 +92,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Verificar si hay una sesión de administrador activa al cargar la página
     function checkExistingSession() {
-        const storedAdmin = localStorage.getItem('loggedInAdmin') || sessionStorage.getItem('loggedInAdmin');
+        const adminData = UTILS.getSessionData();
         
-        if (storedAdmin) {
-            const adminData = JSON.parse(storedAdmin);
-            const currentTime = new Date().getTime();
-            const sessionTime = adminData.timestamp;
-            
-            // Verificar si la sesión no ha expirado (8 horas para mayor seguridad)
-            if (currentTime - sessionTime < 8 * 60 * 60 * 1000) {
-                // Redirigir según el rol del usuario
-                if (adminData.role === 'Admin') {
-                    window.location.href = 'pages/dashboard.html';
-                } else if (adminData.role === 'Operador') {
-                    window.location.href = 'pages/operador.html';
-                } else if (adminData.isAdmin) {
-                    // Fallback para compatibilidad con sesiones anteriores
-                    window.location.href = 'pages/dashboard.html';
-                }
-            } else {
-                // Limpiar sesión expirada
-                localStorage.removeItem('loggedInAdmin');
-                sessionStorage.removeItem('loggedInAdmin');
+        if (adminData && UTILS.isSessionValid(adminData)) {
+            // Redirigir según el rol del usuario
+            if (adminData.role === 'Admin') {
+                window.location.href = 'pages/dashboard.html';
+            } else if (adminData.role === 'Operador') {
+                window.location.href = 'pages/operador.html';
+            } else if (adminData.isAdmin) {
+                // Fallback para compatibilidad con sesiones anteriores
+                window.location.href = 'pages/dashboard.html';
             }
+        } else if (adminData) {
+            // Limpiar sesión expirada
+            UTILS.clearSession();
         }
     }
     

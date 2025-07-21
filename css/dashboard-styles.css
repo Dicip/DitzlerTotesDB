@@ -135,16 +135,16 @@ body {
     padding: 25px 30px;
     border-radius: 15px;
     color: white;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-    transition: all 0.3s ease;
+    box-shadow: var(--shadow-base-primary);
+    transition: var(--hover-transition);
     position: relative;
     overflow: hidden;
     min-height: 120px;
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    transform: var(--hover-transform);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 .stat-card::before {

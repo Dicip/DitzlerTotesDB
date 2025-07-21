@@ -1,35 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Verificación de sesión de administrador ---
-    const storedAdmin = localStorage.getItem('loggedInAdmin') || sessionStorage.getItem('loggedInAdmin');
+    const adminData = UTILS.getSessionData();
     
-    if (!storedAdmin) {
-        // Si no hay datos de sesión, redirigir a la página de inicio de sesión
+    if (!adminData || !adminData.username || !adminData.isAdmin) {
         window.location.href = '../index.html';
-        return; // Detener la ejecución del script si no hay sesión
+        return;
     }
-
-    try {
-        const adminData = JSON.parse(storedAdmin);
-        // Opcional: Verificar si el usuario es realmente un administrador
-        if (!adminData.isAdmin) {
-            // Si no es admin, limpiar la sesión y redirigir
-            localStorage.removeItem('loggedInAdmin');
-            sessionStorage.removeItem('loggedInAdmin');
-            window.location.href = '../index.html';
-            return;
-        }
-    } catch (error) {
-        console.error('Error al parsear los datos de sesión:', error);
-        // Limpiar datos corruptos y redirigir
-        localStorage.removeItem('loggedInAdmin');
-        sessionStorage.removeItem('loggedInAdmin');
+    
+    // Verificar si la sesión no ha expirado
+    if (!UTILS.isSessionValid(adminData)) {
+        UTILS.clearSession();
         window.location.href = '../index.html';
         return;
     }
 
     // Cargar datos del dashboard
     loadDashboardData();
-    setInterval(loadDashboardData, 30000); // Actualizar cada 30 segundos
+    setInterval(loadDashboardData, CONFIG.TIMING.DATA_REFRESH_INTERVAL);
 
     // Variable global para el gráfico
     let totesChart = null;
@@ -37,7 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Función para cargar datos del dashboard
     async function loadDashboardData() {
         try {
-            const response = await fetch('/api/dashboard/stats');
+            // Mostrar indicadores de carga
+            showLoadingState();
+            
+            const response = await fetch(CONFIG.API.ENDPOINTS.DASHBOARD_STATS);
             const result = await response.json();
             
             if (result.success) {
@@ -48,8 +38,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error('Error al conectar con el servidor:', error);
-            showErrorMessage('Error de conexión con el servidor');
+            UTILS.showNotification(CONFIG.MESSAGES.ERROR_CONNECTION, 'error');
         }
+    }
+
+    // Función para mostrar estado de carga
+    function showLoadingState() {
+        const elements = [
+            { id: 'totalTotes', text: CONFIG.MESSAGES.LOADING },
+            { id: 'totesConClientes', text: CONFIG.MESSAGES.LOADING },
+            { id: 'totesFueraPlazo', text: CONFIG.MESSAGES.LOADING },
+            { id: 'usuariosActivos', text: CONFIG.MESSAGES.LOADING }
+        ];
+        
+        elements.forEach(element => {
+            const el = document.getElementById(element.id);
+            if (el) {
+                el.textContent = element.text;
+                el.style.opacity = '0.6';
+            }
+        });
     }
 
     // Función para actualizar la interfaz con los datos
@@ -61,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTotalTotes(data.totalTotes);
         
         // Actualizar totes con clientes
-        updateTotesConClientes(data.totesConClientes);
+        updateTotesConClientes(data.totesConClientes, data.totalTotes);
         
         // Actualizar totes fuera de plazo
         updateTotesFueraPlazo(data.totesFueraPlazo, data.totalFueraPlazo);
@@ -76,14 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!ctx) return;
 
         // Definir todos los estados posibles con sus colores
-        const stateColors = {
-            'Con Cliente': '#4A90E2',
-            'Disponible': '#50E3C2',
-            'En Lavado': '#7ED321',
-            'En Mantenimiento': '#F5A623',
-            'En Uso': '#9013FE',
-            'Fuera de Servicio': '#D0021B'
-        };
+        const stateColors = CONFIG.COLORS.TOTE_STATES;
 
         // Filtrar solo los estados que tienen totes (cantidad > 0)
         const activeStates = statusStats.filter(stat => stat.cantidad > 0);
@@ -100,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data.push(stat.cantidad);
             
             // Usar el color definido para el estado
-            const color = stateColors[stat.Estado] || '#6c757d';
+            const color = stateColors[stat.Estado] || CONFIG.COLORS.BACKGROUND.gray;
             backgroundColor.push(color);
             borderColor.push(document.documentElement.getAttribute('data-theme') === 'dark' ? 'transparent' : '#ffffff');
             borderWidth.push(document.documentElement.getAttribute('data-theme') === 'dark' ? 0 : 4);
@@ -242,17 +243,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalElement = document.getElementById('totalTotes');
         if (totalElement) {
             totalElement.textContent = total;
+            totalElement.style.opacity = '1';
         }
     }
 
     // Función para actualizar totes con clientes
-    function updateTotesConClientes(totesConClientes) {
+    function updateTotesConClientes(totesConClientes, totalTotes) {
         const totalConClientes = totesConClientes.reduce((sum, item) => sum + item.cantidad, 0);
         
         // Actualizar número principal
         const mainMetric = document.getElementById('totesConClientes');
         if (mainMetric) {
             mainMetric.textContent = totalConClientes;
+            mainMetric.style.opacity = '1';
+        }
+        
+        // Actualizar la unidad 'of total'
+        const unitElement = mainMetric?.parentElement?.querySelector('.metric-unit');
+        if (unitElement && totalTotes) {
+            unitElement.textContent = `of ${totalTotes}`;
         }
         
         // Actualizar lista de detalles
@@ -277,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainMetric = document.getElementById('totesFueraPlazo');
         if (mainMetric) {
             mainMetric.textContent = totalFueraPlazo;
+            mainMetric.style.opacity = '1';
         }
         
         // Actualizar lista de detalles
@@ -300,51 +310,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalElement = document.getElementById('usuariosActivos');
         if (totalElement) {
             totalElement.textContent = total;
+            totalElement.style.opacity = '1';
         }
     }
 
-    // Función para mostrar mensajes de error
-    function showErrorMessage(message) {
-        // Crear elemento de alerta si no existe
-        let alertElement = document.querySelector('.dashboard-alert');
-        if (!alertElement) {
-            alertElement = document.createElement('div');
-            alertElement.className = 'dashboard-alert alert-error';
-            alertElement.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background-color: #f8d7da;
-                color: #721c24;
-                padding: 12px 20px;
-                border: 1px solid #f5c6cb;
-                border-radius: 4px;
-                z-index: 1000;
-                max-width: 300px;
-            `;
-            document.body.appendChild(alertElement);
-        }
-        
-        alertElement.textContent = message;
-        alertElement.style.display = 'block';
-        
-        // Ocultar después de 5 segundos
-        setTimeout(() => {
-            alertElement.style.display = 'none';
-        }, 5000);
-    }
+    // Función para mostrar mensajes de error (usar UTILS.showNotification en su lugar)
 
     // --- Lógica para el botón de cerrar sesión ---
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // Prevenir la acción por defecto del enlace
-            
-            // Limpiar almacenamiento local y de sesión
-            localStorage.removeItem('loggedInAdmin');
-            sessionStorage.removeItem('loggedInAdmin');
-            
-            // Redirigir a la página de inicio de sesión
+            e.preventDefault();
+            UTILS.clearSession();
             window.location.href = '../index.html';
         });
     }

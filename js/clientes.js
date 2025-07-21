@@ -326,7 +326,7 @@ function showMessage(message, type) {
     
     setTimeout(() => {
         messageContainer.style.display = 'none';
-    }, 5000);
+    }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
 }
 
 // Persistencia de datos

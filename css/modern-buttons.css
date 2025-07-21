@@ -2,22 +2,22 @@
    MODERN BUTTON STYLES - DitzlerTotes
    ========================================================================== */
 
-/* Variables CSS para consistencia - Estilo Moderno Colorido */
+/* Variables CSS para consistencia - Estilo Rojo Unificado */
 :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --primary-hover-gradient: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-    --secondary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --secondary-hover-gradient: linear-gradient(135deg, #3d8bfe 0%, #00d4fe 100%);
-    --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
-    --success-hover-gradient: linear-gradient(135deg, #4a9429 0%, #96d9b8 100%);
-    --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --warning-hover-gradient: linear-gradient(135deg, #ee7ef9 0%, #f3435a 100%);
-    --danger-gradient: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
-    --danger-hover-gradient: linear-gradient(135deg, #ff5252 0%, #ff9999 100%);
-    --info-gradient: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
-    --info-hover-gradient: linear-gradient(135deg, #2bc4d0 0%, #4a75d9 100%);
-    --tertiary-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-    --tertiary-hover-gradient: linear-gradient(135deg, #96e6e2 0%, #fcc9d9 100%);
+    --primary-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    --primary-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
+    --secondary-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    --secondary-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
+    --success-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    --success-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
+    --warning-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    --warning-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
+    --danger-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    --danger-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
+    --info-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    --info-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
+    --tertiary-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    --tertiary-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
     
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
@@ -30,7 +30,7 @@
     --transition: all 0.15s ease-in-out;
 }
 
-/* Base button styles - Estilo Moderno Colorido */
+/* Base button styles - Estilo Rojo Unificado */
 .btn, .btn-primary, .btn-secondary, .btn-tertiary, .btn-success, .btn-warning, .btn-danger, .btn-info {
     background: var(--primary-gradient);
     color: white;
@@ -45,7 +45,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
     user-select: none;
     white-space: nowrap;
     text-decoration: none;
@@ -55,17 +55,17 @@
     letter-spacing: 0.5px;
 }
 
-/* Unified Button Hover Effect - Estilo Moderno Colorido */
+/* Unified Button Hover Effect - Estilo Rojo Unificado */
 .btn:hover, .btn-primary:hover {
     background: var(--primary-hover-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn:active, .btn-primary:active {
     background: var(--primary-hover-gradient);
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
 }
 
 /* Button Sizes */
@@ -90,115 +90,115 @@
 /* Estilos específicos por tipo de botón */
 .btn-primary {
     background: var(--primary-gradient);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
 .btn-primary:hover {
     background: var(--primary-hover-gradient);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn-secondary {
     background: var(--secondary-gradient);
-    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
 .btn-secondary:hover {
     background: var(--secondary-hover-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn-secondary:active {
     background: var(--secondary-hover-gradient);
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(79, 172, 254, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
 }
 
 .btn-success {
     background: var(--success-gradient);
-    box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
 .btn-success:hover {
     background: var(--success-hover-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(86, 171, 47, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn-success:active {
     background: var(--success-hover-gradient);
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(86, 171, 47, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
 }
 
 .btn-warning {
     background: var(--warning-gradient);
-    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
 .btn-warning:hover {
     background: var(--warning-hover-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn-warning:active {
     background: var(--warning-hover-gradient);
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(240, 147, 251, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
 }
 
 .btn-danger {
     background: var(--danger-gradient);
-    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
 .btn-danger:hover {
     background: var(--danger-hover-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn-danger:active {
     background: var(--danger-hover-gradient);
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
 }
 
 .btn-info {
     background: var(--info-gradient);
-    box-shadow: 0 4px 15px rgba(54, 209, 220, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
 .btn-info:hover {
     background: var(--info-hover-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(54, 209, 220, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn-info:active {
     background: var(--info-hover-gradient);
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(54, 209, 220, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
 }
 
 .btn-tertiary {
     background: var(--tertiary-gradient);
     color: #374151;
-    box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
 }
 
 .btn-tertiary:hover {
     background: var(--tertiary-hover-gradient);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(168, 237, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
 }
 
 .btn-tertiary:active {
     background: var(--tertiary-hover-gradient);
     transform: translateY(0);
-    box-shadow: 0 2px 10px rgba(168, 237, 234, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.3);
     border-color: var(--secondary-color);
 }
 
