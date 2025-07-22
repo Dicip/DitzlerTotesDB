@@ -1,10 +1,9 @@
 /* Estilos específicos para páginas de operador */
 
-/* Corregir el grid layout para el panel de operador */
+/* Corregir el grid layout para el panel de operador - Estilo similar al dashboard del admin */
 body:has(.sidebar) .cards-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto auto;
     gap: 20px;
     max-width: 100%;
 }
@@ -16,12 +15,276 @@ body:has(.sidebar) .card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Específicamente para la tarjeta del gráfico */
-body:has(.sidebar) .card-chart {
-    grid-column: span 2;
+body:has(.sidebar) .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Estilos para las tarjetas - similar al dashboard del admin */
+body:has(.sidebar) .card {
+    background: white;
+    color: var(--text-color);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    overflow: hidden;
+}
+
+body:has(.sidebar) .card-content {
+    padding: 25px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+body:has(.sidebar) .card-main-metric {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+body:has(.sidebar) .metric-value-container {
+    margin: 20px 0;
+    display: flex;
+    align-items: baseline;
+}
+
+body:has(.sidebar) .metric-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-color-dark, #333);
+}
+
+body:has(.sidebar) .metric-unit {
+    font-size: 1rem;
+    color: var(--text-color-light, #6c757d);
+    margin-left: 8px;
+}
+
+body:has(.sidebar) .metric-description {
+    font-size: 0.95rem;
+    color: var(--text-color-light, #6c757d);
+    margin-bottom: 15px;
+}
+
+body:has(.sidebar) .trend-chart {
+    margin: 10px 0;
+}
+
+body:has(.sidebar) .trend-dots {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+body:has(.sidebar) .trend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--primary-color, #1967d2);
+    opacity: 0.7;
+}
+
+body:has(.sidebar) .trend-dot:nth-child(odd) {
+    opacity: 0.4;
+}
+
+body:has(.sidebar) .trend-dot:last-child {
+    opacity: 1;
+    width: 10px;
+    height: 10px;
+}
+
+/* Estilos para tarjetas de diferentes colores */
+body:has(.sidebar) .card-primary {
+    border-top: 4px solid var(--primary-color, #1967d2);
+}
+
+body:has(.sidebar) .card-primary .trend-dot {
+    background-color: var(--primary-color, #1967d2);
+}
+
+body:has(.sidebar) .card-success {
+    border-top: 4px solid var(--success-color, #28a745);
+}
+
+body:has(.sidebar) .card-success .trend-dot {
+    background-color: var(--success-color, #28a745);
+}
+
+body:has(.sidebar) .card-info {
+    border-top: 4px solid var(--info-color, #17a2b8);
+}
+
+body:has(.sidebar) .card-info .trend-dot {
+    background-color: var(--info-color, #17a2b8);
+}
+
+body:has(.sidebar) .card-warning {
+    border-top: 4px solid var(--warning-color, #ffc107);
+}
+
+body:has(.sidebar) .card-warning .trend-dot {
+    background-color: var(--warning-color, #ffc107);
+}
+
+body:has(.sidebar) .card-danger {
+    border-top: 4px solid var(--danger-color, #dc3545);
+}
+
+body:has(.sidebar) .card-danger .trend-dot {
+    background-color: var(--danger-color, #dc3545);
+}
+
+/* Estilo específico para la tarjeta de tareas pendientes */
+body:has(.sidebar) .card-list {
     min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    background: white;
+    padding: 25px;
+}
+
+body:has(.sidebar) .card-list h3 {
+    color: var(--danger-color, #dc3545);
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+body:has(.sidebar) .card-list h3:before {
+    content: '\f071';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+body:has(.sidebar) .card-list .card-main-metric {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color, #dc3545);
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+body:has(.sidebar) .card-list .metric-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+/* Estilos para la tarjeta del gráfico similar al dashboard del admin */
+body:has(.sidebar) .large-card {
+    grid-column: span 2;
+}
+
+body:has(.sidebar) .card-chart-layout {
+    min-height: 400px;
+    background: white;
+    padding: 0;
+}
+
+body:has(.sidebar) .chart-layout {
+    display: flex;
+    height: 100%;
+}
+
+body:has(.sidebar) .chart-section {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body:has(.sidebar) .chart-data-section {
+    width: 250px;
+    padding: 20px;
+    border-left: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+}
+
+body:has(.sidebar) .metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+body:has(.sidebar) .metric-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color-dark, #333);
+}
+
+body:has(.sidebar) .metric-change {
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+body:has(.sidebar) .metric-change.positive {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color, #28a745);
+}
+
+body:has(.sidebar) .metric-change.negative {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color, #dc3545);
+}
+
+body:has(.sidebar) .chart-legend {
+    margin: 15px 0;
+}
+
+body:has(.sidebar) .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+body:has(.sidebar) .legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    margin-right: 8px;
+}
+
+body:has(.sidebar) .legend-label {
+    flex: 1;
+    font-weight: 500;
+}
+
+body:has(.sidebar) .legend-value {
+    font-weight: 600;
+    color: var(--text-color-dark, #333);
+}
+
+body:has(.sidebar) .metric-trend {
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: var(--text-color-light, #6c757d);
+}
+
+body:has(.sidebar) .metric-period {
+    margin-top: 5px;
 }
 
 /* Ajustes para el panel de operador */
@@ -52,6 +315,30 @@ body:has(.sidebar) .card-chart {
     text-align: center;
     box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Mejorar el estilo de la lista de tareas */
+.details-list {
+    margin-top: 15px;
+    padding-left: 10px;
+}
+
+.details-list li {
+    margin-bottom: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-left: 4px solid var(--primary-color);
+    transition: background-color 0.3s ease;
+}
+
+.details-list li:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.details-list li strong {
+    color: var(--primary-color);
+    font-weight: 600;
 }
 
 .operador-metric-card:hover {

@@ -34,51 +34,204 @@
                 <p>Bienvenido al sistema de gestión de totes</p>
             </header>
             <div class="cards-container">
-                <div class="card">
-                    <h3>Mis Totes Asignados</h3>
-                    <div class="card-main-metric">
-                        <i class="fas fa-box"></i>
-                        <span id="misTotes">-</span>
-                    </div>
-                    <p class="metric-description">Totes bajo mi responsabilidad</p>
-                </div>
-                <div class="card">
-                    <h3>Totes Disponibles</h3>
-                    <div class="card-main-metric">
-                        <i class="fas fa-check-circle"></i>
-                        <span id="totesDisponibles">-</span>
-                    </div>
-                    <p class="metric-description">Totes listos para asignar</p>
-                </div>
-                <div class="card">
-                    <h3>Totes en Lavado</h3>
-                    <div class="card-main-metric">
-                        <i class="fas fa-tint"></i>
-                        <span id="totesLavado">-</span>
-                    </div>
-                    <p class="metric-description">Totes en proceso de limpieza</p>
-                </div>
-                <div class="card">
-                    <h3>Totes con Cliente</h3>
-                    <div class="card-main-metric">
-                        <i class="fas fa-truck"></i>
-                        <span id="totesCliente">-</span>
-                    </div>
-                    <p class="metric-description">Totes despachados a clientes</p>
-                </div>
-                <div class="card card-chart">
-                    <h3>Estado de Mis Totes</h3>
-                    <div class="chart-container">
-                        <canvas id="misTotesChart"></canvas>
+                <!-- Panel grande: Estado de Totes (ocupa 2 columnas) -->
+                <div class="card large-card card-chart-layout">
+                    <div class="chart-layout">
+                        <div class="chart-section">
+                            <canvas id="misTotesChart"></canvas>
+                        </div>
+                        <div class="chart-data-section">
+                            <div class="metric-header">
+                                <div class="metric-title">Estado de Mis Totes</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    +2.5%
+                                </div>
+                            </div>
+                            <div class="chart-legend" id="chartLegend"></div>
+                            <div class="metric-trend">
+                                <div class="metric-period">Distribución actual</div>
+                            </div>
+                            <div class="metric-period">
+                                Actualizado: <span id="lastUpdate">Hoy</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="card card-list">
-                    <h3>Tareas Pendientes</h3>
-                    <div class="card-main-metric warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <span id="tareasPendientes">-</span>
+
+                <!-- Totes con Clientes -->
+                <div class="card card-primary">
+                    <div class="card-content">
+                        <div class="card-main-metric">
+                            <div class="metric-header">
+                                <div class="metric-title">Totes con Clientes</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    +5.1%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="totesConCliente">-</span>
+                                <span class="metric-unit">totes</span>
+                            </div>
+                            <div class="metric-description">Totes entregados a clientes</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
+                        </div>
                     </div>
-                    <p class="metric-description">Totes que requieren atención</p>
+                </div>
+
+                <!-- Mis Totes Asignados -->
+                <div class="card card-success">
+                    <div class="card-content">
+                        <div class="card-main-metric">
+                            <div class="metric-header">
+                                <div class="metric-title">Mis Totes Asignados</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    +3.4%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="misTotes">-</span>
+                                <span class="metric-unit">totes</span>
+                            </div>
+                            <div class="metric-description">Totes bajo mi responsabilidad</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Totes Disponibles -->
+                <div class="card card-info">
+                    <div class="card-content">
+                        <div class="card-main-metric">
+                            <div class="metric-header">
+                                <div class="metric-title">Totes Disponibles</div>
+                                <div class="metric-change positive">
+                                    <i class="fas fa-arrow-up"></i>
+                                    +2.1%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="totesDisponibles">-</span>
+                                <span class="metric-unit">totes</span>
+                            </div>
+                            <div class="metric-description">Totes listos para usar</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Totes en Lavado -->
+                <div class="card card-warning">
+                    <div class="card-content">
+                        <div class="card-main-metric">
+                            <div class="metric-header">
+                                <div class="metric-title">Totes en Lavado</div>
+                                <div class="metric-change negative">
+                                    <i class="fas fa-arrow-down"></i>
+                                    -1.5%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="totesEnLavado">-</span>
+                                <span class="metric-unit">totes</span>
+                            </div>
+                            <div class="metric-description">Totes en proceso de limpieza</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tareas Pendientes -->
+                <div class="card card-danger">
+                    <div class="card-content">
+                        <div class="card-main-metric">
+                            <div class="metric-header">
+                                <div class="metric-title">Tareas Pendientes</div>
+                                <div class="metric-change negative">
+                                    <i class="fas fa-arrow-down"></i>
+                                    -2.1%
+                                </div>
+                            </div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="tareasPendientes">-</span>
+                                <span class="metric-unit">tareas</span>
+                            </div>
+                            <div class="metric-description">Totes que requieren atención</div>
+                            <div class="metric-trend">
+                                <div class="trend-chart">
+                                    <div class="trend-dots">
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                        <div class="trend-dot"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-period">Month to date</div>
+                            </div>
+                        </div>
+                    </div>
                     <ul class="details-list" id="listaTareas">
                         <!-- Los datos se cargarán dinámicamente -->
                     </ul>
