@@ -703,7 +703,7 @@ app.get('/api/operador/stats', async (req, res) => {
       .query('SELECT COUNT(*) as total FROM Totes WHERE Estado = \'En Lavado\'');
     
     const totesClienteResult = await pool.request()
-      .query('SELECT COUNT(*) as total FROM Totes WHERE Estado = \'Con Cliente\'');
+      .query('SELECT COUNT(*) as total FROM Totes WHERE Estado = \'En Uso\'');
     
     // Totes por estado del operador
     const misTotesPorEstadoResult = await pool.request()
@@ -721,16 +721,15 @@ app.get('/api/operador/stats', async (req, res) => {
       .query(`
         SELECT TOP 5 Codigo, 
                CASE 
-                 WHEN DATEDIFF(day, FechaDespacho, GETDATE()) > 30 THEN 'Fuera de plazo'
+                 WHEN Estado = 'En Uso' AND DATEDIFF(day, FechaDespacho, GETDATE()) >= 30 THEN 'Fuera de plazo'
+                 WHEN Estado = 'En Uso' AND FechaVencimiento < GETDATE() THEN 'Producto vencido'
                  WHEN Estado = 'En Mantenimiento' THEN 'Requiere mantenimiento'
-                 WHEN FechaVencimiento < GETDATE() THEN 'Producto vencido'
                  ELSE 'Revisar estado'
                END as descripcion
         FROM Totes 
         WHERE Operador = @operador 
-          AND (DATEDIFF(day, FechaDespacho, GETDATE()) > 30 
-               OR Estado = 'En Mantenimiento' 
-               OR FechaVencimiento < GETDATE())
+          AND ((Estado = 'En Uso' AND (DATEDIFF(day, FechaDespacho, GETDATE()) >= 30 OR FechaVencimiento < GETDATE()))
+               OR Estado = 'En Mantenimiento')
       `);
     
     res.json({
@@ -1164,19 +1163,20 @@ app.get('/api/dashboard/stats', async (req, res) => {
         Cliente,
         COUNT(*) as cantidad
       FROM Totes 
-      WHERE Activo = 1 AND Estado = 'Con Cliente'
+      WHERE Activo = 1 AND Estado = 'En Uso'
       GROUP BY Cliente
     `);
     
-    // Obtener totes fuera de plazo (más de 30 días desde despacho o vencidos)
+    // Obtener totes fuera de plazo (En Uso por 30+ días o vencidos)
     const totesFueraPlazo = await pool.request().query(`
       SELECT 
         Cliente,
         COUNT(*) as cantidad
       FROM Totes 
       WHERE Activo = 1 
-        AND (FechaVencimiento < GETDATE() 
-             OR DATEDIFF(day, FechaDespacho, GETDATE()) > 30)
+        AND Estado = 'En Uso'
+        AND (DATEDIFF(day, FechaDespacho, GETDATE()) >= 30 
+             OR FechaVencimiento < GETDATE())
       GROUP BY Cliente
     `);
     
@@ -1185,8 +1185,9 @@ app.get('/api/dashboard/stats', async (req, res) => {
       SELECT COUNT(*) as total 
       FROM Totes 
       WHERE Activo = 1 
-        AND (FechaVencimiento < GETDATE() 
-             OR DATEDIFF(day, FechaDespacho, GETDATE()) > 30)
+        AND Estado = 'En Uso'
+        AND (DATEDIFF(day, FechaDespacho, GETDATE()) >= 30 
+             OR FechaVencimiento < GETDATE())
     `);
     
     // Obtener usuarios activos

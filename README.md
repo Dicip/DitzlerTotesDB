@@ -43,10 +43,8 @@ DitzlerTotes/
 │   └── audit.js                 # Sistema de auditoría y logging
 ├── database/
 │   ├── complete_database_script.sql  # Script completo de base de datos
-│   ├── create_eventos_table.sql       # Tabla y SP para sistema de auditoría
-│   ├── add_sync_triggers.sql          # Triggers de sincronización
-│   ├── update_estados_script.sql      # Script de actualización de estados
-│   └── insert_totes_sample.sql        # Datos de ejemplo para totes
+│   ├── corrected_database_script.sql # Script corregido sin errores
+│   └── COMPARACION_Y_CORRECCIONES.md # Documentación de correcciones
 ├── assets/
 │   └── images/                  # Recursos gráficos
 └── node_modules/                # Dependencias (generado por npm)
@@ -144,8 +142,7 @@ DitzlerTotes/
 
 3. **Configurar la base de datos**
    - Abrir SQL Server Management Studio
-   - Ejecutar el script `database/complete_database_script.sql`
-   - Ejecutar `database/add_sync_triggers.sql` para habilitar sincronización automática
+   - Ejecutar el script `database/corrected_database_script.sql` (recomendado) o `database/complete_database_script.sql`
 
 4. **Configurar conexión a base de datos**
    Actualizar las credenciales en `server.js`:

@@ -299,8 +299,6 @@ body {
     box-shadow: var(--shadow-hover-primary);
 }
 
-/* Estilos específicos de eventos eliminados - usando estilos unificados */
-
 /* Status badges para eventos */
 .eventos-page .status-badge {
     padding: 6px 12px;

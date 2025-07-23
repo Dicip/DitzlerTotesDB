@@ -45,11 +45,7 @@
     border-radius: 4px;
 }
 
-/* El estilo del botón clean-filters ahora está en modern-buttons.css */
-
-/* Los estilos de tabla ahora están en unified-table-styles.css */
 .totes-table-container {
-    /* Estos estilos ahora se heredan de .table-container en unified-table-styles.css */
     background: white;
     border-radius: 16px;
     box-shadow: var(--shadow-base-primary);
@@ -60,21 +56,12 @@
     margin: 20px 0;
 }
 
-/* Animación de borde eliminada para mantener consistencia con otras tablas */
-
 .totes-table {
-    /* Estos estilos ahora se heredan de .unified-table en unified-table-styles.css */
     width: 100%;
     border-collapse: collapse;
     background: white;
     border-radius: 12px;
 }
-
-/* Los estilos de thead ahora se heredan de unified-table-styles.css */
-
-/* Animación y estilos de encabezado eliminados para usar los estilos unificados */
-
-/* Los estilos de las filas y celdas de la tabla ahora se heredan de unified-table-styles.css */
 
 .status-badge {
     padding: 6px 12px;

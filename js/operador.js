@@ -145,38 +145,6 @@ function createCustomLegend(data) {
     });
 }
 
-// Función para crear leyenda personalizada
-function createCustomLegend(data) {
-    const chartLegend = document.getElementById('chartLegend');
-    if (!chartLegend) return;
-    
-    chartLegend.innerHTML = '';
-    
-    if (!data || !Array.isArray(data)) return;
-    
-    // Calcular el total para los porcentajes
-    const total = data.reduce((sum, item) => sum + (item.cantidad || 0), 0);
-    
-    // Crear elementos de leyenda
-    data.forEach(item => {
-        if (!item.estado || item.cantidad === 0) return;
-        
-        const percentage = total > 0 ? Math.round((item.cantidad / total) * 100) : 0;
-        const color = CONFIG.COLORS.OPERADOR_STATES[item.estado] || CONFIG.COLORS.BACKGROUND.gray;
-        
-        const legendItem = document.createElement('div');
-        legendItem.className = 'legend-item';
-        
-        legendItem.innerHTML = `
-            <div class="legend-color" style="background-color: ${color}"></div>
-            <div class="legend-label">${item.estado}</div>
-            <div class="legend-value">${item.cantidad} (${percentage}%)</div>
-        `;
-        
-        chartLegend.appendChild(legendItem);
-    });
-}
-
 // Crear gráfico de mis totes
 function createMisTotesChart(data) {
     const ctx = document.getElementById('misTotesChart').getContext('2d');

@@ -247,12 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Función para actualizar totes con clientes
+    // Función para actualizar totes en uso
     function updateTotesConClientes(totesConClientes, totalTotes) {
         const totalConClientes = totesConClientes.reduce((sum, item) => sum + item.cantidad, 0);
         
         // Actualizar número principal
-        const mainMetric = document.getElementById('totesConClientes');
+        const mainMetric = document.getElementById('totesEnUso');
         if (mainMetric) {
             mainMetric.textContent = totalConClientes;
             mainMetric.style.opacity = '1';
