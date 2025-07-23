@@ -166,10 +166,6 @@ function createMisTotesChart(data) {
     // Crear leyenda personalizada
     createCustomLegend(data);
     
-    // Determinar si estamos en modo oscuro
-    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-    const borderColor = isDarkMode ? 'transparent' : '#ffffff';
-    
     window.misTotesChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -177,8 +173,8 @@ function createMisTotesChart(data) {
             datasets: [{
                 data: values,
                 backgroundColor: labels.map(label => colors[label] || CONFIG.COLORS.BACKGROUND.gray),
-                borderWidth: isDarkMode ? 0 : 4,
-                borderColor: borderColor,
+                borderWidth: 4,
+                borderColor: '#ffffff',
                 hoverOffset: 15,
                 borderRadius: 5
             }]

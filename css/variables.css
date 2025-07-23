@@ -1,24 +1,24 @@
 /* Variables CSS centralizadas para el sistema */
 :root {
-    /* Colores principales del sistema (rojos) */
-    --primary-color: #ff0000;
-    --primary-dark: #cc0000;
-    --primary-darker: #990000;
-    --primary-hover: #e60000;
-    --primary-hover-dark: #b30000;
+    /* Colores principales del sistema (gris elegante) */
+    --primary-color: #6c757d;
+    --primary-dark: #495057;
+    --primary-darker: #343a40;
+    --primary-hover: #5a6268;
+    --primary-hover-dark: #3d4449;
     
     /* Gradientes principales */
-    --primary-gradient: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-    --primary-hover-gradient: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-hover-dark) 100%);
-    --primary-gradient-3: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 50%, var(--primary-darker) 100%);
+    --primary-gradient: var(--primary-color);
+    --primary-hover-gradient: var(--primary-hover);
+    --primary-gradient-3: var(--primary-color);
     
     /* Colores de fondo */
     --bg-white: #ffffff;
     --bg-light: #f8f9fa;
     --bg-gray-light: #f0f2f5;
     --bg-dark: #2c3e50;
-    --bg-gradient-light: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 50%, #fff0f8 100%);
-    --bg-gradient-header: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+    --bg-gradient-light: #f8f9fa;
+    --bg-gradient-header: #f8f9fa;
     
     /* Colores de texto */
     --text-primary: #333;
@@ -40,9 +40,9 @@
     --shadow-md: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 4px 8px 0 rgba(0, 0, 0, 0.12);
     --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.12);
-    --shadow-primary: 0 4px 15px rgba(255, 0, 0, 0.3);
-    --shadow-primary-hover: 0 6px 20px rgba(255, 0, 0, 0.4);
-    --shadow-primary-sm: 0 2px 10px rgba(255, 0, 0, 0.3);
+    --shadow-primary: 0 4px 15px rgba(108, 117, 125, 0.3);
+    --shadow-primary-hover: 0 6px 20px rgba(108, 117, 125, 0.4);
+    --shadow-primary-sm: 0 2px 10px rgba(108, 117, 125, 0.3);
     
     /* Colores de estado */
     --status-success: #28a745;
@@ -105,9 +105,9 @@
     --hover-transform: translateY(-2px);
     --active-transform: translateY(0);
     --hover-transition: all 0.3s ease;
-    --shadow-hover-primary: 0 6px 20px rgba(255, 0, 0, 0.4);
-    --shadow-active-primary: 0 2px 10px rgba(255, 0, 0, 0.3);
-    --shadow-base-primary: 0 4px 15px rgba(255, 0, 0, 0.3);
+    --shadow-hover-primary: 0 6px 20px rgba(108, 117, 125, 0.4);
+    --shadow-active-primary: 0 2px 10px rgba(108, 117, 125, 0.3);
+    --shadow-base-primary: 0 4px 15px rgba(108, 117, 125, 0.3);
     
     /* Z-index */
     --z-dropdown: 1000;

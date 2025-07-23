@@ -17,7 +17,7 @@ DitzlerTotes/
 │   ├── clientes-styles.css      # Estilos para gestión de clientes
 │   ├── totes-styles.css         # Estilos para gestión de totes
 │   ├── operador-styles.css      # Estilos específicos para operarios
-│   ├── dark-mode.css            # Estilos para modo oscuro
+│ 
 │   └── modern-buttons.css       # Estilos modernos para botones
 ├── js/
 │   ├── script.js                # Lógica de inicio de sesión
@@ -27,7 +27,7 @@ DitzlerTotes/
 │   ├── totes.js                 # Gestión de totes con validaciones
 │   ├── operador.js              # Lógica del dashboard de operarios
 │   ├── totes-operador.js        # Gestión de totes para operarios
-│   └── dark-mode.js             # Funcionalidad de modo oscuro
+│ 
 ├── pages/
 │   ├── dashboard.html           # Panel de control principal
 │   ├── admin-users.html         # Gestión de usuarios

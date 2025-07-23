@@ -103,8 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Usar el color definido para el estado
             const color = stateColors[stat.Estado] || CONFIG.COLORS.BACKGROUND.gray;
             backgroundColor.push(color);
-            borderColor.push(document.documentElement.getAttribute('data-theme') === 'dark' ? 'transparent' : '#ffffff');
-            borderWidth.push(document.documentElement.getAttribute('data-theme') === 'dark' ? 0 : 4);
+            borderColor.push('#ffffff');
+                borderWidth.push(4);
         });
 
         // Destruir gráfico anterior si existe

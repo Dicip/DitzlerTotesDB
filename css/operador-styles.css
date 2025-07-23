@@ -341,7 +341,7 @@ body:has(.sidebar) .metric-period {
 
 /* Ajustes para el panel de operador */
 .operador-panel {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: white;
     padding: 1rem;
     border-radius: 8px;
@@ -350,7 +350,7 @@ body:has(.sidebar) .metric-period {
 
 /* Estilos para badges de estado específicos del operador */
 .status-badge.operador {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: white;
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
@@ -360,12 +360,12 @@ body:has(.sidebar) .metric-period {
 
 /* Tarjetas de métricas para operador */
 .operador-metric-card {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: var(--primary-color);
     color: white;
     padding: 1.5rem;
     border-radius: 12px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+    box-shadow: var(--shadow-primary);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -395,7 +395,7 @@ body:has(.sidebar) .metric-period {
 
 .operador-metric-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+    box-shadow: var(--shadow-hover-primary);
 }
 
 .operador-metric-card h3 {
@@ -418,7 +418,7 @@ body:has(.sidebar) .metric-period {
 
 /* Botones específicos para operador */
 .btn-operador {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -449,7 +449,7 @@ body:has(.sidebar) .metric-period {
 }
 
 .operador-table th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: white;
     padding: 1rem;
     font-weight: 600;
@@ -467,7 +467,7 @@ body:has(.sidebar) .metric-period {
 
 /* Modal específico para operador */
 .operador-modal .modal-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: white;
     padding: 1.5rem;
     border-radius: 12px 12px 0 0;
@@ -480,7 +480,7 @@ body:has(.sidebar) .metric-period {
 
 /* Alertas y notificaciones para operador */
 .operador-alert {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    background: var(--status-warning);
     border: 1px solid #f39c12;
     color: #8b4513;
     padding: 1rem;
@@ -492,20 +492,20 @@ body:has(.sidebar) .metric-period {
 }
 
 .operador-alert.success {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    background: var(--status-success);
     border-color: #28a745;
     color: #155724;
 }
 
 .operador-alert.error {
-    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    background: var(--status-error);
     border-color: #dc3545;
     color: #721c24;
 }
 
 /* Navegación específica para operador */
 .operador-nav {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
 }
 
 .operador-nav .nav-links li.active a {
@@ -771,7 +771,7 @@ body:has(.sidebar) .metric-period {
     bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-color);
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 6px;

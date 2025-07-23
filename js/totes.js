@@ -107,12 +107,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Variables globales ---
     let totesData = [];
-    let usersData = [];
-    let clientsData = [];
     const storedAdminData = JSON.parse(storedAdmin);
     
-    // --- Función para cargar usuarios no administradores ---
-    async function loadUsers() {
+    // --- Función para cargar operadores para el modal ---
+    async function loadOperatorsForModal() {
         try {
             const response = await fetch('/api/admin/users', {
                 method: 'POST',
@@ -120,27 +118,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + storedAdminData.username
                 },
-                body: JSON.stringify({
-                    action: 'list'
-                })
+                body: JSON.stringify({ action: 'list' })
             });
             
             const data = await response.json();
             
             if (data.success) {
+                const operatorSelect = document.getElementById('operador');
+                operatorSelect.innerHTML = '<option value="">Seleccionar operador</option>';
+                
                 // Filtrar solo usuarios no administradores
-                usersData = data.users.filter(user => !user.isAdmin);
-                populateOperatorSelect();
-            } else {
-                console.error('Error al cargar usuarios:', data.message);
+                const operators = data.users.filter(user => !user.isAdmin);
+                operators.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.Nombre;
+                    option.textContent = `${user.Nombre} ${user.Apellido}`;
+                    operatorSelect.appendChild(option);
+                });
             }
         } catch (error) {
-            console.error('Error de conexión al cargar usuarios:', error);
+            console.error('Error al cargar operadores:', error);
         }
     }
     
-    // --- Función para cargar clientes ---
-    async function loadClients() {
+    // --- Función para cargar clientes para el modal ---
+    async function loadClientsForModal() {
         try {
             const response = await fetch('/api/admin/clientes', {
                 method: 'POST',
@@ -148,50 +150,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + storedAdminData.username
                 },
-                body: JSON.stringify({
-                    action: 'list'
-                })
+                body: JSON.stringify({ action: 'list' })
             });
             
             const data = await response.json();
             
             if (data.success) {
-                clientsData = data.clientes || [];
-                populateClientSelect();
-            } else {
-                console.error('Error al cargar clientes:', data.message);
+                const clientSelect = document.getElementById('cliente');
+                clientSelect.innerHTML = '<option value="">Seleccionar cliente</option>';
+                
+                data.clientes.forEach(client => {
+                    const option = document.createElement('option');
+                    option.value = client.nombre_empresa;
+                    option.textContent = client.nombre_empresa;
+                    clientSelect.appendChild(option);
+                });
             }
         } catch (error) {
-            console.error('Error de conexión al cargar clientes:', error);
+            console.error('Error al cargar clientes:', error);
         }
-    }
-    
-    // --- Función para poblar el select de operadores ---
-    function populateOperatorSelect() {
-        const operatorSelect = document.getElementById('operador');
-        // Limpiar opciones existentes excepto la primera
-        operatorSelect.innerHTML = '<option value="">Seleccionar operador</option>';
-        
-        usersData.forEach(user => {
-            const option = document.createElement('option');
-            option.value = user.Nombre;
-            option.textContent = `${user.Nombre} ${user.Apellido}`;
-            operatorSelect.appendChild(option);
-        });
-    }
-    
-    // --- Función para poblar el select de clientes ---
-    function populateClientSelect() {
-        const clientSelect = document.getElementById('cliente');
-        // Limpiar opciones existentes excepto la primera
-        clientSelect.innerHTML = '<option value="">Seleccionar cliente</option>';
-        
-        clientsData.forEach(client => {
-            const option = document.createElement('option');
-            option.value = client.nombre_empresa;
-            option.textContent = client.nombre_empresa;
-            clientSelect.appendChild(option);
-        });
     }
     
     // --- Función para cargar totes desde la base de datos ---
@@ -215,9 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + storedAdminData.username
                 },
-                body: JSON.stringify({
-                    action: 'list'
-                })
+                body: JSON.stringify({ action: 'list' })
             });
             
             console.log('Respuesta del servidor - Status:', response.status);
@@ -248,9 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
                      fDespacho: tote.fDespacho || '-',
                      alerta: tote.Alerta
                  }));
+                 
                  console.log('Totes procesados:', totesData.length);
                  renderTable(totesData);
-                 cargarOpcionesFiltros();
             } else {
                 console.error('Error al cargar totes:', data.message);
                 showMessage('Error al cargar los totes: ' + data.message, 'error');
@@ -284,7 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Establecer color según el tipo
-        const colors = CONFIG.COLORS.NOTIFICATIONS;
+        const colors = {
+            success: '#28a745',
+            error: '#dc3545',
+            warning: '#ffc107',
+            info: '#17a2b8'
+        };
         
         messageContainer.style.backgroundColor = colors[type] || colors.info;
         messageContainer.textContent = message;
@@ -293,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ocultar mensaje después de 5 segundos
         setTimeout(() => {
             messageContainer.style.display = 'none';
-        }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
+        }, 5000);
     }
     
     // --- Función para validar fechas en tiempo real ---
@@ -335,13 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
      const modalTitle = document.getElementById('modalTitle');
      const form = document.getElementById('toteForm');
      
-     // Cargar usuarios y clientes si no están cargados
-     if (usersData.length === 0) {
-         await loadUsers();
-     }
-     if (clientsData.length === 0) {
-         await loadClients();
-     }
+     // Cargar operadores y clientes dinámicamente
+     await loadOperatorsForModal();
+     await loadClientsForModal();
      
      if (toteData) {
          // Modo edición
@@ -501,8 +477,6 @@ document.addEventListener('DOMContentLoaded', () => {
  
  // Cargar datos al iniciar la página
  loadTotes();
- loadUsers();
- loadClients();
 
     // --- Event Listeners ---
     // Establecer fecha máxima para fecha de envasado (hoy)
@@ -635,195 +609,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+
+
     // Cargar totes al inicializar la página
     loadTotes();
-    
-    renderTable(totesData);
 });
-
-// Funciones de filtrado para totes
-function aplicarFiltrosTotes() {
-    console.log('=== APLICANDO FILTROS ===');
-    if (!totesData || totesData.length === 0) {
-        console.warn('No hay datos de totes para filtrar');
-        return;
-    }
-
-    // Validar que los elementos de filtro existan
-    const filtroEstado = document.getElementById('filtroEstado');
-    const filtroCliente = document.getElementById('filtroCliente');
-    const filtroOperador = document.getElementById('filtroOperador');
-    const filtroUbicacion = document.getElementById('filtroUbicacion');
-    const fechaInicio = document.getElementById('fechaEnvasadoInicio');
-    const fechaFin = document.getElementById('fechaEnvasadoFin');
-
-    if (!filtroEstado || !filtroCliente || !filtroOperador || !filtroUbicacion || !fechaInicio || !fechaFin) {
-        console.error('No se encontraron todos los elementos de filtro');
-        return;
-    }
-
-    const valorEstado = filtroEstado.value || '';
-    const valorCliente = filtroCliente.value || '';
-    const valorOperador = filtroOperador.value || '';
-    const valorUbicacion = filtroUbicacion.value.toLowerCase() || '';
-    const valorFechaInicio = fechaInicio.value || '';
-    const valorFechaFin = fechaFin.value || '';
-    
-    console.log('Filtros aplicados:', {
-        estado: valorEstado,
-        cliente: valorCliente,
-        operador: valorOperador,
-        ubicacion: valorUbicacion,
-        fechaInicio: valorFechaInicio,
-        fechaFin: valorFechaFin
-    });
-    console.log('Total totes antes del filtro:', totesData.length);
-
-    const totesFiltrados = totesData.filter((tote, index) => {
-        if (index < 3) { // Solo log para los primeros 3 totes
-            console.log(`Evaluando tote ${index}:`, {
-                codigo: tote.codigo,
-                estado: tote.estado,
-                cliente: tote.cliente,
-                operador: tote.operador,
-                ubicacion: tote.ubicacion
-            });
-        }
-        
-        // Filtro por estado
-        if (valorEstado && tote.estado !== valorEstado) {
-            if (index < 3) console.log(`Tote ${index} excluido por estado: ${tote.estado} !== ${valorEstado}`);
-            return false;
-        }
-        
-        // Filtro por cliente
-        if (valorCliente && tote.cliente !== valorCliente) {
-            if (index < 3) console.log(`Tote ${index} excluido por cliente: ${tote.cliente} !== ${valorCliente}`);
-            return false;
-        }
-        
-        // Filtro por operador
-        if (valorOperador && tote.operador !== valorOperador) {
-            if (index < 3) console.log(`Tote ${index} excluido por operador: ${tote.operador} !== ${valorOperador}`);
-            return false;
-        }
-        
-        // Filtro por ubicación
-        if (valorUbicacion && !tote.ubicacion.toLowerCase().includes(valorUbicacion)) {
-            if (index < 3) console.log(`Tote ${index} excluido por ubicación: ${tote.ubicacion} no contiene ${valorUbicacion}`);
-            return false;
-        }
-        
-        // Filtro por fecha de envasado
-         if (valorFechaInicio || valorFechaFin) {
-             if (tote.fEnvasado && tote.fEnvasado !== '-') {
-                 // Convertir fecha de dd/MM/yyyy a Date
-                 const fechaParts = tote.fEnvasado.split('/');
-                 if (fechaParts.length === 3) {
-                     const fechaEnvasado = new Date(fechaParts[2], fechaParts[1] - 1, fechaParts[0]);
-                     if (valorFechaInicio && fechaEnvasado < new Date(valorFechaInicio)) return false;
-                     if (valorFechaFin && fechaEnvasado > new Date(valorFechaFin)) return false;
-                 }
-             } else {
-                 // Si no tiene fecha de envasado y se está filtrando por fecha, excluir
-                 return false;
-             }
-         }
-        
-        return true;
-    });
-
-    console.log('Totes filtrados:', totesFiltrados.length);
-    renderTable(totesFiltrados);
-    
-    if (totesFiltrados.length === 0) {
-        showMessage('No se encontraron totes que coincidan con los filtros aplicados', 'info');
-    }
-}
-
-function limpiarFiltrosTotes() {
-    // Validar que los elementos de filtro existan
-    const filtroEstado = document.getElementById('filtroEstado');
-    const filtroCliente = document.getElementById('filtroCliente');
-    const filtroOperador = document.getElementById('filtroOperador');
-    const filtroUbicacion = document.getElementById('filtroUbicacion');
-    const fechaInicio = document.getElementById('fechaEnvasadoInicio');
-    const fechaFin = document.getElementById('fechaEnvasadoFin');
-    
-    // Limpiar solo los elementos que existan
-    if (filtroEstado) filtroEstado.value = '';
-    if (filtroCliente) filtroCliente.value = '';
-    if (filtroOperador) filtroOperador.value = '';
-    if (filtroUbicacion) filtroUbicacion.value = '';
-    if (fechaInicio) fechaInicio.value = '';
-    if (fechaFin) fechaFin.value = '';
-    
-    // Mostrar todos los totes
-    if (totesData && totesData.length > 0) {
-        renderTable(totesData);
-    }
-}
-
-// Función para cargar opciones de filtros dinámicamente
-async function cargarOpcionesFiltros() {
-    try {
-        // Validar que los elementos existan antes de proceder
-        const filtroCliente = document.getElementById('filtroCliente');
-        const filtroOperador = document.getElementById('filtroOperador');
-        
-        if (!filtroCliente || !filtroOperador) {
-            console.warn('Elementos de filtro no encontrados, saltando carga de opciones');
-            return;
-        }
-
-        // Cargar clientes
-        const clientesResponse = await fetch('/api/admin/clientes', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + storedAdminData.username
-            },
-            body: JSON.stringify({ action: 'list' })
-        });
-
-        if (clientesResponse.ok) {
-            const clientesData = await clientesResponse.json();
-            if (clientesData.clientes) {
-                // Limpiar opciones existentes (excepto "Todos")
-                filtroCliente.innerHTML = '<option value="">Todos</option>';
-                clientesData.clientes.forEach(cliente => {
-                    const option = document.createElement('option');
-                    option.value = cliente.nombre;
-                     option.textContent = cliente.nombre;
-                    filtroCliente.appendChild(option);
-                });
-            }
-        }
-
-        // Cargar operadores
-        const operadoresResponse = await fetch('/api/admin/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + storedAdminData.username
-            },
-            body: JSON.stringify({ action: 'list' })
-        });
-
-        if (operadoresResponse.ok) {
-            const operadoresData = await operadoresResponse.json();
-            if (operadoresData.users) {
-                // Limpiar opciones existentes (excepto "Todos")
-                filtroOperador.innerHTML = '<option value="">Todos</option>';
-                operadoresData.users.filter(user => !user.isAdmin).forEach(user => {
-                     const option = document.createElement('option');
-                     option.value = user.username;
-                     option.textContent = user.username;
-                    filtroOperador.appendChild(option);
-                });
-            }
-        }
-    } catch (error) {
-        console.error('Error al cargar opciones de filtros:', error);
-    }
-}

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="../css/clientes-styles.css">
     <link rel="stylesheet" href="../css/totes-styles.css">
     <link rel="stylesheet" href="../css/modern-buttons.css">
-    <link rel="stylesheet" href="../css/dark-mode.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -41,28 +41,24 @@
                     <button class="btn-primary" id="addClientBtn"><i class="fas fa-plus-circle"></i> Agregar Cliente</button>
                 </div>
             </header>
-            <div class="content-card">
-                <div id="messageContainer" class="message"></div>
-                
-                <div class="system-table-container">
-                <table class="system-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre Empresa</th>
-                                <th>Contacto Principal</th>
-                                <th>Email</th>
-                                <th>Teléfono</th>
-                                <th>Tipo</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="clientsList">
-                            <!-- Aquí se cargarán los clientes dinámicamente -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <div id="messageContainer" class="message"></div>
+            
+            <table class="system-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre Empresa</th>
+                            <th>Contacto Principal</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsList">
+                        <!-- Aquí se cargarán los clientes dinámicamente -->
+                    </tbody>
+                </table>
         </div>
     </div>
     
@@ -122,7 +118,7 @@
     </div>
     
     <script src="../js/config.js"></script>
-    <script src="../js/dark-mode.js"></script>
+
     <script src="../js/clientes.js"></script>
 </body>
 </html>

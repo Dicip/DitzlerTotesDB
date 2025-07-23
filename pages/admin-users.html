@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../css/admin-users-styles.css">
     <link rel="stylesheet" href="../css/totes-styles.css">
     <link rel="stylesheet" href="../css/modern-buttons.css">
-    <link rel="stylesheet" href="../css/dark-mode.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -40,27 +40,23 @@
                     <button class="btn-primary" id="addUserBtn"><i class="fas fa-plus-circle"></i> Agregar Usuario</button>
                 </div>
             </header>
-            <div class="content-card">
-                <div id="messageContainer" class="message"></div>
-                
-                <div class="system-table-container">
-                <table class="system-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Fecha Creación</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usersList">
-                            <!-- Aquí se cargarán los usuarios dinámicamente -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <div id="messageContainer" class="message"></div>
+            
+            <table class="system-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Fecha Creación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                        <!-- Aquí se cargarán los usuarios dinámicamente -->
+                    </tbody>
+                </table>
         </div>
     </div>
     
@@ -125,7 +121,7 @@
     </div>
     
     <script src="../js/config.js"></script>
-    <script src="../js/dark-mode.js"></script>
+
     <script src="../js/admin-users.js"></script>
 </body>
 </html>

@@ -4,20 +4,20 @@
 
 /* Variables CSS para consistencia - Estilo Rojo Unificado */
 :root {
-    --primary-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-    --primary-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    --secondary-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-    --secondary-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    --success-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-    --success-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    --warning-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-    --warning-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    --danger-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-    --danger-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    --info-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-    --info-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
-    --tertiary-gradient: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
-    --tertiary-hover-gradient: linear-gradient(135deg, #e60000 0%, #b30000 100%);
+    --primary-gradient: var(--primary-color);
+    --primary-hover-gradient: var(--primary-hover);
+    --secondary-gradient: var(--primary-color);
+    --secondary-hover-gradient: var(--primary-hover);
+    --success-gradient: var(--status-success);
+    --success-hover-gradient: #218838;
+    --warning-gradient: var(--status-warning);
+    --warning-hover-gradient: #e0a800;
+    --danger-gradient: var(--status-error);
+    --danger-hover-gradient: #c82333;
+    --info-gradient: var(--status-info);
+    --info-hover-gradient: #138496;
+    --tertiary-gradient: var(--primary-color);
+    --tertiary-hover-gradient: var(--primary-hover);
     
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow-md: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
@@ -458,7 +458,7 @@
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+    background: var(--primary-color);
     color: white;
     border: none;
     cursor: pointer;
@@ -474,19 +474,19 @@
 
 /* Clean Filters Button */
 .btn-clean-filters {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: #fef3c7;
     color: #92400e;
     border: 1px solid #f59e0b;
 }
 
 .btn-clean-filters:hover {
-    background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+    background: #fde68a;
     color: #78350f;
 }
 
 /* Login Button */
 .login-btn {
-    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    background: #dc3545;
     color: white;
     border: none;
     padding: 14px 24px;
@@ -504,14 +504,14 @@
 }
 
 .login-btn:hover {
-    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    background: #c82333;
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
 
 /* Add User Button */
 .add-user-btn {
-    background: linear-gradient(135deg, var(--success-color) 0%, #34d399 100%);
+    background: var(--status-success);
     color: white;
     border: none;
     padding: 12px 20px;
@@ -527,7 +527,7 @@
 }
 
 .add-user-btn:hover {
-    background: linear-gradient(135deg, var(--success-hover) 0%, var(--success-color) 100%);
+    background: #218838;
     transform: translateY(-1px);
     box-shadow: var(--shadow-md);
 }
@@ -552,24 +552,7 @@
     }
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --secondary-color: #9ca3af;
-        --secondary-hover: #d1d5db;
-    }
-    
-    .btn-secondary {
-        background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
-        color: #e5e7eb;
-        border: 1px solid #6b7280;
-    }
-    
-    .btn-secondary:hover {
-        background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
-        color: #f9fafb;
-    }
-}
+
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {

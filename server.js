@@ -1063,41 +1063,30 @@ app.post('/api/admin/totes', async (req, res) => {
         `);
       res.json({ success: true, message: 'Tote eliminado correctamente' });
     }
-    // Buscar totes por filtros
+    // Buscar totes por filtros usando procedimiento almacenado
     else if (action === 'search' && toteData) {
-      let query = `
-        SELECT Id, Codigo, Estado, Ubicacion, Cliente, Operador, Producto, Lote,
-               FORMAT(FechaEnvasado, 'dd/MM/yyyy') as fEnvasado,
-               FORMAT(FechaVencimiento, 'dd/MM/yyyy') as fVencimiento,
-               FORMAT(FechaDespacho, 'dd/MM/yyyy') as fDespacho,
-               Alerta
-        FROM Totes 
-        WHERE Activo = 1
-      `;
-      
       const request = pool.request();
       
-      if (toteData.codigo) {
-        query += ` AND Codigo LIKE @codigo`;
-        request.input('codigo', sql.VarChar, `%${toteData.codigo}%`);
-      }
-      if (toteData.estado) {
-        query += ` AND Estado = @estado`;
-        request.input('estado', sql.VarChar, toteData.estado);
-      }
-      if (toteData.cliente) {
-        query += ` AND Cliente LIKE @cliente`;
-        request.input('cliente', sql.VarChar, `%${toteData.cliente}%`);
-      }
-      if (toteData.producto) {
-        query += ` AND Producto LIKE @producto`;
-        request.input('producto', sql.VarChar, `%${toteData.producto}%`);
-      }
+      // Configurar parámetros para el procedimiento almacenado
+      request.input('Codigo', sql.VarChar, toteData.codigo || null);
+      request.input('Estado', sql.VarChar, toteData.estado || null);
+      request.input('Cliente', sql.VarChar, toteData.cliente || null);
+      request.input('FechaDesde', sql.Date, toteData.fechaDesde || null);
+      request.input('FechaHasta', sql.Date, toteData.fechaHasta || null);
+      request.input('SoloActivos', sql.Bit, 1);
       
-      query += ` ORDER BY FechaCreacion DESC`;
+      // Ejecutar procedimiento almacenado
+      const result = await request.execute('SP_BuscarTotes');
       
-      const result = await request.query(query);
-      res.json({ success: true, totes: result.recordset });
+      // Formatear fechas para el frontend
+      const totesFormateados = result.recordset.map(tote => ({
+        ...tote,
+        fEnvasado: tote.FechaEnvasado ? new Date(tote.FechaEnvasado).toLocaleDateString('es-ES') : '-',
+        fVencimiento: tote.FechaVencimiento ? new Date(tote.FechaVencimiento).toLocaleDateString('es-ES') : '-',
+        fDespacho: tote.FechaDespacho ? new Date(tote.FechaDespacho).toLocaleDateString('es-ES') : '-'
+      }));
+      
+      res.json({ success: true, totes: totesFormateados });
     }
     else {
       res.status(400).json({ success: false, message: 'Acción no válida' });
@@ -1136,28 +1125,22 @@ app.post('/api/admin/totes', async (req, res) => {
   }
 });
 
-// API para obtener estadísticas del dashboard
+// API para obtener estadísticas del dashboard usando procedimiento almacenado
 app.get('/api/dashboard/stats', async (req, res) => {
   let pool;
   try {
     pool = await new sql.ConnectionPool(sqlConfig).connect();
     
-    // Obtener estadísticas de totes por estado
-    const statusStats = await pool.request().query(`
-      SELECT 
-        Estado,
-        COUNT(*) as cantidad
-      FROM Totes 
-      WHERE Activo = 1
-      GROUP BY Estado
-    `);
+    // Ejecutar procedimiento almacenado para estadísticas
+    const result = await pool.request().execute('SP_EstadisticasDashboard');
     
-    // Obtener total de totes activos
-    const totalTotes = await pool.request().query(`
-      SELECT COUNT(*) as total FROM Totes WHERE Activo = 1
-    `);
+    // El procedimiento devuelve múltiples result sets
+    const totalTotes = result.recordsets[0][0].TotalTotes;
+    const statusStats = result.recordsets[1]; // Totes por estado
+    const totesProximosVencer = result.recordsets[2][0].TotesProximosVencer;
+    const eventosRecientes = result.recordsets[3]; // Últimos 10 eventos
     
-    // Obtener totes con clientes agrupados por cliente
+    // Obtener estadísticas adicionales que no están en el procedimiento
     const totesConClientes = await pool.request().query(`
       SELECT 
         Cliente,
@@ -1167,7 +1150,6 @@ app.get('/api/dashboard/stats', async (req, res) => {
       GROUP BY Cliente
     `);
     
-    // Obtener totes fuera de plazo (En Uso por 30+ días o vencidos)
     const totesFueraPlazo = await pool.request().query(`
       SELECT 
         Cliente,
@@ -1180,7 +1162,6 @@ app.get('/api/dashboard/stats', async (req, res) => {
       GROUP BY Cliente
     `);
     
-    // Obtener total de totes fuera de plazo
     const totalFueraPlazo = await pool.request().query(`
       SELECT COUNT(*) as total 
       FROM Totes 
@@ -1190,7 +1171,6 @@ app.get('/api/dashboard/stats', async (req, res) => {
              OR FechaVencimiento < GETDATE())
     `);
     
-    // Obtener usuarios activos
     const usuariosActivos = await pool.request().query(`
       SELECT COUNT(*) as total FROM Usuarios WHERE Estado = 'Activo'
     `);
@@ -1198,8 +1178,10 @@ app.get('/api/dashboard/stats', async (req, res) => {
     res.json({
       success: true,
       data: {
-        statusStats: statusStats.recordset,
-        totalTotes: totalTotes.recordset[0].total,
+        totalTotes: totalTotes,
+        statusStats: statusStats.map(stat => ({ Estado: stat.Estado, cantidad: stat.Cantidad })),
+        totesProximosVencer: totesProximosVencer,
+        eventosRecientes: eventosRecientes,
         totesConClientes: totesConClientes.recordset,
         totesFueraPlazo: totesFueraPlazo.recordset,
         totalFueraPlazo: totalFueraPlazo.recordset[0].total,
