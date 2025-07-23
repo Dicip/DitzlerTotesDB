@@ -287,6 +287,58 @@ body:has(.sidebar) .metric-period {
     margin-top: 5px;
 }
 
+/* Estilos para módulo de recepción */
+.message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: none;
+    font-weight: 600;
+}
+
+.message.success {
+    background-color: var(--success-background, #e8f5e8);
+    color: var(--success-color, #4caf50);
+    border: 1px solid var(--success-color, #4caf50);
+}
+
+.message.error {
+    background-color: var(--error-background, #ffeaea);
+    color: var(--error-color, #f44336);
+    border: 1px solid var(--error-color, #f44336);
+}
+
+.message.info {
+    background-color: var(--info-background, #e3f2fd);
+    color: var(--info-color, #2196f3);
+    border: 1px solid var(--info-color, #2196f3);
+}
+
+/* Status badges para tabla de escaneos recientes */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-completado {
+    background-color: var(--success-light, rgba(76, 175, 80, 0.1));
+    color: var(--success-color, #4caf50);
+}
+
+.status-error {
+    background-color: var(--error-light, rgba(244, 67, 54, 0.1));
+    color: var(--error-color, #f44336);
+}
+
+.status-pendiente {
+    background-color: var(--warning-light, rgba(255, 193, 7, 0.1));
+    color: var(--warning-color, #ffc107);
+}
+
 /* Ajustes para el panel de operador */
 .operador-panel {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

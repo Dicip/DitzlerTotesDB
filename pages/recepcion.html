@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DitzlerTotes - Recepción</title>
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/dashboard-styles.css">
+    <link rel="stylesheet" href="../css/operador-styles.css">
+    <link rel="stylesheet" href="../css/modern-buttons.css">
+    <link rel="stylesheet" href="../css/unified-table-styles.css">
+    <link rel="stylesheet" href="../css/dark-mode.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .scanner-container {
+            background: var(--card-background);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .scanner-input {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: end;
+        }
+        
+        .input-group {
+            flex: 1;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--input-background);
+            color: var(--text-primary);
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .scan-result {
+            background: var(--success-background, #e8f5e8);
+            border: 1px solid var(--success-color, #4caf50);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .scan-result.error {
+            background: var(--error-background, #ffeaea);
+            border-color: var(--error-color, #f44336);
+        }
+        
+        .tote-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .info-item {
+            background: var(--background-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .route-selection {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--background-secondary);
+            border-radius: 8px;
+        }
+        
+        .route-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .route-option {
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--card-background);
+        }
+        
+        .route-option:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+        
+        .route-option.selected {
+            border-color: var(--primary-color);
+            background: var(--primary-light, rgba(33, 150, 243, 0.1));
+        }
+        
+        .route-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .route-description {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+        
+        .btn-confirm {
+            background: var(--success-color, #4caf50);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .btn-confirm:hover {
+            background: var(--success-dark, #45a049);
+        }
+        
+        .btn-confirm:disabled {
+            background: var(--text-disabled, #ccc);
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="../public/img/LOGO DITZLER PNG.png" alt="Ditzler Chile Logo" class="logo">
+            </div>
+            <div class="nav-links">
+                <li><a href="operador.html"><i class="fas fa-tachometer-alt"></i> Panel de Control</a></li>
+                <li><a href="recepcion.html" class="active"><i class="fas fa-inbox"></i> Recepción</a></li>
+                <li><a href="totes-operador.html"><i class="fas fa-box"></i> Gestión de Totes</a></li>
+                <li><a href="#"><i class="fas fa-qrcode"></i> Escanear Totes</a></li>
+            </div>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                <a href="#"><i class="fas fa-user"></i> Mi Perfil</a>
+            </div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="totes-header">
+                <div class="title-and-actions">
+                    <div>
+                        <h1><i class="fas fa-inbox"></i> Recepción de Totes</h1>
+                        <p>Escanear TAG, verificar ingreso y definir ruta</p>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="content-card">
+                <!-- Scanner Section -->
+                <div class="scanner-container">
+                    <h2><i class="fas fa-qrcode"></i> Escanear TAG del Tote</h2>
+                    <div class="scanner-input">
+                        <div class="input-group">
+                            <label for="tagInput">Código del TAG *</label>
+                            <input type="text" id="tagInput" placeholder="Escanee o ingrese el código del TAG" autofocus>
+                        </div>
+                        <button type="button" class="btn-primary" id="scanBtn">
+                            <i class="fas fa-search"></i> Verificar
+                        </button>
+                    </div>
+                    
+                    <!-- Scan Result -->
+                    <div id="scanResult" class="scan-result">
+                        <div id="resultMessage"></div>
+                        
+                        <!-- Tote Information -->
+                        <div id="toteInfo" class="tote-info" style="display: none;">
+                            <div class="info-item">
+                                <div class="info-label">Código del Tote</div>
+                                <div class="info-value" id="toteCodigo">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Estado Actual</div>
+                                <div class="info-value" id="toteEstado">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Cliente</div>
+                                <div class="info-value" id="toteCliente">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Operador Asignado</div>
+                                <div class="info-value" id="toteOperador">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Ubicación Actual</div>
+                                <div class="info-value" id="toteUbicacion">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Producto</div>
+                                <div class="info-value" id="toteProducto">-</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Route Selection -->
+                        <div id="routeSelection" class="route-selection" style="display: none;">
+                            <h3><i class="fas fa-route"></i> Seleccionar Ruta del Tote</h3>
+                            <div class="route-options">
+                                <div class="route-option" data-route="lavado">
+                                    <div class="route-title"><i class="fas fa-tint"></i> Área de Lavado</div>
+                                    <div class="route-description">Enviar tote para proceso de limpieza y desinfección</div>
+                                </div>
+                                <div class="route-option" data-route="almacenamiento">
+                                    <div class="route-title"><i class="fas fa-warehouse"></i> Almacenamiento</div>
+                                    <div class="route-description">Almacenar tote en bodega hasta próximo uso</div>
+                                </div>
+                                <div class="route-option" data-route="mantenimiento">
+                                    <div class="route-title"><i class="fas fa-tools"></i> Mantenimiento</div>
+                                    <div class="route-description">Enviar tote para revisión y reparación</div>
+                                </div>
+                                <div class="route-option" data-route="despacho">
+                                    <div class="route-title"><i class="fas fa-truck"></i> Área de Despacho</div>
+                                    <div class="route-description">Preparar tote para entrega a cliente</div>
+                                </div>
+                                <div class="route-option" data-route="inspeccion">
+                                    <div class="route-title"><i class="fas fa-search-plus"></i> Inspección</div>
+                                    <div class="route-description">Revisar estado y calidad del tote</div>
+                                </div>
+                                <div class="route-option" data-route="cuarentena">
+                                    <div class="route-title"><i class="fas fa-exclamation-triangle"></i> Cuarentena</div>
+                                    <div class="route-description">Aislar tote por problemas detectados</div>
+                                </div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button type="button" class="btn-secondary" id="cancelBtn">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                                <button type="button" class="btn-confirm" id="confirmRouteBtn" disabled>
+                                    <i class="fas fa-check"></i> Confirmar Ruta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Scans -->
+                <div class="scanner-container">
+                    <h2><i class="fas fa-history"></i> Escaneos Recientes</h2>
+                    <div class="system-table-container">
+                        <table class="system-table">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Código TAG</th>
+                                    <th>Tote</th>
+                                    <th>Ruta Asignada</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentScansTable">
+                                <!-- Los escaneos recientes se cargarán aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../js/config.js"></script>
+    <script src="../js/dark-mode.js"></script>
+    <script src="../js/recepcion.js"></script>
+</body>
+</html>

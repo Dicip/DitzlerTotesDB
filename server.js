@@ -56,9 +56,9 @@ const sqlConfig = {
   options: {
     encrypt: false,
     trustServerCertificate: true,
-
-    connectTimeout: 30000, // Aumentar el tiempo de espera para la conexión
-    requestTimeout: 30000 // Aumentar el tiempo de espera para las solicitudes
+    enableArithAbort: true,
+    connectTimeout: 60000, // Aumentar el tiempo de espera para la conexión
+    requestTimeout: 60000 // Aumentar el tiempo de espera para las solicitudes
   },
   pool: {
     max: 10,
@@ -478,8 +478,8 @@ app.post('/api/admin/clientes', async (req, res) => {
       // Insertar nuevo cliente
       await pool.request()
         .input('logo', sql.NVarChar, clientData.logo || '')
-        .input('nombre_empresa', sql.NVarChar, clientData.nombreEmpresa)
-        .input('contacto_principal', sql.NVarChar, clientData.contactoPrincipal)
+        .input('nombre_empresa', sql.NVarChar, clientData.nombre_empresa)
+        .input('contacto_principal', sql.NVarChar, clientData.contacto_principal)
         .input('email', sql.NVarChar, clientData.email)
         .input('telefono', sql.NVarChar, clientData.telefono)
         .input('tipo', sql.NVarChar, clientData.tipo)
@@ -577,8 +577,8 @@ app.post('/api/admin/clientes', async (req, res) => {
       // Auditar actualización de cliente
       const oldData = {
         logo: oldClientData.logo,
-        nombreEmpresa: oldClientData.nombre_empresa,
-        contactoPrincipal: oldClientData.contacto_principal,
+        nombre_empresa: oldClientData.nombre_empresa,
+        contacto_principal: oldClientData.contacto_principal,
         email: oldClientData.email,
         telefono: oldClientData.telefono,
         tipo: oldClientData.tipo,
@@ -586,8 +586,8 @@ app.post('/api/admin/clientes', async (req, res) => {
       };
       const newData = {
         logo: clientData.logo || '',
-        nombreEmpresa: clientData.nombreEmpresa,
-        contactoPrincipal: clientData.contactoPrincipal,
+        nombre_empresa: clientData.nombre_empresa,
+        contacto_principal: clientData.contacto_principal,
         email: clientData.email,
         telefono: clientData.telefono,
         tipo: clientData.tipo,
@@ -603,7 +603,7 @@ app.post('/api/admin/clientes', async (req, res) => {
         clientData.id, 
         oldData,
         newData,
-        `Cliente ${clientData.nombreEmpresa} actualizado`
+        `Cliente ${clientData.nombre_empresa} actualizado`
       );
       
       res.json({ success: true, message: 'Cliente actualizado correctamente' });
@@ -1513,6 +1513,210 @@ app.get('/api/eventos/:id', async (req, res) => {
             message: 'Error interno del servidor' 
         });
     }
+});
+
+// ===== ENDPOINTS PARA MÓDULO DE RECEPCIÓN =====
+
+// Endpoint para escanear TAG y verificar tote
+app.post('/api/recepcion/scan-tag', async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ success: false, message: 'No autorizado' });
+  }
+  
+  let pool;
+  try {
+    const operadorName = req.headers.authorization.replace('Bearer ', '');
+    const { tagCode } = req.body;
+    
+    if (!tagCode) {
+      return res.status(400).json({ success: false, message: 'Código de TAG requerido' });
+    }
+    
+    pool = await new sql.ConnectionPool(sqlConfig).connect();
+    
+    // Verificar que el operador existe
+    const operadorResult = await pool.request()
+      .input('username', sql.VarChar, operadorName)
+      .query('SELECT Id, Nombre, Apellido, Email, Rol FROM Usuarios WHERE Nombre = @username AND Estado = \'Activo\'');
+    
+    if (operadorResult.recordset.length === 0) {
+      return res.status(401).json({ success: false, message: 'Usuario no encontrado o inactivo' });
+    }
+    
+    const currentUser = operadorResult.recordset[0];
+    
+    // Buscar tote por código (asumiendo que el TAG corresponde al código del tote)
+    const toteResult = await pool.request()
+      .input('codigo', sql.VarChar, tagCode)
+      .query(`
+        SELECT Id, Codigo, Estado, Ubicacion, Cliente, Operador, Producto, Lote,
+               FORMAT(FechaEnvasado, 'dd/MM/yyyy') as FechaEnvasado,
+               FORMAT(FechaVencimiento, 'dd/MM/yyyy') as FechaVencimiento,
+               FORMAT(FechaDespacho, 'dd/MM/yyyy') as FechaDespacho,
+               Alerta, FechaCreacion, FechaModificacion
+        FROM Totes 
+        WHERE Codigo = @codigo AND Activo = 1
+      `);
+    
+    if (toteResult.recordset.length === 0) {
+      // Registrar intento fallido
+      await auditLogger.auditError(
+        req,
+        currentUser,
+        'RECEPCION',
+        `TAG no encontrado: ${tagCode}`
+      );
+      
+      return res.status(404).json({ 
+        success: false, 
+        message: 'TAG no encontrado en el sistema' 
+      });
+    }
+    
+    const tote = toteResult.recordset[0];
+    
+    // Registrar escaneo exitoso
+    await auditLogger.auditRead(
+      req,
+      currentUser,
+      'RECEPCION',
+      'Tote',
+      tote.Id,
+      `TAG escaneado: ${tagCode} - Tote: ${tote.Codigo}`
+    );
+    
+    res.json({ 
+      success: true, 
+      message: 'TAG verificado correctamente',
+      tote: tote
+    });
+    
+  } catch (err) {
+    console.error('Error al escanear TAG:', err);
+    await auditLogger.auditError(req, 'RECEPCION', `Error al escanear TAG: ${err.message}`);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  } finally {
+    if (pool) {
+      try {
+        await pool.close();
+      } catch (err) {
+        console.error('Error al cerrar la conexión:', err);
+      }
+    }
+  }
+});
+
+// Endpoint para asignar ruta al tote
+app.post('/api/recepcion/assign-route', async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ success: false, message: 'No autorizado' });
+  }
+  
+  let pool;
+  try {
+    const operadorName = req.headers.authorization.replace('Bearer ', '');
+    const { toteId, route, tagCode } = req.body;
+    
+    if (!toteId || !route) {
+      return res.status(400).json({ success: false, message: 'ID del tote y ruta son requeridos' });
+    }
+    
+    pool = await new sql.ConnectionPool(sqlConfig).connect();
+    
+    // Verificar que el operador existe
+    const operadorResult = await pool.request()
+      .input('username', sql.VarChar, operadorName)
+      .query('SELECT Id, Nombre, Apellido, Email, Rol FROM Usuarios WHERE Nombre = @username AND Estado = \'Activo\'');
+    
+    if (operadorResult.recordset.length === 0) {
+      return res.status(401).json({ success: false, message: 'Usuario no encontrado o inactivo' });
+    }
+    
+    const currentUser = operadorResult.recordset[0];
+    
+    // Verificar que el tote existe
+    const toteResult = await pool.request()
+      .input('toteId', sql.Int, toteId)
+      .query('SELECT Id, Codigo, Estado, Ubicacion FROM Totes WHERE Id = @toteId AND Activo = 1');
+    
+    if (toteResult.recordset.length === 0) {
+      return res.status(404).json({ success: false, message: 'Tote no encontrado' });
+    }
+    
+    const tote = toteResult.recordset[0];
+    
+    // Mapear rutas a estados y ubicaciones
+    const routeMapping = {
+      'lavado': { estado: 'En Lavado', ubicacion: 'Área de Lavado' },
+      'almacenamiento': { estado: 'Disponible', ubicacion: 'Almacén Principal' },
+      'mantenimiento': { estado: 'En Mantenimiento', ubicacion: 'Taller de Mantenimiento' },
+      'despacho': { estado: 'Listo para Despacho', ubicacion: 'Área de Despacho' },
+      'inspeccion': { estado: 'En Inspección', ubicacion: 'Área de Inspección' },
+      'cuarentena': { estado: 'En Cuarentena', ubicacion: 'Área de Cuarentena' }
+    };
+    
+    const routeInfo = routeMapping[route];
+    if (!routeInfo) {
+      return res.status(400).json({ success: false, message: 'Ruta no válida' });
+    }
+    
+    // Obtener datos anteriores para auditoría
+    const oldData = {
+      codigo: tote.Codigo,
+      estado: tote.Estado,
+      ubicacion: tote.Ubicacion
+    };
+    
+    // Actualizar el tote con la nueva ruta
+    await pool.request()
+      .input('toteId', sql.Int, toteId)
+      .input('estado', sql.VarChar, routeInfo.estado)
+      .input('ubicacion', sql.VarChar, routeInfo.ubicacion)
+      .query(`
+        UPDATE Totes 
+        SET Estado = @estado,
+            Ubicacion = @ubicacion,
+            FechaModificacion = GETDATE()
+        WHERE Id = @toteId
+      `);
+    
+    // Datos nuevos para auditoría
+    const newData = {
+      codigo: tote.Codigo,
+      estado: routeInfo.estado,
+      ubicacion: routeInfo.ubicacion
+    };
+    
+    // Registrar la asignación de ruta en auditoría
+    await auditLogger.auditUpdate(
+      req,
+      currentUser,
+      'RECEPCION',
+      'Tote',
+      toteId,
+      oldData,
+      newData,
+      `Ruta asignada en recepción: ${route} - TAG: ${tagCode}`
+    );
+    
+    res.json({ 
+      success: true, 
+      message: `Tote enviado a ${routeInfo.ubicacion} correctamente`
+    });
+    
+  } catch (err) {
+    console.error('Error al asignar ruta:', err);
+    await auditLogger.auditError(req, 'RECEPCION', `Error al asignar ruta: ${err.message}`);
+    res.status(500).json({ success: false, message: 'Error interno del servidor' });
+  } finally {
+    if (pool) {
+      try {
+        await pool.close();
+      } catch (err) {
+        console.error('Error al cerrar la conexión:', err);
+      }
+    }
+  }
 });
 
 // Iniciar el servidor
