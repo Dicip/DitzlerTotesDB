@@ -1245,8 +1245,8 @@ app.get('/api/eventos', async (req, res) => {
         const pool = await new sql.ConnectionPool(sqlConfig).connect();
         let query = `
             SELECT 
-                Id, TipEvento as TipoEvento, Modulo, Descripcion, Usuario as UsuarioNombre, '' as UsuarioRol,
-                ToteId as ObjetoId, 'Tote' as ObjetoTipo, ResultadoExitoso as Exitoso, FechaEvento, IpAddress as DireccionIP,
+                Id, TipoEvento, Modulo, Descripcion, UsuarioNombre, UsuarioEmail, UsuarioRol,
+                ObjetoId, ObjetoTipo, Exitoso, FechaEvento, DireccionIP, UserAgent, MensajeError,
                 CASE 
                     WHEN DATEDIFF(MINUTE, FechaEvento, GETDATE()) < 60 
                     THEN CAST(DATEDIFF(MINUTE, FechaEvento, GETDATE()) AS NVARCHAR) + ' minutos atrás'
@@ -1272,7 +1272,7 @@ app.get('/api/eventos', async (req, res) => {
         }
         
         if (usuarioId) {
-            query += ' AND ToteId = @usuarioId';
+            query += ' AND UsuarioId = @usuarioId';
             request.input('usuarioId', sql.Int, usuarioId);
         }
         
@@ -1287,7 +1287,7 @@ app.get('/api/eventos', async (req, res) => {
         }
         
         if (exitoso !== undefined) {
-            query += ' AND ResultadoExitoso = @exitoso';
+            query += ' AND Exitoso = @exitoso';
             request.input('exitoso', sql.Bit, exitoso === 'true');
         }
         
@@ -1310,7 +1310,7 @@ app.get('/api/eventos', async (req, res) => {
             countRequest.input('modulo', sql.NVarChar(50), modulo);
         }
         if (usuarioId) {
-            countQuery += ' AND ToteId = @usuarioId';
+            countQuery += ' AND UsuarioId = @usuarioId';
             countRequest.input('usuarioId', sql.Int, usuarioId);
         }
         if (fechaInicio) {
@@ -1322,7 +1322,7 @@ app.get('/api/eventos', async (req, res) => {
             countRequest.input('fechaFin', sql.DateTime, fechaFin);
         }
         if (exitoso !== undefined) {
-            countQuery += ' AND ResultadoExitoso = @exitoso';
+            countQuery += ' AND Exitoso = @exitoso';
             countRequest.input('exitoso', sql.Bit, exitoso === 'true');
         }
         
@@ -1382,8 +1382,8 @@ app.get('/api/eventos/estadisticas', async (req, res) => {
         const statsQuery = `
             SELECT 
                 COUNT(*) as TotalEventos,
-                COUNT(CASE WHEN ResultadoExitoso = 1 THEN 1 END) as EventosExitosos,
-                COUNT(CASE WHEN ResultadoExitoso = 0 THEN 1 END) as EventosFallidos,
+                COUNT(CASE WHEN Exitoso = 1 THEN 1 END) as EventosExitosos,
+                COUNT(CASE WHEN Exitoso = 0 THEN 1 END) as EventosFallidos,
                 COUNT(CASE WHEN FechaEvento >= DATEADD(day, -1, GETDATE()) THEN 1 END) as EventosUltimas24h,
                 COUNT(CASE WHEN FechaEvento >= DATEADD(day, -7, GETDATE()) THEN 1 END) as EventosUltimaSemana
             FROM Eventos
@@ -1407,10 +1407,10 @@ app.get('/api/eventos/estadisticas', async (req, res) => {
         
         // Usuarios más activos
         const usuariosQuery = `
-            SELECT TOP 10 Usuario as UsuarioNombre, '' as UsuarioRol, COUNT(*) as Cantidad
+            SELECT TOP 10 UsuarioNombre, UsuarioRol, COUNT(*) as Cantidad
             FROM Eventos 
-            WHERE Usuario IS NOT NULL
-            GROUP BY Usuario
+            WHERE UsuarioNombre IS NOT NULL
+            GROUP BY UsuarioNombre, UsuarioRol
             ORDER BY Cantidad DESC
         `;
         
