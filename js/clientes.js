@@ -326,7 +326,7 @@ function showMessage(message, type) {
     
     setTimeout(() => {
         messageContainer.style.display = 'none';
-    }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
+    }, 5000); // 5 segundos
 }
 
 // Persistencia de datos
@@ -378,11 +378,10 @@ async function loadClients() {
             }
         ];
      }
+}
 
-    // Mobile menu functionality
-    initializeMobileMenu();
-
-    function initializeMobileMenu() {
+// Mobile menu functionality
+function initializeMobileMenu() {
         // Create mobile menu toggle button
         const mobileToggle = document.createElement('button');
         mobileToggle.className = 'mobile-menu-toggle';
@@ -448,5 +447,4 @@ async function loadClients() {
                 closeSidebar();
             }
         });
-    }
 }
