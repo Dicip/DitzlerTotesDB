@@ -107,8 +107,8 @@ function handleFormSubmit(event) {
     
     const formData = new FormData(clientForm);
     const clientData = {
-        nombreEmpresa: formData.get('nombreEmpresa'),
-        contactoPrincipal: formData.get('contactoPrincipal'),
+        nombre_empresa: formData.get('nombreEmpresa'),
+        contacto_principal: formData.get('contactoPrincipal'),
         email: formData.get('email'),
         telefono: formData.get('telefono'),
         tipo: formData.get('tipo'),
@@ -129,10 +129,10 @@ function handleFormSubmit(event) {
 
 // Validaciones
 function validateClientData(data) {
-    const { nombreEmpresa, contactoPrincipal, email, telefono, tipo, estado } = data;
+    const { nombre_empresa, contacto_principal, email, telefono, tipo, estado } = data;
     
     // Validación básica
-    if (!nombreEmpresa || !contactoPrincipal || !tipo || !estado) {
+    if (!nombre_empresa || !contacto_principal || !tipo || !estado) {
         showMessage('Por favor, complete todos los campos obligatorios', 'error');
         return false;
     }
