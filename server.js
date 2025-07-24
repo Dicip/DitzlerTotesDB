@@ -3,7 +3,7 @@ const path = require('path');
 const sql = require('mssql');
 const auditLogger = require('./middleware/audit');
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Función helper para obtener datos completos del usuario
 async function getUserFromToken(email) {
@@ -90,6 +90,36 @@ app.get('/dashboard', (req, res) => {
 // Ruta para la gestión de clientes
 app.get('/clientes', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages/clientes.html'));
+});
+
+// Endpoint para probar eventos de auditoría
+app.get('/api/test-audit', async (req, res) => {
+  try {
+    console.log('Probando sistema de auditoría...');
+    
+    // Crear un evento de prueba
+    await auditLogger.logEvent({
+      tipoEvento: 'SISTEMA',
+      modulo: 'PRUEBA',
+      descripcion: 'Evento de prueba para verificar funcionamiento del sistema de auditoría',
+      usuarioNombre: 'Sistema de Prueba',
+      usuarioRol: 'Sistema',
+      direccionIP: '127.0.0.1',
+      userAgent: 'Test Agent',
+      exitoso: true
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'Evento de auditoría creado exitosamente' 
+    });
+  } catch (error) {
+    console.error('Error en prueba de auditoría:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al crear evento de auditoría: ' + error.message 
+    });
+  }
 });
 
 // Endpoint para probar la conexión a la base de datos
@@ -1245,8 +1275,9 @@ app.get('/api/eventos', async (req, res) => {
         const pool = await new sql.ConnectionPool(sqlConfig).connect();
         let query = `
             SELECT 
-                Id, TipoEvento, Modulo, Descripcion, UsuarioNombre, UsuarioEmail, UsuarioRol,
-                ObjetoId, ObjetoTipo, Exitoso, FechaEvento, DireccionIP, UserAgent, MensajeError,
+                Id, TipEvento as TipoEvento, Modulo, Descripcion, Usuario as UsuarioNombre, 
+                IpAddress as DireccionIP, UserAgent, ResultadoExitoso as Exitoso, FechaEvento,
+                DatosAdicionales, Severidad, Accion, TiempoEjecucion, SessionId,
                 CASE 
                     WHEN DATEDIFF(MINUTE, FechaEvento, GETDATE()) < 60 
                     THEN CAST(DATEDIFF(MINUTE, FechaEvento, GETDATE()) AS NVARCHAR) + ' minutos atrás'
@@ -1382,8 +1413,8 @@ app.get('/api/eventos/estadisticas', async (req, res) => {
         const statsQuery = `
             SELECT 
                 COUNT(*) as TotalEventos,
-                COUNT(CASE WHEN Exitoso = 1 THEN 1 END) as EventosExitosos,
-                COUNT(CASE WHEN Exitoso = 0 THEN 1 END) as EventosFallidos,
+                COUNT(CASE WHEN ResultadoExitoso = 1 THEN 1 END) as EventosExitosos,
+                COUNT(CASE WHEN ResultadoExitoso = 0 THEN 1 END) as EventosFallidos,
                 COUNT(CASE WHEN FechaEvento >= DATEADD(day, -1, GETDATE()) THEN 1 END) as EventosUltimas24h,
                 COUNT(CASE WHEN FechaEvento >= DATEADD(day, -7, GETDATE()) THEN 1 END) as EventosUltimaSemana
             FROM Eventos
@@ -1407,10 +1438,10 @@ app.get('/api/eventos/estadisticas', async (req, res) => {
         
         // Usuarios más activos
         const usuariosQuery = `
-            SELECT TOP 10 UsuarioNombre, UsuarioRol, COUNT(*) as Cantidad
+            SELECT TOP 10 Usuario as UsuarioNombre, COUNT(*) as Cantidad
             FROM Eventos 
-            WHERE UsuarioNombre IS NOT NULL
-            GROUP BY UsuarioNombre, UsuarioRol
+            WHERE Usuario IS NOT NULL
+            GROUP BY Usuario
             ORDER BY Cantidad DESC
         `;
         
@@ -1481,17 +1512,17 @@ app.get('/api/eventos/:id', async (req, res) => {
         const evento = result.recordset[0];
         
         // Parsear JSON si existe
-        if (evento.ValoresAnteriores) {
+        if (evento.DatosAdicionales) {
             try {
-                evento.ValoresAnteriores = JSON.parse(evento.ValoresAnteriores);
-            } catch (e) {
-                // Mantener como string si no es JSON válido
-            }
-        }
-        
-        if (evento.ValoresNuevos) {
-            try {
-                evento.ValoresNuevos = JSON.parse(evento.ValoresNuevos);
+                const datosParseados = JSON.parse(evento.DatosAdicionales);
+                evento.DatosAdicionales = datosParseados;
+                // Extraer campos específicos para compatibilidad
+                evento.ValoresAnteriores = datosParseados.valoresAnteriores;
+                evento.ValoresNuevos = datosParseados.valoresNuevos;
+                evento.UsuarioEmail = datosParseados.usuarioEmail;
+                evento.UsuarioRol = datosParseados.usuarioRol;
+                evento.ObjetoTipo = datosParseados.objetoTipo;
+                evento.MensajeError = datosParseados.mensajeError;
             } catch (e) {
                 // Mantener como string si no es JSON válido
             }
