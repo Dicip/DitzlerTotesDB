@@ -8,6 +8,27 @@ class AuditLogger {
         this.sessionStore = new Map(); // Almacena información de sesiones
     }
 
+    // Mapear tipos de eventos a valores válidos
+    mapearTipoEvento(tipo) {
+        const mapeo = {
+            'CREATE': 'Creacion',
+            'UPDATE': 'Actualizacion', 
+            'DELETE': 'Eliminacion',
+            'LOGIN': 'Login',
+            'LOGOUT': 'Logout',
+            'ERROR': 'Error',
+            'ALERT': 'Alerta',
+            'CONFIG': 'Configuracion',
+            'REPORT': 'Reporte',
+            'EXPORT': 'Exportacion',
+            'IMPORT': 'Importacion',
+            'VALIDATION': 'Validacion',
+            'NOTIFICATION': 'Notificacion',
+            'VIEW': 'Configuracion'
+        };
+        return mapeo[tipo] || 'Configuracion';
+    }
+
     // Obtener información del cliente
     getClientInfo(req) {
         let ip = 'Unknown';
@@ -28,10 +49,15 @@ class AuditLogger {
             ip = 'Unknown';
         }
         
+        // Validar y ajustar IP para cumplir con restricciones de BD (7-45 caracteres)
+        if (!ip || ip === 'Unknown' || ip.length < 7 || ip.length > 45) {
+            ip = '127.0.0.1'; // IP por defecto válida
+        }
+        
         const userAgent = req.headers['user-agent'] || 'Unknown';
         
         return {
-            ip: ip || 'Unknown',
+            ip: ip,
             userAgent: userAgent.substring(0, 500) // Limitar longitud
         };
     }
@@ -83,24 +109,34 @@ class AuditLogger {
             
             pool = await new sql.ConnectionPool(sqlConfig).connect();
             
-            await pool.request()
-                .input('TipoEvento', sql.NVarChar(50), tipoEvento)
-                .input('Modulo', sql.NVarChar(50), modulo)
-                .input('Descripcion', sql.NVarChar(500), descripcion)
-                .input('UsuarioId', sql.Int, usuarioId)
-                .input('UsuarioNombre', sql.NVarChar(200), usuarioNombre)
-                .input('UsuarioEmail', sql.NVarChar(255), usuarioEmail)
-                .input('UsuarioRol', sql.NVarChar(20), usuarioRol)
-                .input('ObjetoId', sql.NVarChar(50), objetoId)
-                .input('ObjetoTipo', sql.NVarChar(50), objetoTipo)
-                .input('ValoresAnteriores', sql.NVarChar(sql.MAX), valoresAnteriores)
-                .input('ValoresNuevos', sql.NVarChar(sql.MAX), valoresNuevos)
-                .input('DireccionIP', sql.NVarChar(45), direccionIP)
-                .input('UserAgent', sql.NVarChar(500), userAgent)
-                .input('Exitoso', sql.Bit, exitoso)
-                .input('MensajeError', sql.NVarChar(500), mensajeError)
-                .input('Sesion', sql.NVarChar(100), sesion)
-                .execute('SP_RegistrarEvento');
+
+
+        // Preparar datos adicionales como JSON
+        const datosAdicionales = JSON.stringify({
+            usuarioId,
+            usuarioEmail,
+            usuarioRol,
+            objetoTipo,
+            valoresAnteriores,
+            valoresNuevos,
+            mensajeError
+        });
+
+        const result = await pool.request()
+            .input('toteId', sql.Int, objetoTipo === 'Tote' ? objetoId : null)
+            .input('tipEvento', sql.NVarChar(50), this.mapearTipoEvento(tipoEvento))
+            .input('descripcion', sql.NVarChar(500), descripcion)
+            .input('usuario', sql.NVarChar(255), usuarioNombre)
+            .input('datosAdicionales', sql.NVarChar(sql.MAX), datosAdicionales)
+            .input('ipAddress', sql.NVarChar(45), direccionIP)
+            .input('userAgent', sql.NVarChar(500), userAgent)
+            .input('severidad', sql.NVarChar(20), exitoso ? 'Info' : 'Error')
+            .input('modulo', sql.NVarChar(50), modulo)
+            .input('accion', sql.NVarChar(100), tipoEvento)
+            .input('resultadoExitoso', sql.Bit, exitoso)
+            .input('tiempoEjecucion', sql.Int, null)
+            .input('sessionId', sql.NVarChar(100), sesion)
+            .execute('SP_RegistrarEvento');
                 
             console.log(`[AUDIT] ${tipoEvento} - ${modulo}: ${descripcion}`);
         } catch (error) {

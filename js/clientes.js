@@ -275,8 +275,8 @@ function renderClients() {
         row.innerHTML = `
             <td>${nombreEmpresa}</td>
             <td>${contactoPrincipal}</td>
-            <td>${client.email}</td>
-            <td>${client.telefono}</td>
+            <td class="hide-mobile">${client.email}</td>
+            <td class="hide-mobile">${client.telefono}</td>
             <td>
                 <span class="client-type ${client.tipo.toLowerCase()}">${client.tipo}</span>
             </td>

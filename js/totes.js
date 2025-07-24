@@ -347,7 +347,8 @@ document.addEventListener('DOMContentLoaded', () => {
              document.getElementById('fechaDespacho').value = fechaDespacho;
          }
          
-         document.getElementById('alerta').checked = toteData.alerta == 1;
+         document.getElementById('alerta').value = toteData.alerta || '';
+        document.getElementById('observaciones').value = toteData.observaciones || '';
      } else {
          // Modo creación
          editingToteId = null;
@@ -400,8 +401,27 @@ document.addEventListener('DOMContentLoaded', () => {
          fechaEnvasado: formData.get('fechaEnvasado') || null,
          fechaVencimiento: formData.get('fechaVencimiento') || null,
          fechaDespacho: formData.get('fechaDespacho') || null,
-         alerta: formData.get('alerta') ? 1 : 0
+         alerta: !formData.get('alerta') || formData.get('alerta').trim() === '' ? null : formData.get('alerta').trim(),
+        observaciones: formData.get('observaciones') || null
      };
+     
+     // Logs de depuración para verificar los datos
+      console.log('Datos del formulario capturados:');
+      console.log('- Código:', toteData.codigo);
+      console.log('- Estado:', toteData.estado);
+      console.log('- Ubicación:', toteData.ubicacion);
+      console.log('- Operador:', toteData.operador);
+      console.log('- Cliente:', toteData.cliente);
+      console.log('- Producto:', toteData.producto);
+      console.log('- Lote:', toteData.lote);
+      console.log('- Fecha Envasado:', toteData.fechaEnvasado);
+      console.log('- Fecha Vencimiento:', toteData.fechaVencimiento);
+      console.log('- Fecha Despacho:', toteData.fechaDespacho);
+      console.log('- Alerta:', toteData.alerta);
+      console.log('- Observaciones:', toteData.observaciones);
+      console.log('- Tipo de alerta:', typeof toteData.alerta);
+      console.log('- Valor raw de alerta desde formData:', formData.get('alerta'));
+      console.log('- Tipo de valor raw:', typeof formData.get('alerta'));
      
      // Validaciones básicas
      if (!toteData.codigo || !toteData.estado || !toteData.ubicacion || !toteData.operador) {
@@ -475,8 +495,102 @@ document.addEventListener('DOMContentLoaded', () => {
      }
  });
  
- // Cargar datos al iniciar la página
- loadTotes();
+ // --- Función para verificar totes próximos a vencer ---
+    function checkExpiringTotes() {
+        if (!totesData || totesData.length === 0) return;
+        
+        const today = new Date();
+        const warningDays = 7; // Alertar 7 días antes del vencimiento
+        const criticalDays = 3; // Crítico 3 días antes
+        
+        let expiringTotes = [];
+        let expiredTotes = [];
+        let criticalTotes = [];
+        
+        totesData.forEach(tote => {
+            if (tote.fVencimiento && tote.fVencimiento !== '-') {
+                // Convertir fecha de formato dd/MM/yyyy a Date
+                const dateParts = tote.fVencimiento.split('/');
+                const expiryDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+                
+                const timeDiff = expiryDate.getTime() - today.getTime();
+                const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                
+                if (daysDiff < 0) {
+                    // Ya vencido
+                    expiredTotes.push({ ...tote, daysDiff });
+                } else if (daysDiff <= criticalDays) {
+                    // Crítico (3 días o menos)
+                    criticalTotes.push({ ...tote, daysDiff });
+                } else if (daysDiff <= warningDays) {
+                    // Advertencia (7 días o menos)
+                    expiringTotes.push({ ...tote, daysDiff });
+                }
+            }
+        });
+        
+        // Mostrar notificaciones
+        if (expiredTotes.length > 0) {
+            const message = `⚠️ ${expiredTotes.length} tote(s) ya vencido(s): ${expiredTotes.map(t => t.codigo).join(', ')}`;
+            UTILS.showNotification(message, 'error', 10000);
+        }
+        
+        if (criticalTotes.length > 0) {
+            const message = `🔴 ${criticalTotes.length} tote(s) vence(n) en ${criticalTotes[0].daysDiff} día(s): ${criticalTotes.map(t => t.codigo).join(', ')}`;
+            UTILS.showNotification(message, 'warning', 8000);
+        }
+        
+        if (expiringTotes.length > 0) {
+            const message = `🟡 ${expiringTotes.length} tote(s) próximo(s) a vencer en 7 días: ${expiringTotes.map(t => t.codigo).join(', ')}`;
+            UTILS.showNotification(message, 'info', 6000);
+        }
+        
+        // Actualizar indicadores visuales en la tabla
+        updateTableExpiryIndicators(expiredTotes, criticalTotes, expiringTotes);
+    }
+    
+    // --- Función para actualizar indicadores visuales en la tabla ---
+    function updateTableExpiryIndicators(expired, critical, expiring) {
+        const tableRows = document.querySelectorAll('.system-table tbody tr');
+        
+        tableRows.forEach(row => {
+            const codigoCell = row.cells[0];
+            if (!codigoCell) return;
+            
+            const codigo = codigoCell.textContent.trim();
+            
+            // Remover clases anteriores
+            row.classList.remove('tote-expired', 'tote-critical', 'tote-expiring');
+            
+            // Agregar clase según estado de vencimiento
+            if (expired.some(t => t.codigo === codigo)) {
+                row.classList.add('tote-expired');
+            } else if (critical.some(t => t.codigo === codigo)) {
+                row.classList.add('tote-critical');
+            } else if (expiring.some(t => t.codigo === codigo)) {
+                row.classList.add('tote-expiring');
+            }
+        });
+    }
+    
+    // --- Función para verificar vencimientos periódicamente ---
+    function startExpiryMonitoring() {
+        // Verificar inmediatamente
+        setTimeout(() => {
+            checkExpiringTotes();
+        }, 2000); // Esperar 2 segundos para que carguen los datos
+        
+        // Verificar cada 5 minutos
+        setInterval(() => {
+            checkExpiringTotes();
+        }, 5 * 60 * 1000);
+    }
+    
+    // Cargar datos al iniciar la página
+    loadTotes();
+    
+    // Iniciar monitoreo de vencimientos
+    startExpiryMonitoring();
 
     // --- Event Listeners ---
     // Establecer fecha máxima para fecha de envasado (hoy)
@@ -561,6 +675,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             tableBody.appendChild(row);
         });
+        
+        // Verificar vencimientos después de renderizar la tabla
+        setTimeout(() => {
+            checkExpiringTotes();
+        }, 100);
     }
     
     // Función para editar tote (global)

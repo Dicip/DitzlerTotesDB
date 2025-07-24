@@ -952,7 +952,13 @@ app.post('/api/admin/totes', async (req, res) => {
         return res.status(400).json({ success: false, message: 'El código de tote ya existe' });
       }
       
-      // Insertar nuevo tote
+      // Logs de depuración para el servidor
+      console.log('Datos recibidos en el servidor:');
+      console.log('- toteData.alerta:', toteData.alerta);
+      console.log('- Tipo de alerta:', typeof toteData.alerta);
+      console.log('- Valor después de || null:', toteData.alerta || null);
+      
+      // Insertar nuevo tote usando procedimiento almacenado
       await pool.request()
         .input('codigo', sql.VarChar, toteData.codigo)
         .input('estado', sql.VarChar, toteData.estado)
@@ -964,14 +970,10 @@ app.post('/api/admin/totes', async (req, res) => {
         .input('fechaEnvasado', sql.Date, toteData.fechaEnvasado || null)
         .input('fechaVencimiento', sql.Date, toteData.fechaVencimiento || null)
         .input('fechaDespacho', sql.Date, toteData.fechaDespacho || null)
-        .input('alerta', sql.Bit, toteData.alerta || 0)
+        .input('alerta', sql.VarChar, toteData.alerta)
+        .input('observaciones', sql.NVarChar, toteData.observaciones || null)
         .input('usuarioCreacion', sql.VarChar, toteData.usuarioCreacion || 'admin')
-        .query(`
-          INSERT INTO Totes (Codigo, Estado, Ubicacion, Cliente, Operador, Producto, Lote, 
-                            FechaEnvasado, FechaVencimiento, FechaDespacho, Alerta, UsuarioCreacion)
-          VALUES (@codigo, @estado, @ubicacion, @cliente, @operador, @producto, @lote, 
-                  @fechaEnvasado, @fechaVencimiento, @fechaDespacho, @alerta, @usuarioCreacion)
-        `);
+        .execute('SP_CrearTote');
       
       res.json({ success: true, message: 'Tote creado correctamente' });
     }
@@ -982,7 +984,7 @@ app.post('/api/admin/totes', async (req, res) => {
                FORMAT(FechaEnvasado, 'dd/MM/yyyy') as fEnvasado,
                FORMAT(FechaVencimiento, 'dd/MM/yyyy') as fVencimiento,
                FORMAT(FechaDespacho, 'dd/MM/yyyy') as fDespacho,
-               Alerta
+               Alerta, Observaciones
         FROM Totes 
         WHERE Activo = 1
         ORDER BY FechaCreacion DESC
@@ -1032,6 +1034,7 @@ app.post('/api/admin/totes', async (req, res) => {
       }
       
       await pool.request()
+        .input('id', sql.Int, toteData.id)
         .input('codigo', sql.VarChar, toteData.codigo)
         .input('estado', sql.VarChar, toteData.estado)
         .input('ubicacion', sql.VarChar, toteData.ubicacion)
@@ -1042,25 +1045,10 @@ app.post('/api/admin/totes', async (req, res) => {
         .input('fechaEnvasado', sql.Date, toteData.fechaEnvasado || null)
         .input('fechaVencimiento', sql.Date, toteData.fechaVencimiento || null)
         .input('fechaDespacho', sql.Date, toteData.fechaDespacho || null)
-        .input('alerta', sql.Bit, toteData.alerta || 0)
-        .input('usuarioModificacion', sql.VarChar, toteData.usuarioModificacion || 'admin')
-        .input('toteId', sql.Int, toteData.id)
-        .query(`
-          UPDATE Totes 
-          SET Codigo = @codigo,
-              Estado = @estado,
-              Ubicacion = @ubicacion,
-              Cliente = @cliente,
-              Operador = @operador,
-              Producto = @producto,
-              Lote = @lote,
-              FechaEnvasado = @fechaEnvasado,
-              FechaVencimiento = @fechaVencimiento,
-              FechaDespacho = @fechaDespacho,
-              Alerta = @alerta,
-              UsuarioModificacion = @usuarioModificacion
-          WHERE Id = @toteId
-        `);
+        .input('alerta', sql.VarChar, toteData.alerta)
+        .input('activo', sql.Bit, 1)
+        .input('observaciones', sql.NVarChar, toteData.observaciones || null)
+        .execute('SP_ActualizarTote');
       
       res.json({ success: true, message: 'Tote actualizado correctamente' });
     }
@@ -1171,8 +1159,10 @@ app.get('/api/dashboard/stats', async (req, res) => {
       FROM Totes 
       WHERE Activo = 1 
         AND Estado = 'En Uso'
-        AND (DATEDIFF(day, FechaDespacho, GETDATE()) >= 30 
-             OR FechaVencimiento < GETDATE())
+        AND (
+          (FechaDespacho IS NOT NULL AND DATEDIFF(day, FechaDespacho, GETDATE()) >= 30) 
+          OR (FechaVencimiento IS NOT NULL AND FechaVencimiento < GETDATE())
+        )
       GROUP BY Cliente
     `);
     
@@ -1181,8 +1171,10 @@ app.get('/api/dashboard/stats', async (req, res) => {
       FROM Totes 
       WHERE Activo = 1 
         AND Estado = 'En Uso'
-        AND (DATEDIFF(day, FechaDespacho, GETDATE()) >= 30 
-             OR FechaVencimiento < GETDATE())
+        AND (
+          (FechaDespacho IS NOT NULL AND DATEDIFF(day, FechaDespacho, GETDATE()) >= 30) 
+          OR (FechaVencimiento IS NOT NULL AND FechaVencimiento < GETDATE())
+        )
     `);
     
     const usuariosActivos = await pool.request().query(`
@@ -1253,8 +1245,8 @@ app.get('/api/eventos', async (req, res) => {
         const pool = await new sql.ConnectionPool(sqlConfig).connect();
         let query = `
             SELECT 
-                Id, TipoEvento, Modulo, Descripcion, UsuarioNombre, UsuarioRol,
-                ObjetoId, ObjetoTipo, Exitoso, FechaEvento, DireccionIP,
+                Id, TipEvento as TipoEvento, Modulo, Descripcion, Usuario as UsuarioNombre, '' as UsuarioRol,
+                ToteId as ObjetoId, 'Tote' as ObjetoTipo, ResultadoExitoso as Exitoso, FechaEvento, IpAddress as DireccionIP,
                 CASE 
                     WHEN DATEDIFF(MINUTE, FechaEvento, GETDATE()) < 60 
                     THEN CAST(DATEDIFF(MINUTE, FechaEvento, GETDATE()) AS NVARCHAR) + ' minutos atrás'
@@ -1270,7 +1262,7 @@ app.get('/api/eventos', async (req, res) => {
         
         // Aplicar filtros
         if (tipoEvento) {
-            query += ' AND TipoEvento = @tipoEvento';
+            query += ' AND TipEvento = @tipoEvento';
             request.input('tipoEvento', sql.NVarChar(50), tipoEvento);
         }
         
@@ -1280,7 +1272,7 @@ app.get('/api/eventos', async (req, res) => {
         }
         
         if (usuarioId) {
-            query += ' AND UsuarioId = @usuarioId';
+            query += ' AND ToteId = @usuarioId';
             request.input('usuarioId', sql.Int, usuarioId);
         }
         
@@ -1295,7 +1287,7 @@ app.get('/api/eventos', async (req, res) => {
         }
         
         if (exitoso !== undefined) {
-            query += ' AND Exitoso = @exitoso';
+            query += ' AND ResultadoExitoso = @exitoso';
             request.input('exitoso', sql.Bit, exitoso === 'true');
         }
         
@@ -1310,7 +1302,7 @@ app.get('/api/eventos', async (req, res) => {
         const countRequest = pool.request();
         
         if (tipoEvento) {
-            countQuery += ' AND TipoEvento = @tipoEvento';
+            countQuery += ' AND TipEvento = @tipoEvento';
             countRequest.input('tipoEvento', sql.NVarChar(50), tipoEvento);
         }
         if (modulo) {
@@ -1318,7 +1310,7 @@ app.get('/api/eventos', async (req, res) => {
             countRequest.input('modulo', sql.NVarChar(50), modulo);
         }
         if (usuarioId) {
-            countQuery += ' AND UsuarioId = @usuarioId';
+            countQuery += ' AND ToteId = @usuarioId';
             countRequest.input('usuarioId', sql.Int, usuarioId);
         }
         if (fechaInicio) {
@@ -1330,7 +1322,7 @@ app.get('/api/eventos', async (req, res) => {
             countRequest.input('fechaFin', sql.DateTime, fechaFin);
         }
         if (exitoso !== undefined) {
-            countQuery += ' AND Exitoso = @exitoso';
+            countQuery += ' AND ResultadoExitoso = @exitoso';
             countRequest.input('exitoso', sql.Bit, exitoso === 'true');
         }
         
@@ -1352,9 +1344,13 @@ app.get('/api/eventos', async (req, res) => {
         
     } catch (error) {
         console.error('Error al obtener eventos:', error);
-        if (req.session && req.session.user) {
-            const currentUser = await getUserFromToken(req.session.user.Email);
-            await auditLogger.auditError(req, currentUser, 'EVENTOS', 'Error al consultar eventos', error.message);
+        if (req.headers.authorization) {
+            try {
+                const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+                await auditLogger.auditError(req, currentUser, 'EVENTOS', 'Error al consultar eventos', error.message);
+            } catch (auditError) {
+                console.error('Error en auditoría:', auditError.message);
+            }
         }
         res.status(500).json({ 
             success: false, 
@@ -1386,8 +1382,8 @@ app.get('/api/eventos/estadisticas', async (req, res) => {
         const statsQuery = `
             SELECT 
                 COUNT(*) as TotalEventos,
-                COUNT(CASE WHEN Exitoso = 1 THEN 1 END) as EventosExitosos,
-                COUNT(CASE WHEN Exitoso = 0 THEN 1 END) as EventosFallidos,
+                COUNT(CASE WHEN ResultadoExitoso = 1 THEN 1 END) as EventosExitosos,
+                COUNT(CASE WHEN ResultadoExitoso = 0 THEN 1 END) as EventosFallidos,
                 COUNT(CASE WHEN FechaEvento >= DATEADD(day, -1, GETDATE()) THEN 1 END) as EventosUltimas24h,
                 COUNT(CASE WHEN FechaEvento >= DATEADD(day, -7, GETDATE()) THEN 1 END) as EventosUltimaSemana
             FROM Eventos
@@ -1395,9 +1391,9 @@ app.get('/api/eventos/estadisticas', async (req, res) => {
         
         // Eventos por tipo
         const tipoQuery = `
-            SELECT TipoEvento, COUNT(*) as Cantidad
+            SELECT TipEvento as TipoEvento, COUNT(*) as Cantidad
             FROM Eventos 
-            GROUP BY TipoEvento
+            GROUP BY TipEvento
             ORDER BY Cantidad DESC
         `;
         
@@ -1411,10 +1407,10 @@ app.get('/api/eventos/estadisticas', async (req, res) => {
         
         // Usuarios más activos
         const usuariosQuery = `
-            SELECT TOP 10 UsuarioNombre, UsuarioRol, COUNT(*) as Cantidad
+            SELECT TOP 10 Usuario as UsuarioNombre, '' as UsuarioRol, COUNT(*) as Cantidad
             FROM Eventos 
-            WHERE UsuarioId IS NOT NULL
-            GROUP BY UsuarioNombre, UsuarioRol
+            WHERE Usuario IS NOT NULL
+            GROUP BY Usuario
             ORDER BY Cantidad DESC
         `;
         
@@ -1450,9 +1446,13 @@ app.get('/api/eventos/estadisticas', async (req, res) => {
         
     } catch (error) {
         console.error('Error al obtener estadísticas de eventos:', error);
-        if (req.session && req.session.user) {
-            const currentUser = await getUserFromToken(req.session.user.Email);
-            await auditLogger.auditError(req, currentUser, 'EVENTOS', 'Error al consultar estadísticas de eventos', error.message);
+        if (req.headers.authorization) {
+            try {
+                const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+                await auditLogger.auditError(req, currentUser, 'EVENTOS', 'Error al consultar estadísticas de eventos', error.message);
+            } catch (auditError) {
+                console.error('Error en auditoría:', auditError.message);
+            }
         }
         res.status(500).json({ 
             success: false, 
@@ -1560,6 +1560,7 @@ app.post('/api/recepcion/scan-tag', async (req, res) => {
         req,
         currentUser,
         'RECEPCION',
+        'TAG no encontrado',
         `TAG no encontrado: ${tagCode}`
       );
       
@@ -1572,7 +1573,7 @@ app.post('/api/recepcion/scan-tag', async (req, res) => {
     const tote = toteResult.recordset[0];
     
     // Registrar escaneo exitoso
-    await auditLogger.auditRead(
+    await auditLogger.auditView(
       req,
       currentUser,
       'RECEPCION',
@@ -1589,7 +1590,14 @@ app.post('/api/recepcion/scan-tag', async (req, res) => {
     
   } catch (err) {
     console.error('Error al escanear TAG:', err);
-    await auditLogger.auditError(req, 'RECEPCION', `Error al escanear TAG: ${err.message}`);
+    if (req.headers.authorization) {
+      try {
+        const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+        await auditLogger.auditError(req, currentUser, 'RECEPCION', 'Error al escanear TAG', err.message);
+      } catch (auditError) {
+        console.error('Error en auditoría:', auditError.message);
+      }
+    }
     res.status(500).json({ success: false, message: 'Error interno del servidor' });
   } finally {
     if (pool) {
@@ -1702,7 +1710,14 @@ app.post('/api/recepcion/assign-route', async (req, res) => {
     
   } catch (err) {
     console.error('Error al asignar ruta:', err);
-    await auditLogger.auditError(req, 'RECEPCION', `Error al asignar ruta: ${err.message}`);
+    if (req.headers.authorization) {
+      try {
+        const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+        await auditLogger.auditError(req, currentUser, 'RECEPCION', 'Error al asignar ruta', err.message);
+      } catch (auditError) {
+        console.error('Error en auditoría:', auditError.message);
+      }
+    }
     res.status(500).json({ success: false, message: 'Error interno del servidor' });
   } finally {
     if (pool) {

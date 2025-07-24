@@ -43,22 +43,24 @@
             </header>
             <div id="messageContainer" class="message"></div>
             
-            <table class="system-table">
-                    <thead>
-                        <tr>
-                            <th>Nombre Empresa</th>
-                            <th>Contacto Principal</th>
-                            <th>Email</th>
-                            <th>Teléfono</th>
-                            <th>Tipo</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="clientsList">
-                        <!-- Aquí se cargarán los clientes dinámicamente -->
-                    </tbody>
-                </table>
+            <div class="table-responsive">
+                <table class="system-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre Empresa</th>
+                                <th>Contacto Principal</th>
+                                <th class="hide-mobile">Email</th>
+                                <th class="hide-mobile">Teléfono</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clientsList">
+                            <!-- Aquí se cargarán los clientes dinámicamente -->
+                        </tbody>
+                    </table>
+            </div>
         </div>
     </div>
     
@@ -73,22 +75,22 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="nombreEmpresa">Nombre de la Empresa:</label>
-                        <input type="text" id="nombreEmpresa" name="nombreEmpresa" required placeholder="Ej: Agroindustrial Los Andes">
+                        <input type="text" id="nombreEmpresa" name="nombreEmpresa" required minlength="2" maxlength="255" placeholder="Ej: Agroindustrial Los Andes" title="Entre 2 y 255 caracteres">
                     </div>
                     
                     <div class="form-group">
                         <label for="contactoPrincipal">Contacto Principal:</label>
-                        <input type="text" id="contactoPrincipal" name="contactoPrincipal" required placeholder="Ej: Carmen Gloria Soto">
+                        <input type="text" id="contactoPrincipal" name="contactoPrincipal" required minlength="2" maxlength="255" placeholder="Ej: Carmen Gloria Soto" title="Entre 2 y 255 caracteres">
                     </div>
                     
                     <div class="form-group">
                         <label for="email">Correo Electrónico:</label>
-                        <input type="email" id="email" name="email" placeholder="contacto@empresa.cl" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Ingrese un email válido">
+                        <input type="email" id="email" name="email" maxlength="255" placeholder="contacto@empresa.cl" pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Ingrese un email válido (máximo 255 caracteres)">
                     </div>
                     
                     <div class="form-group">
                         <label for="telefono">Teléfono:</label>
-                        <input type="tel" id="telefono" name="telefono" placeholder="+56977778888" pattern="[\d\s\-\+\(\)]+" title="Solo números, espacios, guiones, paréntesis y +">
+                        <input type="tel" id="telefono" name="telefono" minlength="7" maxlength="20" placeholder="+56977778888" pattern="[\d\s\-\+\(\)]+" title="Entre 7 y 20 caracteres. Solo números, espacios, guiones, paréntesis y +">
                     </div>
                     
                     <div class="form-group">

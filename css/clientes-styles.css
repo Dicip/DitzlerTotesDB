@@ -437,6 +437,80 @@
     }
 }
 
+/* Table Responsive Container */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 1rem;
+}
+
+.table-responsive .system-table {
+    min-width: 700px;
+    width: 100%;
+}
+
+/* Hide columns on mobile */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none !important;
+    }
+    
+    .table-responsive .system-table {
+        min-width: 400px;
+    }
+    
+    /* Adjust remaining columns for mobile */
+    .system-table th:nth-child(1),
+    .system-table td:nth-child(1) {
+        width: 35%;
+        min-width: 120px;
+    }
+    
+    .system-table th:nth-child(2),
+    .system-table td:nth-child(2) {
+        width: 30%;
+        min-width: 100px;
+    }
+    
+    .system-table th:nth-child(5),
+    .system-table td:nth-child(5) {
+        width: 15%;
+        min-width: 60px;
+    }
+    
+    .system-table th:nth-child(6),
+    .system-table td:nth-child(6) {
+        width: 15%;
+        min-width: 60px;
+    }
+    
+    .system-table th:nth-child(7),
+    .system-table td:nth-child(7) {
+        width: 15%;
+        min-width: 60px;
+    }
+    
+    /* Smaller action buttons on mobile */
+    .action-buttons {
+        gap: 4px;
+    }
+    
+    .action-buttons button {
+        padding: 6px 8px;
+        font-size: 11px;
+        min-width: 28px;
+        height: 28px;
+    }
+    
+    /* Smaller badges on mobile */
+    .client-type,
+    .status {
+        font-size: 10px;
+        padding: 2px 6px;
+        white-space: nowrap;
+    }
+}
+
 /* Extra small devices */
 @media (max-width: 360px) {
     .main-content {

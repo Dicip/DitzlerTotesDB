@@ -9,10 +9,10 @@
 .users-table-container {
     background: white;
     border-radius: 16px;
-    box-shadow: var(--shadow-base-primary);
+    box-shadow: none;
     overflow: hidden;
     position: relative;
-    border: 2px solid transparent;
+    border: none;
     background-clip: padding-box;
     margin: 20px 0;
 }
@@ -25,10 +25,13 @@
 .users-table-container table {
     width: 100%;
     border-collapse: collapse;
+    border-spacing: 0;
     border-radius: 12px;
     background: white;
     box-shadow: var(--shadow-base-primary);
     overflow: hidden;
+    border: none;
+    outline: none;
 }
 
 /* Estilos unificados para thead */
@@ -58,6 +61,8 @@ table thead th,
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     border: none !important;
+    border-left: none !important;
+    border-right: none !important;
     color: #ffffff !important;
     position: relative !important;
     z-index: 2 !important;
@@ -99,6 +104,9 @@ table thead th:last-child,
     font-size: 14px;
     color: #2c3e50;
     text-align: center;
+    border: none !important;
+    border-left: none !important;
+    border-right: none !important;
 }
 
 /* Bordes redondeados para última fila */
