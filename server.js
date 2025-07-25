@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3002;
 
 // Función helper para obtener datos completos del usuario
 async function getUserFromToken(email) {
+  console.log(`[DEBUG] Buscando usuario con email: ${email}`); // Añadido para depuración
   let pool;
   try {
     pool = await new sql.ConnectionPool(sqlConfig).connect();
@@ -15,9 +16,11 @@ async function getUserFromToken(email) {
       .query('SELECT Id, Nombre, Apellido, Email, Rol FROM Usuarios WHERE Email = @email');
     
     if (result.recordset.length > 0) {
+      console.log(`[DEBUG] Usuario encontrado: ${result.recordset[0].Nombre}`); // Añadido para depuración
       return result.recordset[0];
     }
     
+    console.log(`[DEBUG] Usuario con email ${email} no encontrado.`); // Añadido para depuración
     // Si no se encuentra el usuario, devolver un objeto con valores por defecto
     return {
       Id: null,
