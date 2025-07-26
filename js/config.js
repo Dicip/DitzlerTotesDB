@@ -68,7 +68,8 @@ const CONFIG = {
             ADMIN_USERS: '/api/admin/users',
             TOTES: '/api/totes',
             CLIENTES: '/api/clientes',
-            EVENTOS: '/api/eventos'
+            EVENTOS: '/api/eventos',
+            ALERTAS: '/api/alertas'
         }
     },
     

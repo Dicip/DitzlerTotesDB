@@ -1169,11 +1169,26 @@ app.get('/api/dashboard/stats', async (req, res) => {
     // Ejecutar procedimiento almacenado para estadísticas
     const result = await pool.request().execute('SP_EstadisticasDashboard');
     
-    // El procedimiento devuelve múltiples result sets
+    // El procedimiento devuelve múltiples result sets en este orden:
+    // 0: Total de totes activos
+    // 1: Totes disponibles
+    // 2: Totes en uso
+    // 3: Totes en mantenimiento
+    // 4: Totes fuera de plazo
+    // 5: Totes por vencer
+    // 6: Distribución por estado
+    // 7: Top 5 clientes con más totes
+    // 8: Totes creados por mes
+    
     const totalTotes = result.recordsets[0][0].TotalTotes;
-    const statusStats = result.recordsets[1]; // Totes por estado
-    const totesProximosVencer = result.recordsets[2][0].TotesProximosVencer;
-    const eventosRecientes = result.recordsets[3]; // Últimos 10 eventos
+    const totesDisponibles = result.recordsets[1][0].TotesDisponibles;
+    const totesEnUso = result.recordsets[2][0].TotesEnUso;
+    const totesMantenimiento = result.recordsets[3][0].TotesMantenimiento;
+    const totesFueraPlazoSP = result.recordsets[4][0].TotesFueraPlazo;
+    const totesProximosVencer = result.recordsets[5][0].TotesPorVencer;
+    const statusStats = result.recordsets[6]; // Distribución por estado
+    const topClientes = result.recordsets[7]; // Top 5 clientes
+    const totesPorMes = result.recordsets[8]; // Totes creados por mes
     
     // Obtener estadísticas adicionales que no están en el procedimiento
     const totesConClientes = await pool.request().query(`
@@ -1218,9 +1233,14 @@ app.get('/api/dashboard/stats', async (req, res) => {
       success: true,
       data: {
         totalTotes: totalTotes,
-        statusStats: statusStats.map(stat => ({ Estado: stat.Estado, cantidad: stat.Cantidad })),
+        totesDisponibles: totesDisponibles,
+        totesEnUso: totesEnUso,
+        totesMantenimiento: totesMantenimiento,
+        totesFueraPlazoCount: totesFueraPlazoSP,
         totesProximosVencer: totesProximosVencer,
-        eventosRecientes: eventosRecientes,
+        statusStats: statusStats.map(stat => ({ Estado: stat.Estado, cantidad: stat.Cantidad })),
+        topClientes: topClientes.map(cliente => ({ Cliente: cliente.Cliente, cantidad: cliente.Cantidad })),
+        totesPorMes: totesPorMes.map(mes => ({ Mes: mes.Mes, TotesCreados: mes.TotesCreados })),
         totesConClientes: totesConClientes.recordset,
         totesFueraPlazo: totesFueraPlazo.recordset,
         totalFueraPlazo: totalFueraPlazo.recordset[0].total,
@@ -1321,7 +1341,7 @@ app.get('/api/eventos', async (req, res) => {
         }
         
         if (exitoso !== undefined) {
-            query += ' AND Exitoso = @exitoso';
+            query += ' AND ResultadoExitoso = @exitoso';
             request.input('exitoso', sql.Bit, exitoso === 'true');
         }
         
@@ -1356,7 +1376,7 @@ app.get('/api/eventos', async (req, res) => {
             countRequest.input('fechaFin', sql.DateTime, fechaFin);
         }
         if (exitoso !== undefined) {
-            countQuery += ' AND Exitoso = @exitoso';
+            countQuery += ' AND ResultadoExitoso = @exitoso';
             countRequest.input('exitoso', sql.Bit, exitoso === 'true');
         }
         
@@ -1503,7 +1523,15 @@ app.get('/api/eventos/:id', async (req, res) => {
         
         const result = await pool.request()
             .input('id', sql.Int, eventoId)
-            .query('SELECT * FROM Eventos WHERE Id = @id');
+            .query(`
+                SELECT 
+                    Id, TipEvento as TipoEvento, Modulo, Descripcion, Usuario as UsuarioNombre, 
+                    IpAddress as DireccionIP, UserAgent, ResultadoExitoso as Exitoso, FechaEvento,
+                    DatosAdicionales, Severidad, Accion, TiempoEjecucion, SessionId as Sesion,
+                    ToteId as ObjetoId
+                FROM Eventos 
+                WHERE Id = @id
+            `);
         
         if (result.recordset.length === 0) {
             return res.status(404).json({ 
@@ -1513,6 +1541,12 @@ app.get('/api/eventos/:id', async (req, res) => {
         }
         
         const evento = result.recordset[0];
+        
+        // Asegurar que el campo Exitoso esté presente
+        if (evento.hasOwnProperty('ResultadoExitoso')) {
+            evento.Exitoso = evento.ResultadoExitoso;
+            delete evento.ResultadoExitoso;
+        }
         
         // Parsear JSON si existe
         if (evento.DatosAdicionales) {
@@ -1541,6 +1575,148 @@ app.get('/api/eventos/:id', async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: 'Error interno del servidor' 
+        });
+    }
+});
+
+// =============================================
+// ENDPOINT PARA SISTEMA DE ALERTAS
+// =============================================
+
+// Endpoint para obtener alertas del sistema
+app.get('/api/alertas', async (req, res) => {
+    try {
+        const pool = await new sql.ConnectionPool(sqlConfig).connect();
+        const alertas = [];
+        
+        // Alerta: Totes fuera de plazo
+        const totesFueraPlazo = await pool.request().query(`
+            SELECT COUNT(*) as cantidad 
+            FROM Totes 
+            WHERE Activo = 1 
+              AND Estado = 'En Uso'
+              AND (
+                (FechaDespacho IS NOT NULL AND DATEDIFF(day, FechaDespacho, GETDATE()) >= 30) 
+                OR (FechaVencimiento IS NOT NULL AND FechaVencimiento < GETDATE())
+              )
+        `);
+        
+        if (totesFueraPlazo.recordset[0].cantidad > 0) {
+            alertas.push({
+                id: 'totes-fuera-plazo',
+                tipo: 'critical',
+                icono: 'fas fa-exclamation-circle',
+                titulo: 'Totes Fuera de Plazo',
+                descripcion: `${totesFueraPlazo.recordset[0].cantidad} totes han excedido el tiempo límite de uso`,
+                timestamp: new Date().toISOString(),
+                accion: 'Ver Totes'
+            });
+        }
+        
+        // Alerta: Totes próximos a vencer
+        const totesProximosVencer = await pool.request().query(`
+            SELECT COUNT(*) as cantidad 
+            FROM Totes 
+            WHERE Activo = 1 
+              AND Estado = 'En Uso'
+              AND FechaVencimiento IS NOT NULL 
+              AND FechaVencimiento BETWEEN GETDATE() AND DATEADD(day, 7, GETDATE())
+        `);
+        
+        if (totesProximosVencer.recordset[0].cantidad > 0) {
+            alertas.push({
+                id: 'totes-proximos-vencer',
+                tipo: 'warning',
+                icono: 'fas fa-clock',
+                titulo: 'Totes Próximos a Vencer',
+                descripcion: `${totesProximosVencer.recordset[0].cantidad} totes vencerán en los próximos 7 días`,
+                timestamp: new Date().toISOString(),
+                accion: 'Revisar'
+            });
+        }
+        
+        // Alerta: Stock bajo de totes disponibles
+        const totesDisponibles = await pool.request().query(`
+            SELECT COUNT(*) as cantidad 
+            FROM Totes 
+            WHERE Activo = 1 AND Estado = 'Disponible'
+        `);
+        
+        if (totesDisponibles.recordset[0].cantidad < 10) {
+            alertas.push({
+                id: 'stock-bajo',
+                tipo: 'warning',
+                icono: 'fas fa-box-open',
+                titulo: 'Stock Bajo de Totes',
+                descripcion: `Solo ${totesDisponibles.recordset[0].cantidad} totes disponibles en inventario`,
+                timestamp: new Date().toISOString(),
+                accion: 'Gestionar Stock'
+            });
+        }
+        
+        // Alerta: Errores recientes en el sistema
+        const erroresRecientes = await pool.request().query(`
+            SELECT COUNT(*) as cantidad 
+            FROM Eventos 
+            WHERE ResultadoExitoso = 0 
+              AND FechaEvento >= DATEADD(hour, -24, GETDATE())
+        `);
+        
+        if (erroresRecientes.recordset[0].cantidad > 5) {
+            alertas.push({
+                id: 'errores-sistema',
+                tipo: 'critical',
+                icono: 'fas fa-bug',
+                titulo: 'Errores en el Sistema',
+                descripcion: `${erroresRecientes.recordset[0].cantidad} errores detectados en las últimas 24 horas`,
+                timestamp: new Date().toISOString(),
+                accion: 'Ver Logs'
+            });
+        }
+        
+        // Alerta: Usuarios inactivos
+        const usuariosInactivos = await pool.request().query(`
+            SELECT COUNT(*) as cantidad 
+            FROM Usuarios 
+            WHERE Estado = 'Inactivo'
+        `);
+        
+        if (usuariosInactivos.recordset[0].cantidad > 0) {
+            alertas.push({
+                id: 'usuarios-inactivos',
+                tipo: 'info',
+                icono: 'fas fa-user-slash',
+                titulo: 'Usuarios Inactivos',
+                descripcion: `${usuariosInactivos.recordset[0].cantidad} usuarios con estado inactivo`,
+                timestamp: new Date().toISOString(),
+                accion: 'Gestionar Usuarios'
+            });
+        }
+        
+        // Si no hay alertas, mostrar mensaje positivo
+        if (alertas.length === 0) {
+            alertas.push({
+                id: 'sistema-ok',
+                tipo: 'success',
+                icono: 'fas fa-check-circle',
+                titulo: 'Sistema Funcionando Correctamente',
+                descripcion: 'No se han detectado problemas en el sistema',
+                timestamp: new Date().toISOString(),
+                accion: null
+            });
+        }
+        
+        res.json({
+            success: true,
+            alertas: alertas
+        });
+        
+    } catch (error) {
+        console.error('Error al obtener alertas:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error al obtener alertas del sistema',
+            error: error.message
         });
     }
 });

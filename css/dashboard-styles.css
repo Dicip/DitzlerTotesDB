@@ -2241,3 +2241,241 @@ body {
         font-size: 0.75rem;
     }
 }
+
+/* Estilos para el Panel de Alertas */
+.alerts-panel {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    margin-top: 120px;
+    overflow: hidden;
+}
+
+.alerts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.alerts-header h2 {
+    margin: 0;
+    color: #495057;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alerts-header h2 i {
+    color: #ffc107;
+    font-size: 1.3rem;
+}
+
+.alerts-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.alerts-content {
+    padding: 20px;
+    min-height: 200px;
+    position: relative;
+}
+
+.btn-refresh-small {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    z-index: 10;
+}
+
+.btn-refresh-small:hover {
+    background: #5a67d8;
+    transform: rotate(180deg);
+}
+
+.loading-alerts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #6c757d;
+    gap: 15px;
+}
+
+.loading-alerts i {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.alert-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border-left: 4px solid;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.alert-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.alert-item.critical {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+}
+
+.alert-item.warning {
+    border-left-color: #ffc107;
+    background: #fffbf0;
+}
+
+.alert-item.info {
+    border-left-color: #17a2b8;
+    background: #f0f9ff;
+}
+
+.alert-item.success {
+    border-left-color: #28a745;
+    background: #f0fff4;
+}
+
+.alert-icon {
+    font-size: 1.5rem;
+    margin-right: 15px;
+    min-width: 30px;
+    text-align: center;
+}
+
+.alert-item.critical .alert-icon {
+    color: #dc3545;
+}
+
+.alert-item.warning .alert-icon {
+    color: #ffc107;
+}
+
+.alert-item.info .alert-icon {
+    color: #17a2b8;
+}
+
+.alert-item.success .alert-icon {
+    color: #28a745;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #495057;
+}
+
+.alert-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.alert-timestamp {
+    color: #adb5bd;
+    font-size: 0.8rem;
+}
+
+.alert-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 15px;
+}
+
+.alert-action-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.alert-action-btn.dismiss {
+    background: #6c757d;
+    color: white;
+}
+
+.alert-action-btn.dismiss:hover {
+    background: #5a6268;
+}
+
+.alert-action-btn.resolve {
+    background: #28a745;
+    color: white;
+}
+
+.alert-action-btn.resolve:hover {
+    background: #218838;
+}
+
+.no-alerts {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+.no-alerts i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #dee2e6;
+}
+
+.no-alerts h3 {
+    margin-bottom: 10px;
+    color: #495057;
+}
+
+/* Responsive para el panel de alertas */
+@media (max-width: 768px) {
+    .alerts-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .alerts-controls {
+        justify-content: center;
+    }
+    
+    .alert-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .alert-actions {
+        margin-left: 0;
+        justify-content: center;
+    }
+}

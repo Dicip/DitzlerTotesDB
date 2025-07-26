@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (result.success) {
                 updateDashboardUI(result.data);
+                loadAlertas(); // Cargar alertas después de cargar los datos principales
             } else {
                 console.error('Error al cargar estadísticas:', result.message);
                 showErrorMessage('Error al cargar las estadísticas del dashboard');
@@ -41,6 +42,173 @@ document.addEventListener('DOMContentLoaded', () => {
             UTILS.showNotification(CONFIG.MESSAGES.ERROR_CONNECTION, 'error');
         }
     }
+
+    // Función para cargar alertas
+    async function loadAlertas() {
+        try {
+            const response = await fetch(CONFIG.API.ENDPOINTS.ALERTAS);
+            const result = await response.json();
+            
+            if (result.success) {
+                updateAlertasUI(result.alertas);
+            } else {
+                console.error('Error al cargar alertas:', result.message);
+                showNoAlertas();
+            }
+        } catch (error) {
+            console.error('Error al cargar alertas:', error);
+            showNoAlertas();
+        }
+    }
+
+    // Función para actualizar la UI de alertas
+    function updateAlertasUI(alertas) {
+        const alertasContent = document.getElementById('alertsContent');
+        if (!alertasContent) return;
+
+        if (!alertas || alertas.length === 0) {
+            showNoAlertas();
+            return;
+        }
+
+        alertasContent.innerHTML = '';
+        
+        alertas.forEach(alerta => {
+            const alertItem = document.createElement('div');
+            alertItem.className = `alert-item ${alerta.tipo}`;
+            
+            alertItem.innerHTML = `
+                <div class="alert-icon">
+                    <i class="${alerta.icono}"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title">${alerta.titulo}</div>
+                    <div class="alert-description">${alerta.descripcion}</div>
+                    <div class="alert-timestamp">${formatAlertTime(alerta.timestamp)}</div>
+                </div>
+                ${alerta.accion ? `
+                    <div class="alert-actions">
+                        <button class="alert-action-btn resolve" onclick="resolverAlerta('${alerta.id}')">
+                            ${alerta.accion}
+                        </button>
+                        <button class="alert-action-btn dismiss" onclick="descartarAlerta('${alerta.id}')">
+                            Descartar
+                        </button>
+                    </div>
+                ` : ''}
+            `;
+            
+            alertasContent.appendChild(alertItem);
+        });
+    }
+    
+    // Función para mostrar cuando no hay alertas
+    function showNoAlertas() {
+        const alertasContent = document.getElementById('alertsContent');
+        if (!alertasContent) return;
+        
+        alertasContent.innerHTML = `
+            <div class="no-alerts">
+                <i class="fas fa-check-circle"></i>
+                <h3>¡Todo en orden!</h3>
+                <p>No hay alertas activas en este momento</p>
+            </div>
+        `;
+    }
+
+
+
+    // Función para formatear el tiempo de la alerta
+    function formatAlertTime(fecha) {
+        const now = new Date();
+        const alertTime = new Date(fecha);
+        const diffMs = now - alertTime;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffMins < 1) {
+            return 'Hace un momento';
+        } else if (diffMins < 60) {
+            return `Hace ${diffMins} minuto${diffMins > 1 ? 's' : ''}`;
+        } else if (diffHours < 24) {
+            return `Hace ${diffHours} hora${diffHours > 1 ? 's' : ''}`;
+        } else {
+            return `Hace ${diffDays} día${diffDays > 1 ? 's' : ''}`;
+        }
+    }
+    
+    // Función para resolver una alerta
+    window.resolverAlerta = function(alertaId) {
+        console.log('Resolviendo alerta:', alertaId);
+        // Aquí se puede agregar lógica específica según el tipo de alerta
+        switch(alertaId) {
+            case 'totes-fuera-plazo':
+                window.location.href = 'totes.html?filter=fuera-plazo';
+                break;
+            case 'totes-proximos-vencer':
+                window.location.href = 'totes.html?filter=proximos-vencer';
+                break;
+            case 'stock-bajo':
+                window.location.href = 'totes.html?filter=disponibles';
+                break;
+            case 'errores-sistema':
+                window.location.href = 'eventos.html?filter=errores';
+                break;
+            case 'usuarios-inactivos':
+                window.location.href = 'admin-users.html?filter=inactivos';
+                break;
+            default:
+                UTILS.showNotification('Acción no disponible', 'info');
+        }
+    };
+    
+    // Función para descartar una alerta
+    window.descartarAlerta = function(alertaId) {
+        console.log('Descartando alerta:', alertaId);
+        // Remover visualmente la alerta
+        const alertElement = document.querySelector(`[onclick*="${alertaId}"]`)?.closest('.alert-item');
+        if (alertElement) {
+            alertElement.style.transition = 'all 0.3s ease';
+            alertElement.style.opacity = '0';
+            alertElement.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                alertElement.remove();
+                // Verificar si quedan alertas
+                const remainingAlerts = document.querySelectorAll('.alert-item');
+                if (remainingAlerts.length === 0) {
+                    showNoAlertas();
+                }
+            }, 300);
+        }
+        UTILS.showNotification('Alerta descartada', 'success');
+    };
+    
+    // Event listeners para los botones del panel de alertas
+    document.addEventListener('DOMContentLoaded', function() {
+        // Botón de actualizar alertas
+        const refreshBtn = document.getElementById('refreshAlertsBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                icon.classList.add('fa-spin');
+                loadAlertas().finally(() => {
+                    setTimeout(() => {
+                        icon.classList.remove('fa-spin');
+                    }, 500);
+                });
+                UTILS.showNotification('Alertas actualizadas', 'success');
+            });
+        }
+        
+        // Botón de configurar alertas
+        const configBtn = document.getElementById('configAlertsBtn');
+        if (configBtn) {
+            configBtn.addEventListener('click', function() {
+                UTILS.showNotification('Configuración de alertas próximamente disponible', 'info');
+            });
+        }
+    });
 
     // Función para mostrar estado de carga
     function showLoadingState() {
@@ -68,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Actualizar total de totes
         updateTotalTotes(data.totalTotes);
         
-        // Actualizar totes con clientes
-        updateTotesConClientes(data.totesConClientes, data.totalTotes);
+        // Actualizar totes en uso (usando totesEnUso del procedimiento almacenado)
+        updateTotesEnUso(data.totesEnUso, data.totalTotes);
         
         // Actualizar totes fuera de plazo
         updateTotesFueraPlazo(data.totesFueraPlazo, data.totalFueraPlazo);
@@ -248,13 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función para actualizar totes en uso
-    function updateTotesConClientes(totesConClientes, totalTotes) {
-        const totalConClientes = totesConClientes.reduce((sum, item) => sum + item.cantidad, 0);
-        
-        // Actualizar número principal
+    function updateTotesEnUso(totesEnUso, totalTotes) {
+        // Actualizar número principal con el valor directo del procedimiento almacenado
         const mainMetric = document.getElementById('totesEnUso');
         if (mainMetric) {
-            mainMetric.textContent = totalConClientes;
+            mainMetric.textContent = totesEnUso;
             mainMetric.style.opacity = '1';
         }
         
@@ -264,19 +430,29 @@ document.addEventListener('DOMContentLoaded', () => {
             unitElement.textContent = `of ${totalTotes}`;
         }
         
-        // Actualizar lista de detalles
+        // Para la lista de detalles, podemos mostrar información adicional si está disponible
         const detailsList = document.querySelector('.card:nth-child(2) .details-list');
         if (detailsList) {
             detailsList.innerHTML = '';
-            totesConClientes.forEach(item => {
+            
+            // Mostrar información básica sobre totes en uso
+            if (totesEnUso > 0) {
                 const detailItem = document.createElement('div');
                 detailItem.className = 'detail-item';
                 detailItem.innerHTML = `
-                    <span class="detail-label">${item.Cliente}</span>
-                    <span class="detail-value">${item.cantidad} tote${item.cantidad > 1 ? 's' : ''}</span>
+                    <span class="detail-label">Totes actualmente en uso</span>
+                    <span class="detail-value">${totesEnUso} tote${totesEnUso > 1 ? 's' : ''}</span>
                 `;
                 detailsList.appendChild(detailItem);
-            });
+            } else {
+                const detailItem = document.createElement('div');
+                detailItem.className = 'detail-item';
+                detailItem.innerHTML = `
+                    <span class="detail-label">Sin totes en uso</span>
+                    <span class="detail-value">0 totes</span>
+                `;
+                detailsList.appendChild(detailItem);
+            }
         }
     }
 
