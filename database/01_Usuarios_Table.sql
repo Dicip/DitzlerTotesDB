@@ -229,8 +229,10 @@ END
 GO
 
 -- =============================================
--- USUARIO ADMINISTRADOR POR DEFECTO
+-- USUARIOS POR DEFECTO
 -- =============================================
+
+-- Usuario administrador
 IF NOT EXISTS (SELECT * FROM Usuarios WHERE Email = 'admin@ditzler.com')
 BEGIN
     INSERT INTO Usuarios (Nombre, Apellido, Password, Email, Rol, Estado, FechaCreacion, FechaModificacion)
@@ -239,6 +241,18 @@ BEGIN
     PRINT 'Usuario administrador creado exitosamente.';
     PRINT 'Email: admin@ditzler.com';
     PRINT 'Password: admin123';
+END
+GO
+
+-- Usuario de recepción
+IF NOT EXISTS (SELECT * FROM Usuarios WHERE Email = 'recepcion@ditzler.com')
+BEGIN
+    INSERT INTO Usuarios (Nombre, Apellido, Password, Email, Rol, Estado, FechaCreacion, FechaModificacion)
+    VALUES ('Usuario', 'Recepción', 'recepcion123', 'recepcion@ditzler.com', 'Recepción', 'Activo', GETDATE(), GETDATE());
+    
+    PRINT 'Usuario de recepción creado exitosamente.';
+    PRINT 'Email: recepcion@ditzler.com';
+    PRINT 'Password: recepcion123';
 END
 GO
 

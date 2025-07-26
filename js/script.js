@@ -56,6 +56,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = 'pages/dashboard.html';
                 } else if (data.role === 'Operador') {
                     window.location.href = 'pages/operador.html';
+                } else if (data.role === 'Recepción') {
+                    window.location.href = 'pages/recepcion.html';
                 } else {
                     // Por defecto redirigir al dashboard para otros roles
                     window.location.href = 'pages/dashboard.html';
@@ -100,6 +102,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = 'pages/dashboard.html';
             } else if (adminData.role === 'Operador') {
                 window.location.href = 'pages/operador.html';
+            } else if (adminData.role === 'Recepción') {
+                window.location.href = 'pages/recepcion.html';
             } else if (adminData.isAdmin) {
                 // Fallback para compatibilidad con sesiones anteriores
                 window.location.href = 'pages/dashboard.html';

@@ -12,6 +12,7 @@ function checkOperadorAuth() {
     
     try {
         const userData = JSON.parse(storedUser);
+        
         const currentTime = new Date().getTime();
         const sessionTime = userData.timestamp;
         
@@ -23,8 +24,8 @@ function checkOperadorAuth() {
             return null;
         }
         
-        // Verificar que sea operador o admin
-        if (userData.role !== 'Operador' && userData.role !== 'Admin') {
+        // Verificar que sea operador, admin o recepción
+        if (userData.role !== 'Operador' && userData.role !== 'Admin' && userData.role !== 'Recepción') {
             alert('Acceso denegado. Esta página es solo para operadores.');
             window.location.href = '../index.html';
             return null;
@@ -33,6 +34,8 @@ function checkOperadorAuth() {
         return userData;
     } catch (error) {
         console.error('Error al verificar autenticación:', error);
+        localStorage.removeItem('loggedInAdmin');
+        sessionStorage.removeItem('loggedInAdmin');
         window.location.href = '../index.html';
         return null;
     }
