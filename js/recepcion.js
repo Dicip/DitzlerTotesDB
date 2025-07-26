@@ -4,43 +4,7 @@ let currentTote = null;
 let selectedRoute = null;
 let recentScans = [];
 
-// Verificar autenticación del operador
-function checkOperadorAuth() {
-    const storedUser = localStorage.getItem('loggedInAdmin') || sessionStorage.getItem('loggedInAdmin');
-    
-    if (!storedUser) {
-        window.location.href = '../index.html';
-        return null;
-    }
-    
-    try {
-        const userData = JSON.parse(storedUser);
-        
-        // Verificar expiración de sesión (8 horas)
-        const loginTime = new Date(userData.loginTime);
-        const now = new Date();
-        const diffHours = (now - loginTime) / (1000 * 60 * 60);
-        
-        if (diffHours > 8) {
-            localStorage.removeItem('loggedInAdmin');
-            sessionStorage.removeItem('loggedInAdmin');
-            window.location.href = '../index.html';
-            return null;
-        }
-        
-        // Verificar que sea operador o admin
-        if (userData.rol !== 'Operador' && userData.rol !== 'Admin') {
-            window.location.href = '../index.html';
-            return null;
-        }
-        
-        return userData;
-    } catch (error) {
-        console.error('Error al verificar autenticación:', error);
-        window.location.href = '../index.html';
-        return null;
-    }
-}
+// Las funciones de autenticación y utilidades ahora están en utils.js
 
 // Escanear/verificar TAG
 async function scanTag(tagCode) {
@@ -201,33 +165,7 @@ function clearForm() {
     document.getElementById('tagInput').focus();
 }
 
-// Mostrar mensaje
-function showMessage(message, type) {
-    // Crear elemento de mensaje si no existe
-    let messageContainer = document.getElementById('messageContainer');
-    if (!messageContainer) {
-        messageContainer = document.createElement('div');
-        messageContainer.id = 'messageContainer';
-        messageContainer.className = 'message';
-        document.querySelector('.content-card').insertBefore(messageContainer, document.querySelector('.scanner-container'));
-    }
-    
-    messageContainer.textContent = message;
-    messageContainer.className = `message ${type}`;
-    messageContainer.style.display = 'block';
-    
-    // Ocultar mensaje después de 5 segundos
-    setTimeout(() => {
-        messageContainer.style.display = 'none';
-    }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
-}
-
-// Manejar cierre de sesión
-function handleLogout() {
-    localStorage.removeItem('loggedInAdmin');
-    sessionStorage.removeItem('loggedInAdmin');
-    window.location.href = '../index.html';
-}
+// Las funciones showMessage y handleLogout ahora están en utils.js
 
 // Inicializar la página
 document.addEventListener('DOMContentLoaded', function() {
@@ -302,71 +240,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu functionality
     initializeMobileMenu();
 
-    function initializeMobileMenu() {
-        // Create mobile menu toggle button
-        const mobileToggle = document.createElement('button');
-        mobileToggle.className = 'mobile-menu-toggle';
-        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-        mobileToggle.setAttribute('aria-label', 'Toggle mobile menu');
-        
-        // Create sidebar overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'sidebar-overlay';
-        
-        // Add elements to DOM
-        document.body.appendChild(mobileToggle);
-        document.body.appendChild(overlay);
-        
-        const sidebar = document.querySelector('.sidebar');
-        
-        // Toggle sidebar function
-        function toggleSidebar() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-            
-            // Update button icon
-            const icon = mobileToggle.querySelector('i');
-            icon.className = sidebar.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
-        }
-        
-        // Close sidebar function
-        function closeSidebar() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-            
-            // Reset button icon
-            const icon = mobileToggle.querySelector('i');
-            icon.className = 'fas fa-bars';
-        }
-        
-        // Event listeners
-        mobileToggle.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', closeSidebar);
-        
-        // Close sidebar when clicking on navigation links (mobile)
-        const navLinks = sidebar.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    closeSidebar();
-                }
-            });
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                closeSidebar();
-            }
-        });
-        
-        // Handle escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
-                closeSidebar();
-            }
-        });
-    }
+    // Función initializeMobileMenu ahora está en utils.js
 });

@@ -37,73 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mobile menu functionality
     initializeMobileMenu();
 
-    function initializeMobileMenu() {
-        // Create mobile menu toggle button
-        const mobileToggle = document.createElement('button');
-        mobileToggle.className = 'mobile-menu-toggle';
-        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-        mobileToggle.setAttribute('aria-label', 'Toggle mobile menu');
-        
-        // Create sidebar overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'sidebar-overlay';
-        
-        // Add elements to DOM
-        document.body.appendChild(mobileToggle);
-        document.body.appendChild(overlay);
-        
-        const sidebar = document.querySelector('.sidebar');
-        
-        // Toggle sidebar function
-        function toggleSidebar() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-            
-            // Update button icon
-            const icon = mobileToggle.querySelector('i');
-            icon.className = sidebar.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
-        }
-        
-        // Close sidebar function
-        function closeSidebar() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-            
-            // Reset button icon
-            const icon = mobileToggle.querySelector('i');
-            icon.className = 'fas fa-bars';
-        }
-        
-        // Event listeners
-        mobileToggle.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', closeSidebar);
-        
-        // Close sidebar when clicking on navigation links (mobile)
-        const navLinks = sidebar.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    closeSidebar();
-                }
-            });
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                closeSidebar();
-            }
-        });
-        
-        // Handle escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
-                closeSidebar();
-            }
-        });
-    }
+    // Función initializeMobileMenu ahora está en utils.js
 
     // --- Variables globales ---
     let totesData = [];
@@ -236,45 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Función para mostrar mensajes ---
-    function showMessage(message, type = 'info') {
-        // Crear elemento de mensaje si no existe
-        let messageContainer = document.getElementById('messageContainer');
-        if (!messageContainer) {
-            messageContainer = document.createElement('div');
-            messageContainer.id = 'messageContainer';
-            messageContainer.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                border-radius: 5px;
-                color: white;
-                font-weight: bold;
-                z-index: 1000;
-                max-width: 400px;
-                word-wrap: break-word;
-            `;
-            document.body.appendChild(messageContainer);
-        }
-        
-        // Establecer color según el tipo
-        const colors = {
-            success: '#28a745',
-            error: '#dc3545',
-            warning: '#ffc107',
-            info: '#17a2b8'
-        };
-        
-        messageContainer.style.backgroundColor = colors[type] || colors.info;
-        messageContainer.textContent = message;
-        messageContainer.style.display = 'block';
-        
-        // Ocultar mensaje después de 5 segundos
-        setTimeout(() => {
-            messageContainer.style.display = 'none';
-        }, 5000);
-    }
+    // --- Función showMessage ahora está en utils.js ---
     
     // --- Función para validar fechas en tiempo real ---
     function validateDates() {

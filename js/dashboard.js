@@ -234,16 +234,16 @@ document.addEventListener('DOMContentLoaded', () => {
         updateTotesChart(data.statusStats);
         
         // Actualizar total de totes
-        updateTotalTotes(data.totalTotes);
+        updateTotalTotes(data.totalTotes, data.cambios?.totalTotes);
         
         // Actualizar totes en uso (usando totesEnUso del procedimiento almacenado)
-        updateTotesEnUso(data.totesEnUso, data.totalTotes);
+        updateTotesEnUso(data.totesEnUso, data.totalTotes, data.cambios?.totesEnUso);
         
         // Actualizar totes fuera de plazo
-        updateTotesFueraPlazo(data.totesFueraPlazo, data.totalFueraPlazo);
+        updateTotesFueraPlazo(data.totesFueraPlazo, data.totalFueraPlazo, data.cambios?.fueraPlazo);
         
         // Actualizar usuarios activos
-        updateUsuariosActivos(data.usuariosActivos);
+        updateUsuariosActivos(data.usuariosActivos, data.cambios?.usuariosActivos);
     }
 
     // Función para actualizar el gráfico de totes
@@ -372,6 +372,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }]
         });
+    };
+
+    // Función para actualizar el cambio porcentual de una métrica
+    function updateMetricChange(metricId, cambio) {
+        // Mapear IDs de métricas a selectores de elementos de cambio
+        const changeSelectors = {
+            'totalTotes': '.card:nth-child(1) .metric-change',
+            'totesEnUso': '.card:nth-child(2) .metric-change',
+            'totesFueraPlazo': '.card:nth-child(4) .metric-change',
+            'usuariosActivos': '.card:nth-child(5) .metric-change'
+        };
+        
+        const changeElement = document.querySelector(changeSelectors[metricId]);
+        if (!changeElement) return;
+        
+        const percentageSpan = changeElement.querySelector('span');
+        const arrowIcon = changeElement.querySelector('i');
+        
+        if (percentageSpan && arrowIcon) {
+            // Formatear el porcentaje
+            const formattedChange = Math.abs(cambio).toFixed(1);
+            percentageSpan.textContent = `${formattedChange}%`;
+            
+            // Actualizar clase y icono según el cambio
+            changeElement.className = 'metric-change';
+            if (cambio > 0) {
+                changeElement.classList.add('positive');
+                arrowIcon.className = 'fas fa-arrow-up';
+            } else if (cambio < 0) {
+                changeElement.classList.add('negative');
+                arrowIcon.className = 'fas fa-arrow-down';
+            } else {
+                changeElement.classList.add('neutral');
+                arrowIcon.className = 'fas fa-minus';
+                percentageSpan.textContent = '0.0%';
+            }
+        }
     }
 
     // Función para crear leyenda personalizada
@@ -407,16 +444,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función para actualizar total de totes
-    function updateTotalTotes(total) {
+    function updateTotalTotes(total, cambio) {
         const totalElement = document.getElementById('totalTotes');
         if (totalElement) {
             totalElement.textContent = total;
             totalElement.style.opacity = '1';
         }
+        
+        // Actualizar porcentaje de cambio
+        if (cambio !== undefined) {
+            updateMetricChange('totalTotes', cambio);
+        }
     }
 
     // Función para actualizar totes en uso
-    function updateTotesEnUso(totesEnUso, totalTotes) {
+    function updateTotesEnUso(totesEnUso, totalTotes, cambio) {
         // Actualizar número principal con el valor directo del procedimiento almacenado
         const mainMetric = document.getElementById('totesEnUso');
         if (mainMetric) {
@@ -428,6 +470,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const unitElement = mainMetric?.parentElement?.querySelector('.metric-unit');
         if (unitElement && totalTotes) {
             unitElement.textContent = `of ${totalTotes}`;
+        }
+        
+        // Actualizar porcentaje de cambio
+        if (cambio !== undefined) {
+            updateMetricChange('totesEnUso', cambio);
         }
         
         // Para la lista de detalles, podemos mostrar información adicional si está disponible
@@ -457,12 +504,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función para actualizar totes fuera de plazo
-    function updateTotesFueraPlazo(totesFueraPlazo, totalFueraPlazo) {
+    function updateTotesFueraPlazo(totesFueraPlazo, totalFueraPlazo, cambio) {
         // Actualizar número principal
         const mainMetric = document.getElementById('totesFueraPlazo');
         if (mainMetric) {
             mainMetric.textContent = totalFueraPlazo;
             mainMetric.style.opacity = '1';
+        }
+        
+        // Actualizar porcentaje de cambio
+        if (cambio !== undefined) {
+            updateMetricChange('totesFueraPlazo', cambio);
         }
         
         // Actualizar lista de detalles
@@ -482,11 +534,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Función para actualizar usuarios activos
-    function updateUsuariosActivos(total) {
+    function updateUsuariosActivos(total, cambio) {
         const totalElement = document.getElementById('usuariosActivos');
         if (totalElement) {
             totalElement.textContent = total;
             totalElement.style.opacity = '1';
+        }
+        
+        // Actualizar porcentaje de cambio
+        if (cambio !== undefined) {
+            updateMetricChange('usuariosActivos', cambio);
         }
     }
 
@@ -505,72 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mobile menu functionality
     initializeMobileMenu();
 
-    function initializeMobileMenu() {
-        // Create mobile menu toggle button
-        const mobileToggle = document.createElement('button');
-        mobileToggle.className = 'mobile-menu-toggle';
-        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-        mobileToggle.setAttribute('aria-label', 'Toggle mobile menu');
-        
-        // Create sidebar overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'sidebar-overlay';
-        
-        // Add elements to DOM
-        document.body.appendChild(mobileToggle);
-        document.body.appendChild(overlay);
-        
-        const sidebar = document.querySelector('.sidebar');
-        
-        // Toggle sidebar function
-        function toggleSidebar() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-            
-            // Update button icon
-            const icon = mobileToggle.querySelector('i');
-            icon.className = sidebar.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
-        }
-        
-        // Close sidebar function
-        function closeSidebar() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-            
-            // Reset button icon
-            const icon = mobileToggle.querySelector('i');
-            icon.className = 'fas fa-bars';
-        }
-        
-        // Event listeners
-        mobileToggle.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', closeSidebar);
-        
-        // Close sidebar when clicking on navigation links (mobile)
-        const navLinks = sidebar.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    closeSidebar();
-                }
-            });
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                closeSidebar();
-            }
-        });
-        
-        // Handle escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
-                closeSidebar();
-            }
-        });
-    }
+    // Función initializeMobileMenu ahora está en utils.js
 
  });

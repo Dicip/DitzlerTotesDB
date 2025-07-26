@@ -1721,6 +1721,7 @@ body {
     height: 24px;
     gap: 2px;
     padding: 0 4px;
+    float: bottom;
 }
 
 .trend-dot {
@@ -1743,6 +1744,7 @@ body {
     font-size: 11px;
     color: #9aa0a6;
     font-weight: 500;
+    float: bottom;
 }
 
 .details-list {

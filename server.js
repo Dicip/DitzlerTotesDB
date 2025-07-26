@@ -49,6 +49,85 @@ async function getUserFromToken(email) {
   }
 }
 
+// Funciones de validación centralizadas
+async function validateEmail(pool, email) {
+  const emailValidationResult = await pool.request()
+    .input('email', sql.VarChar, email)
+    .query('SELECT dbo.FN_ValidarEmail(@email) as isValid');
+  
+  return emailValidationResult.recordset[0].isValid;
+}
+
+async function checkDuplicateUserEmail(pool, email, excludeUserId = null) {
+  const query = excludeUserId 
+    ? 'SELECT COUNT(*) as count FROM Usuarios WHERE Email = @email AND Id != @userId'
+    : 'SELECT COUNT(*) as count FROM Usuarios WHERE Email = @email';
+  
+  const request = pool.request().input('email', sql.VarChar, email);
+  if (excludeUserId) {
+    request.input('userId', sql.Int, excludeUserId);
+  }
+  
+  const result = await request.query(query);
+  return result.recordset[0].count > 0;
+}
+
+async function checkDuplicateClientEmail(pool, email, excludeClientId = null) {
+  const query = excludeClientId 
+    ? 'SELECT COUNT(*) as count FROM Clientes WHERE email = @email AND id != @clientId'
+    : 'SELECT COUNT(*) as count FROM Clientes WHERE email = @email';
+  
+  const request = pool.request().input('email', sql.NVarChar, email);
+  if (excludeClientId) {
+    request.input('clientId', sql.Int, excludeClientId);
+  }
+  
+  const result = await request.query(query);
+  return result.recordset[0].count > 0;
+}
+
+async function checkDuplicateToteCode(pool, codigo, excludeToteId = null) {
+  const query = excludeToteId 
+    ? 'SELECT COUNT(*) as count FROM Totes WHERE Codigo = @codigo AND Id != @toteId'
+    : 'SELECT COUNT(*) as count FROM Totes WHERE Codigo = @codigo';
+  
+  const request = pool.request().input('codigo', sql.VarChar, codigo);
+  if (excludeToteId) {
+    request.input('toteId', sql.Int, excludeToteId);
+  }
+  
+  const result = await request.query(query);
+  return result.recordset[0].count > 0;
+}
+
+// Funciones de validación de fechas centralizadas
+function validateToteDates(fechaEnvasado, fechaVencimiento) {
+  const errors = [];
+  
+  // Validar que la fecha de envasado no sea futura
+  if (fechaEnvasado) {
+    const fechaEnv = new Date(fechaEnvasado);
+    const hoy = new Date();
+    hoy.setHours(23, 59, 59, 999); // Fin del día actual
+    
+    if (fechaEnv > hoy) {
+      errors.push('La fecha de envasado no puede ser futura');
+    }
+  }
+  
+  // Validar que la fecha de vencimiento sea posterior a la de envasado
+  if (fechaVencimiento && fechaEnvasado) {
+    const fechaVenc = new Date(fechaVencimiento);
+    const fechaEnv = new Date(fechaEnvasado);
+    
+    if (fechaVenc <= fechaEnv) {
+      errors.push('La fecha de vencimiento debe ser posterior a la fecha de envasado');
+    }
+  }
+  
+  return errors;
+}
+
 // Configuración de conexión a SQL Server
 const sqlConfig = {
   user: 'sa',
@@ -238,12 +317,8 @@ app.post('/api/admin/users', async (req, res) => {
     
     // Crear nuevo usuario
     if (action === 'create' && userData) {
-      // Validar formato de email usando la función de la base de datos
-      const emailValidationResult = await pool.request()
-        .input('email', sql.VarChar, userData.email)
-        .query('SELECT dbo.FN_ValidarEmail(@email) as isValid');
-      
-      if (!emailValidationResult.recordset[0].isValid) {
+      // Validar formato de email usando función centralizada
+      if (!(await validateEmail(pool, userData.email))) {
         return res.status(400).json({ 
           success: false, 
           message: 'El formato del email no es válido' 
@@ -251,11 +326,7 @@ app.post('/api/admin/users', async (req, res) => {
       }
       
       // Verificar si ya existe un usuario con el mismo email
-      const checkUser = await pool.request()
-        .input('email', sql.VarChar, userData.email)
-        .query('SELECT COUNT(*) as count FROM Usuarios WHERE Email = @email');
-      
-      if (checkUser.recordset[0].count > 0) {
+      if (await checkDuplicateUserEmail(pool, userData.email)) {
         return res.status(400).json({ success: false, message: 'Ya existe un usuario con ese email' });
       }
       
@@ -317,11 +388,7 @@ app.post('/api/admin/users', async (req, res) => {
       
       // Validar formato de email si se está actualizando
       if (userData.email) {
-        const emailValidationResult = await pool.request()
-          .input('email', sql.VarChar, userData.email)
-          .query('SELECT dbo.FN_ValidarEmail(@email) as isValid');
-        
-        if (!emailValidationResult.recordset[0].isValid) {
+        if (!(await validateEmail(pool, userData.email))) {
           return res.status(400).json({ 
             success: false, 
             message: 'El formato del email no es válido' 
@@ -329,12 +396,7 @@ app.post('/api/admin/users', async (req, res) => {
         }
         
         // Verificar si el email ya existe en otro usuario
-        const checkEmailResult = await pool.request()
-          .input('email', sql.VarChar, userData.email)
-          .input('userId', sql.Int, userData.id)
-          .query('SELECT COUNT(*) as count FROM Usuarios WHERE Email = @email AND Id != @userId');
-        
-        if (checkEmailResult.recordset[0].count > 0) {
+        if (await checkDuplicateUserEmail(pool, userData.email, userData.id)) {
           return res.status(400).json({ 
             success: false, 
             message: 'Ya existe otro usuario con ese email' 
@@ -487,11 +549,7 @@ app.post('/api/admin/clientes', async (req, res) => {
     if (action === 'create' && clientData) {
       // Validar formato de email si se proporciona
       if (clientData.email && clientData.email.trim() !== '') {
-        const emailValidationResult = await pool.request()
-        .input('email', sql.VarChar, clientData.email)
-        .query('SELECT dbo.FN_ValidarEmail(@email) as isValid');
-        
-        if (!emailValidationResult.recordset[0].isValid) {
+        if (!(await validateEmail(pool, clientData.email))) {
           return res.status(400).json({ 
             success: false, 
             message: 'El formato del email no es válido' 
@@ -499,11 +557,7 @@ app.post('/api/admin/clientes', async (req, res) => {
         }
         
         // Verificar si el email ya existe
-        const checkClient = await pool.request()
-          .input('email', sql.NVarChar, clientData.email)
-          .query('SELECT COUNT(*) as count FROM Clientes WHERE email = @email');
-        
-        if (checkClient.recordset[0].count > 0) {
+        if (await checkDuplicateClientEmail(pool, clientData.email)) {
           return res.status(400).json({ success: false, message: 'Ya existe un cliente con este email' });
         }
       }
@@ -554,11 +608,7 @@ app.post('/api/admin/clientes', async (req, res) => {
     else if (action === 'update' && clientData && clientData.id) {
       // Validar formato de email si se está actualizando
       if (clientData.email && clientData.email.trim() !== '') {
-        const emailValidationResult = await pool.request()
-          .input('email', sql.NVarChar, clientData.email)
-          .query('SELECT dbo.FN_ValidarEmail(@email) as isValid');
-        
-        if (!emailValidationResult.recordset[0].isValid) {
+        if (!(await validateEmail(pool, clientData.email))) {
           return res.status(400).json({ 
             success: false, 
             message: 'El formato del email no es válido' 
@@ -566,12 +616,7 @@ app.post('/api/admin/clientes', async (req, res) => {
         }
         
         // Verificar si el email ya existe en otro cliente
-        const checkEmailResult = await pool.request()
-          .input('email', sql.NVarChar, clientData.email)
-          .input('clientId', sql.Int, clientData.id)
-          .query('SELECT COUNT(*) as count FROM Clientes WHERE email = @email AND id != @clientId');
-        
-        if (checkEmailResult.recordset[0].count > 0) {
+        if (await checkDuplicateClientEmail(pool, clientData.email, clientData.id)) {
           return res.status(400).json({ 
             success: false, 
             message: 'Ya existe otro cliente con ese email' 
@@ -949,39 +994,17 @@ app.post('/api/admin/totes', async (req, res) => {
     
     // Crear nuevo tote
     if (action === 'create' && toteData) {
-      // Validar fechas según restricciones CHECK
-      if (toteData.fechaVencimiento && toteData.fechaEnvasado) {
-        const fechaVenc = new Date(toteData.fechaVencimiento);
-        const fechaEnv = new Date(toteData.fechaEnvasado);
-        
-        if (fechaVenc <= fechaEnv) {
-          return res.status(400).json({ 
-            success: false, 
-            message: 'La fecha de vencimiento debe ser posterior a la fecha de envasado' 
-          });
-        }
-      }
-      
-      // Validar que la fecha de envasado no sea futura
-      if (toteData.fechaEnvasado) {
-        const fechaEnv = new Date(toteData.fechaEnvasado);
-        const hoy = new Date();
-        hoy.setHours(23, 59, 59, 999); // Fin del día actual
-        
-        if (fechaEnv > hoy) {
-          return res.status(400).json({ 
-            success: false, 
-            message: 'La fecha de envasado no puede ser futura' 
-          });
-        }
+      // Validar fechas usando función centralizada
+      const dateErrors = validateToteDates(toteData.fechaEnvasado, toteData.fechaVencimiento);
+      if (dateErrors.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: dateErrors[0] 
+        });
       }
       
       // Verificar si el código de tote ya existe
-      const checkTote = await pool.request()
-        .input('codigo', sql.VarChar, toteData.codigo)
-        .query('SELECT COUNT(*) as count FROM Totes WHERE Codigo = @codigo');
-      
-      if (checkTote.recordset[0].count > 0) {
+      if (await checkDuplicateToteCode(pool, toteData.codigo)) {
         return res.status(400).json({ success: false, message: 'El código de tote ya existe' });
       }
       
@@ -1026,40 +1049,17 @@ app.post('/api/admin/totes', async (req, res) => {
     }
     // Actualizar tote existente
     else if (action === 'update' && toteData && toteData.id) {
-      // Validar fechas según restricciones CHECK
-      if (toteData.fechaVencimiento && toteData.fechaEnvasado) {
-        const fechaVenc = new Date(toteData.fechaVencimiento);
-        const fechaEnv = new Date(toteData.fechaEnvasado);
-        
-        if (fechaVenc <= fechaEnv) {
-          return res.status(400).json({ 
-            success: false, 
-            message: 'La fecha de vencimiento debe ser posterior a la fecha de envasado' 
-          });
-        }
-      }
-      
-      // Validar que la fecha de envasado no sea futura
-      if (toteData.fechaEnvasado) {
-        const fechaEnv = new Date(toteData.fechaEnvasado);
-        const hoy = new Date();
-        hoy.setHours(23, 59, 59, 999); // Fin del día actual
-        
-        if (fechaEnv > hoy) {
-          return res.status(400).json({ 
-            success: false, 
-            message: 'La fecha de envasado no puede ser futura' 
-          });
-        }
+      // Validar fechas usando función centralizada
+      const dateErrors = validateToteDates(toteData.fechaEnvasado, toteData.fechaVencimiento);
+      if (dateErrors.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: dateErrors[0] 
+        });
       }
       
       // Verificar si el código ya existe en otro tote
-      const checkCodeResult = await pool.request()
-        .input('codigo', sql.VarChar, toteData.codigo)
-        .input('toteId', sql.Int, toteData.id)
-        .query('SELECT COUNT(*) as count FROM Totes WHERE Codigo = @codigo AND Id != @toteId');
-      
-      if (checkCodeResult.recordset[0].count > 0) {
+      if (await checkDuplicateToteCode(pool, toteData.codigo, toteData.id)) {
         return res.status(400).json({ 
           success: false, 
           message: 'Ya existe otro tote con ese código' 
@@ -1229,6 +1229,39 @@ app.get('/api/dashboard/stats', async (req, res) => {
       SELECT COUNT(*) as total FROM Usuarios WHERE Estado = 'Activo'
     `);
     
+    // Calcular cambios porcentuales comparando con el mes anterior
+    const fechaActual = new Date();
+    const fechaMesAnterior = new Date(fechaActual.getFullYear(), fechaActual.getMonth() - 1, 1);
+    const fechaFinMesAnterior = new Date(fechaActual.getFullYear(), fechaActual.getMonth(), 0);
+    
+    // Estadísticas del mes anterior
+    const statsAnterior = await pool.request()
+      .input('fechaInicio', sql.DateTime, fechaMesAnterior)
+      .input('fechaFin', sql.DateTime, fechaFinMesAnterior)
+      .query(`
+        SELECT 
+          (SELECT COUNT(*) FROM Totes WHERE Activo = 1 AND FechaCreacion <= @fechaFin) as totalTotesAnterior,
+          (SELECT COUNT(*) FROM Totes WHERE Activo = 1 AND Estado = 'En Uso' AND FechaDespacho <= @fechaFin) as totesEnUsoAnterior,
+          (SELECT COUNT(*) FROM Totes WHERE Activo = 1 AND Estado = 'En Uso' AND FechaDespacho <= @fechaFin AND 
+            ((FechaDespacho IS NOT NULL AND DATEDIFF(day, FechaDespacho, @fechaFin) >= 30) OR 
+             (FechaVencimiento IS NOT NULL AND FechaVencimiento < @fechaFin))) as fueraPlazoAnterior,
+          (SELECT COUNT(*) FROM Usuarios WHERE Estado = 'Activo' AND FechaCreacion <= @fechaFin) as usuariosActivosAnterior
+      `);
+    
+    const anterior = statsAnterior.recordset[0];
+    
+    // Función para calcular cambio porcentual
+    const calcularCambio = (actual, anterior) => {
+      if (anterior === 0) return actual > 0 ? 100 : 0;
+      return ((actual - anterior) / anterior * 100).toFixed(1);
+    };
+    
+    // Calcular cambios
+    const cambioTotalTotes = calcularCambio(totalTotes, anterior.totalTotesAnterior);
+    const cambioTotesEnUso = calcularCambio(totesEnUso, anterior.totesEnUsoAnterior);
+    const cambioFueraPlazo = calcularCambio(totalFueraPlazo.recordset[0].total, anterior.fueraPlazoAnterior);
+    const cambioUsuariosActivos = calcularCambio(usuariosActivos.recordset[0].total, anterior.usuariosActivosAnterior);
+    
     res.json({
       success: true,
       data: {
@@ -1244,7 +1277,14 @@ app.get('/api/dashboard/stats', async (req, res) => {
         totesConClientes: totesConClientes.recordset,
         totesFueraPlazo: totesFueraPlazo.recordset,
         totalFueraPlazo: totalFueraPlazo.recordset[0].total,
-        usuariosActivos: usuariosActivos.recordset[0].total
+        usuariosActivos: usuariosActivos.recordset[0].total,
+        // Cambios porcentuales
+        cambios: {
+          totalTotes: parseFloat(cambioTotalTotes),
+          totesEnUso: parseFloat(cambioTotesEnUso),
+          fueraPlazo: parseFloat(cambioFueraPlazo),
+          usuariosActivos: parseFloat(cambioUsuariosActivos)
+        }
       }
     });
     

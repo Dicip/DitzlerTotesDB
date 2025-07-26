@@ -1,39 +1,4 @@
-// Verificar autenticación del operador
-function checkOperadorAuth() {
-    const storedUser = localStorage.getItem('loggedInAdmin') || sessionStorage.getItem('loggedInAdmin');
-    
-    if (!storedUser) {
-        window.location.href = '../index.html';
-        return null;
-    }
-    
-    try {
-        const userData = JSON.parse(storedUser);
-        const currentTime = new Date().getTime();
-        const sessionTime = userData.timestamp;
-        
-        // Verificar si la sesión no ha expirado (8 horas)
-        if (currentTime - sessionTime > 8 * 60 * 60 * 1000) {
-            localStorage.removeItem('loggedInAdmin');
-            sessionStorage.removeItem('loggedInAdmin');
-            window.location.href = '../index.html';
-            return null;
-        }
-        
-        // Verificar que sea operador o admin
-        if (userData.role !== 'Operador' && userData.role !== 'Admin') {
-            alert('Acceso denegado. Esta página es solo para operadores.');
-            window.location.href = '../index.html';
-            return null;
-        }
-        
-        return userData;
-    } catch (error) {
-        console.error('Error al verificar autenticación:', error);
-        window.location.href = '../index.html';
-        return null;
-    }
-}
+// Las funciones de autenticación y utilidades ahora están en utils.js
 
 // Cargar estadísticas del operador
 async function loadOperadorStats() {
@@ -257,12 +222,7 @@ function createMisTotesChart(data) {
     });
 }
 
-// Manejar cierre de sesión
-function handleLogout() {
-    localStorage.removeItem('loggedInAdmin');
-    sessionStorage.removeItem('loggedInAdmin');
-    window.location.href = '../index.html';
-}
+// Función handleLogout ahora está en utils.js
 
 // Inicializar la página
 document.addEventListener('DOMContentLoaded', function() {
@@ -287,71 +247,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu functionality
     initializeMobileMenu();
 
-    function initializeMobileMenu() {
-        // Create mobile menu toggle button
-        const mobileToggle = document.createElement('button');
-        mobileToggle.className = 'mobile-menu-toggle';
-        mobileToggle.innerHTML = '<i class="fas fa-bars"></i>';
-        mobileToggle.setAttribute('aria-label', 'Toggle mobile menu');
-        
-        // Create sidebar overlay
-        const overlay = document.createElement('div');
-        overlay.className = 'sidebar-overlay';
-        
-        // Add elements to DOM
-        document.body.appendChild(mobileToggle);
-        document.body.appendChild(overlay);
-        
-        const sidebar = document.querySelector('.sidebar');
-        
-        // Toggle sidebar function
-        function toggleSidebar() {
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-            
-            // Update button icon
-            const icon = mobileToggle.querySelector('i');
-            icon.className = sidebar.classList.contains('active') ? 'fas fa-times' : 'fas fa-bars';
-        }
-        
-        // Close sidebar function
-        function closeSidebar() {
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
-            
-            // Reset button icon
-            const icon = mobileToggle.querySelector('i');
-            icon.className = 'fas fa-bars';
-        }
-        
-        // Event listeners
-        mobileToggle.addEventListener('click', toggleSidebar);
-        overlay.addEventListener('click', closeSidebar);
-        
-        // Close sidebar when clicking on navigation links (mobile)
-        const navLinks = sidebar.querySelectorAll('.nav-links a');
-        navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    closeSidebar();
-                }
-            });
-        });
-        
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                closeSidebar();
-            }
-        });
-        
-        // Handle escape key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
-                closeSidebar();
-            }
-        });
-    }
+    // Función initializeMobileMenu ahora está en utils.js
 });
