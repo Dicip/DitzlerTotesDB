@@ -41,6 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Variables globales ---
     let totesData = [];
+    let filteredTotesData = [];
+    let currentFilters = {
+        estado: '',
+        ubicacion: '',
+        cliente: '',
+        operador: '',
+        alerta: ''
+    };
     const storedAdminData = JSON.parse(storedAdmin);
     
     // --- Función para cargar operadores para el modal ---
@@ -160,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  
                  console.log('Totes procesados:', totesData.length);
                  renderTable(totesData);
+                 cargarOpcionesFiltros();
             } else {
                 console.error('Error al cargar totes:', data.message);
                 showMessage('Error al cargar los totes: ' + data.message, 'error');
@@ -624,7 +633,97 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- Funciones de filtrado ---
+    function aplicarFiltrosTotes() {
+        // Obtener valores de los filtros
+        currentFilters.estado = document.getElementById('filtroEstado').value;
+        currentFilters.ubicacion = document.getElementById('filtroUbicacion').value.toLowerCase();
+        currentFilters.cliente = document.getElementById('filtroCliente').value;
+        currentFilters.operador = document.getElementById('filtroOperador').value;
+        currentFilters.alerta = document.getElementById('filtroAlerta').value;
 
+        // Aplicar filtros
+        filteredTotesData = totesData.filter(tote => {
+            // Filtro por estado
+            if (currentFilters.estado && tote.estado !== currentFilters.estado) {
+                return false;
+            }
+
+            // Filtro por ubicación (búsqueda parcial)
+            if (currentFilters.ubicacion && !tote.ubicacion.toLowerCase().includes(currentFilters.ubicacion)) {
+                return false;
+            }
+
+            // Filtro por cliente
+            if (currentFilters.cliente && tote.cliente !== currentFilters.cliente) {
+                return false;
+            }
+
+            // Filtro por operador
+            if (currentFilters.operador && tote.operador !== currentFilters.operador) {
+                return false;
+            }
+
+            // Filtro por alerta
+            if (currentFilters.alerta && tote.alerta !== currentFilters.alerta) {
+                return false;
+            }
+
+            return true;
+        });
+
+        renderTable(filteredTotesData);
+    }
+
+    function limpiarFiltrosTotes() {
+        // Limpiar valores de los filtros
+        document.getElementById('filtroEstado').value = '';
+        document.getElementById('filtroUbicacion').value = '';
+        document.getElementById('filtroCliente').value = '';
+        document.getElementById('filtroOperador').value = '';
+        document.getElementById('filtroAlerta').value = '';
+
+        // Resetear filtros
+        currentFilters = {
+            estado: '',
+            ubicacion: '',
+            cliente: '',
+            operador: '',
+            alerta: ''
+        };
+
+        // Mostrar todos los totes
+        renderTable(totesData);
+    }
+
+    // Función para cargar opciones de filtros dinámicamente
+    function cargarOpcionesFiltros() {
+        // Cargar clientes únicos
+        const clientesUnicos = [...new Set(totesData.map(tote => tote.cliente).filter(cliente => cliente && cliente !== '-'))];
+        const selectCliente = document.getElementById('filtroCliente');
+        selectCliente.innerHTML = '<option value="">Todos los clientes</option>';
+        clientesUnicos.forEach(cliente => {
+            const option = document.createElement('option');
+            option.value = cliente;
+            option.textContent = cliente;
+            selectCliente.appendChild(option);
+        });
+
+        // Cargar operadores únicos
+        const operadoresUnicos = [...new Set(totesData.map(tote => tote.operador).filter(operador => operador))];
+        const selectOperador = document.getElementById('filtroOperador');
+        selectOperador.innerHTML = '<option value="">Todos los operadores</option>';
+        operadoresUnicos.forEach(operador => {
+            const option = document.createElement('option');
+            option.value = operador;
+            option.textContent = operador;
+            selectOperador.appendChild(option);
+        });
+    }
+
+    // Hacer las funciones globales
+    window.aplicarFiltrosTotes = aplicarFiltrosTotes;
+    window.limpiarFiltrosTotes = limpiarFiltrosTotes;
 
     // Cargar totes al inicializar la página
     loadTotes();

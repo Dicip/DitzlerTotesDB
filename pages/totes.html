@@ -41,8 +41,48 @@
                 </div>
             </header>
             
+            <!-- Filtros Modernos -->
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label for="filtroEstado">Estado:</label>
+                    <select id="filtroEstado" class="modern-select">
+                        <option value="">Todos</option>
+                        <option value="Disponible">Disponible</option>
+                        <option value="En Uso">En Uso</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                        <option value="Fuera de Servicio">Fuera de Servicio</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filtroCliente">Cliente:</label>
+                    <select id="filtroCliente" class="modern-select">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filtroOperador">Operador:</label>
+                    <select id="filtroOperador" class="modern-select">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filtroAlerta">Nivel de Alerta:</label>
+                    <select id="filtroAlerta" class="modern-select">
+                        <option value="">Todos</option>
+                        <option value="true">Sí</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filtroUbicacion">Ubicación:</label>
+                    <input type="text" id="filtroUbicacion" class="modern-input" placeholder="Buscar ubicación...">
+                </div>
+                <div class="filter-actions">
+                    <button id="btnFiltrar" class="btn-modern primary" onclick="aplicarFiltrosTotes()">Filtrar</button>
+                    <button id="btnLimpiar" class="btn-modern secondary" onclick="limpiarFiltrosTotes()">Limpiar</button>
+                </div>
+            </div>
 
-            
             <div class="table-responsive">
                 <table class="system-table">
                         <thead>
