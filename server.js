@@ -404,23 +404,40 @@ app.post('/api/admin/users', async (req, res) => {
         }
       }
       
-      await pool.request()
+      // Construir la consulta de actualización dinámicamente
+      let updateQuery = `
+        UPDATE Usuarios 
+        SET Nombre = @nombre,
+            Apellido = @apellido,
+            Email = @email,
+            Rol = @rol,
+            Estado = @estado,
+            FechaModificacion = GETDATE()
+      `;
+      
+      const request = pool.request()
         .input('nombre', sql.VarChar, userData.nombre)
         .input('apellido', sql.VarChar, userData.apellido)
         .input('email', sql.VarChar, userData.email)
         .input('rol', sql.VarChar, userData.rol)
         .input('estado', sql.VarChar, userData.estado)
-        .input('userId', sql.Int, userData.id)
-        .query(`
-          UPDATE Usuarios 
-          SET Nombre = @nombre,
-              Apellido = @apellido,
-              Email = @email,
-              Rol = @rol,
-              Estado = @estado,
-              FechaModificacion = GETDATE()
-          WHERE Id = @userId
-        `);
+        .input('userId', sql.Int, userData.id);
+      
+      // Si se proporciona una nueva contraseña, incluirla en la actualización
+      if (userData.password && userData.password.trim() !== '') {
+        if (userData.password.length < 6) {
+          return res.status(400).json({ 
+            success: false, 
+            message: 'La contraseña debe tener al menos 6 caracteres' 
+          });
+        }
+        updateQuery += `, Password = @password`;
+        request.input('password', sql.VarChar, userData.password);
+      }
+      
+      updateQuery += ` WHERE Id = @userId`;
+      
+      await request.query(updateQuery);
       
       // Auditar actualización de usuario
       const oldData = {
