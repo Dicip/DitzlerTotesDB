@@ -999,6 +999,10 @@ app.put('/api/operador/totes/update-status', async (req, res) => {
 
 // API para gestión de totes usando SQL Server (solo accesible para administradores)
 app.post('/api/admin/totes', async (req, res) => {
+  console.log('=== ENDPOINT /api/admin/totes LLAMADO ===');
+  console.log('Headers:', req.headers.authorization);
+  console.log('Body:', req.body);
+  
   // Verificar si el solicitante es un administrador
   if (!req.headers.authorization) {
     return res.status(401).json({ success: false, message: 'No autorizado' });
@@ -1031,7 +1035,7 @@ app.post('/api/admin/totes', async (req, res) => {
       console.log('- Tipo de alerta:', typeof toteData.alerta);
       console.log('- Valor después de || null:', toteData.alerta || null);
       
-      // Insertar nuevo tote usando procedimiento almacenado
+      // Insertar nuevo tote usando consulta directa (ya que SP_CrearTote no incluye peso)
       await pool.request()
         .input('codigo', sql.VarChar, toteData.codigo)
         .input('estado', sql.VarChar, toteData.estado)
@@ -1043,10 +1047,18 @@ app.post('/api/admin/totes', async (req, res) => {
         .input('fechaEnvasado', sql.Date, toteData.fechaEnvasado || null)
         .input('fechaVencimiento', sql.Date, toteData.fechaVencimiento || null)
         .input('fechaDespacho', sql.Date, toteData.fechaDespacho || null)
+        .input('peso', sql.Decimal(10,2), toteData.peso || null)
         .input('alerta', sql.VarChar, toteData.alerta)
         .input('observaciones', sql.NVarChar, toteData.observaciones || null)
         .input('usuarioCreacion', sql.VarChar, toteData.usuarioCreacion || 'admin')
-        .execute('SP_CrearTote');
+        .query(`
+          INSERT INTO Totes (Codigo, Estado, Ubicacion, Cliente, Operador, Producto, Lote, 
+                            FechaEnvasado, FechaVencimiento, FechaDespacho, Peso, Alerta, 
+                            Observaciones, UsuarioCreacion, FechaCreacion, FechaModificacion, Activo)
+          VALUES (@codigo, @estado, @ubicacion, @cliente, @operador, @producto, @lote,
+                  @fechaEnvasado, @fechaVencimiento, @fechaDespacho, @peso, @alerta,
+                  @observaciones, @usuarioCreacion, GETDATE(), GETDATE(), 1)
+        `);
       
       res.json({ success: true, message: 'Tote creado correctamente' });
     }
@@ -1057,7 +1069,7 @@ app.post('/api/admin/totes', async (req, res) => {
                FORMAT(FechaEnvasado, 'dd/MM/yyyy') as fEnvasado,
                FORMAT(FechaVencimiento, 'dd/MM/yyyy') as fVencimiento,
                FORMAT(FechaDespacho, 'dd/MM/yyyy') as fDespacho,
-               Alerta, Observaciones
+               Peso, Alerta, Observaciones
         FROM Totes 
         WHERE Activo = 1
         ORDER BY FechaCreacion DESC
@@ -1095,10 +1107,27 @@ app.post('/api/admin/totes', async (req, res) => {
         .input('fechaEnvasado', sql.Date, toteData.fechaEnvasado || null)
         .input('fechaVencimiento', sql.Date, toteData.fechaVencimiento || null)
         .input('fechaDespacho', sql.Date, toteData.fechaDespacho || null)
+        .input('peso', sql.Decimal(10,2), toteData.peso || null)
         .input('alerta', sql.VarChar, toteData.alerta)
-        .input('activo', sql.Bit, 1)
         .input('observaciones', sql.NVarChar, toteData.observaciones || null)
-        .execute('SP_ActualizarTote');
+        .query(`
+          UPDATE Totes SET 
+            Codigo = @codigo,
+            Estado = @estado,
+            Ubicacion = @ubicacion,
+            Cliente = @cliente,
+            Operador = @operador,
+            Producto = @producto,
+            Lote = @lote,
+            FechaEnvasado = @fechaEnvasado,
+            FechaVencimiento = @fechaVencimiento,
+            FechaDespacho = @fechaDespacho,
+            Peso = @peso,
+            Alerta = @alerta,
+            Observaciones = @observaciones,
+            FechaModificacion = GETDATE()
+          WHERE Id = @id AND Activo = 1
+        `);
       
       res.json({ success: true, message: 'Tote actualizado correctamente' });
     }

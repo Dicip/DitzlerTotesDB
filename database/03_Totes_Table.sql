@@ -78,9 +78,18 @@ BEGIN
         FechaCreacion DATETIME NOT NULL DEFAULT GETDATE(),
         FechaModificacion DATETIME NOT NULL DEFAULT GETDATE(),
         Activo BIT NOT NULL DEFAULT 1,
-        Observaciones NVARCHAR(MAX) NULL
+        Observaciones NVARCHAR(MAX) NULL,
+        Peso DECIMAL(10,2) NULL -- Peso del tote en kilogramos
     );
     PRINT 'Tabla Totes creada exitosamente.';
+END
+GO
+
+-- Agregar columna Peso si no existe (para tablas existentes)
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('Totes') AND name = 'Peso')
+BEGIN
+    ALTER TABLE Totes ADD Peso DECIMAL(10,2) NULL;
+    PRINT 'Columna Peso agregada a la tabla Totes.';
 END
 GO
 

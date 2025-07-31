@@ -90,6 +90,7 @@
                                 <th>Código</th>
                                 <th>Estado</th>
                                 <th>Ubicación</th>
+                                <th>Peso (kg)</th>
                                 <th>Cliente</th>
                                 <th>Operador</th>
                                 <th>Producto</th>
@@ -178,6 +179,10 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
+                        <label for="peso">Peso (kg)</label>
+                        <input type="number" id="peso" name="peso" step="0.01" min="0" max="9999.99" placeholder="0.00" title="Peso del tote en kilogramos">
+                    </div>
+                    <div class="form-group">
                         <label for="alerta">Nivel de Alerta</label>
                         <select id="alerta" name="alerta">
                             <option value="">Sin alerta</option>
@@ -187,7 +192,9 @@
                             <option value="Crítica">Crítica</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
                         <label for="observaciones">Observaciones</label>
                         <textarea id="observaciones" name="observaciones" placeholder="Observaciones adicionales" rows="3" title="Campo para observaciones adicionales"></textarea>
                     </div>

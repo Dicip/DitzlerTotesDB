@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Función para cargar operadores para el modal ---
     async function loadOperatorsForModal() {
         try {
-            const response = await fetch('/api/admin/users', {
+            const response = await fetch(`${CONFIG.API.BASE_URL}/api/admin/users`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Función para cargar clientes para el modal ---
     async function loadClientsForModal() {
         try {
-            const response = await fetch('/api/admin/clientes', {
+            const response = await fetch(`${CONFIG.API.BASE_URL}/api/admin/clientes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Función para cargar totes desde la base de datos ---
     async function loadTotes() {
+        console.log('=== INICIANDO CARGA DE TOTES ===');
         try {
             // Verificar que tenemos los datos de autenticación
             if (!storedAdminData || !storedAdminData.username) {
@@ -128,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log('Cargando totes con usuario:', storedAdminData.username);
             
-            const response = await fetch('/api/admin/totes', {
+            const response = await fetch(`${CONFIG.API.BASE_URL}/api/admin/totes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -163,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                      fEnvasado: tote.fEnvasado || '-',
                      fVencimiento: tote.fVencimiento || '-',
                      fDespacho: tote.fDespacho || '-',
+                     peso: tote.Peso,
                      alerta: tote.Alerta
                  }));
                  
@@ -237,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
          document.getElementById('cliente').value = toteData.cliente || '';
          document.getElementById('producto').value = toteData.producto || '';
          document.getElementById('lote').value = toteData.lote || '';
+         document.getElementById('peso').value = toteData.peso || '';
          
          // Convertir fechas del formato dd/MM/yyyy a yyyy-MM-dd para los inputs date
          if (toteData.fEnvasado && toteData.fEnvasado !== '-') {
@@ -306,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
          fechaEnvasado: formData.get('fechaEnvasado') || null,
          fechaVencimiento: formData.get('fechaVencimiento') || null,
          fechaDespacho: formData.get('fechaDespacho') || null,
+         peso: formData.get('peso') || null,
          alerta: !formData.get('alerta') || formData.get('alerta').trim() === '' ? null : formData.get('alerta').trim(),
         observaciones: formData.get('observaciones') || null
      };
@@ -322,6 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log('- Fecha Envasado:', toteData.fechaEnvasado);
       console.log('- Fecha Vencimiento:', toteData.fechaVencimiento);
       console.log('- Fecha Despacho:', toteData.fechaDespacho);
+      console.log('- Peso:', toteData.peso);
       console.log('- Alerta:', toteData.alerta);
       console.log('- Observaciones:', toteData.observaciones);
       console.log('- Tipo de alerta:', typeof toteData.alerta);
@@ -376,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
          console.log('Datos a enviar:', requestBody);
          console.log('JSON a enviar:', JSON.stringify(requestBody));
          
-         const response = await fetch('/api/admin/totes', {
+         const response = await fetch(`${CONFIG.API.BASE_URL}/api/admin/totes`, {
              method: 'POST',
              headers: {
                  'Content-Type': 'application/json',
@@ -537,6 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderTable(data) {
         const tableBody = document.querySelector('.system-table tbody');
         console.log('renderTable llamada con:', data.length, 'totes');
+        console.log('Datos completos recibidos:', data);
         console.log('tableBody elemento:', tableBody);
         
         if (!tableBody) {
@@ -547,11 +553,12 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = '';
         
         if (!data || data.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="11" class="text-center">No hay totes para mostrar</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="12" class="text-center">No hay totes para mostrar</td></tr>';
             return;
         }
         
         data.forEach(tote => {
+            console.log('Procesando tote:', tote.codigo, 'Peso:', tote.peso, 'Tipo peso:', typeof tote.peso);
             const row = document.createElement('tr');
             
             // Aplicar clase de alerta si es necesario
@@ -563,6 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${tote.codigo}</td>
                 <td><span class="status-badge status-${tote.estado.toLowerCase().replace(/\s+/g, '-')}">${tote.estado}</span></td>
                 <td>${tote.ubicacion}</td>
+                <td>${tote.peso ? parseFloat(tote.peso).toFixed(2) : '-'}</td>
                 <td>${tote.cliente}</td>
                 <td>${tote.operador}</td>
                 <td>${tote.producto}</td>
@@ -610,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
          console.log('Datos de eliminación a enviar:', requestBody);
          console.log('JSON de eliminación a enviar:', JSON.stringify(requestBody));
          
-         const response = await fetch('/api/admin/totes', {
+         const response = await fetch(`${CONFIG.API.BASE_URL}/api/admin/totes`, {
              method: 'POST',
              headers: {
                  'Content-Type': 'application/json',
