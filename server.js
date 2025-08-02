@@ -259,7 +259,7 @@ app.post('/api/login', async (req, res) => {
 
     if (result.recordset.length > 0) {
       const user = result.recordset[0];
-      const isAdmin = user.Rol === 'Admin';
+      const isAdmin = user.Rol === 'Admin' || user.Rol === 'Administrador';
       const fullname = `${user.Nombre} ${user.Apellido}`;
 
       console.log('Usuario autenticado desde DB:', { username: user.Nombre, isAdmin, fullname, role: user.Rol });
