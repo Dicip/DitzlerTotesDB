@@ -8,6 +8,23 @@ USE Ditzler;
 GO
 
 -- =============================================
+-- ACTUALIZAR CONSTRAINT DE ROLES
+-- =============================================
+-- Eliminar constraint existente
+IF EXISTS (SELECT * FROM sys.check_constraints WHERE name = 'CK_Usuarios_Rol_Valid')
+BEGIN
+    ALTER TABLE Usuarios DROP CONSTRAINT CK_Usuarios_Rol_Valid;
+    PRINT 'Constraint anterior eliminado.';
+END
+GO
+
+-- Crear nuevo constraint con roles actualizados
+ALTER TABLE Usuarios ADD CONSTRAINT CK_Usuarios_Rol_Valid 
+CHECK (Rol IN ('Calidad/Despacho', 'Almacenaje', 'Producción', 'Lavado', 'Recepción', 'Operador', 'Admin', 'Administrador', 'Operador Totes', 'Operador Preparados', 'Operador Despacho'));
+PRINT 'Nuevo constraint con roles actualizados creado.';
+GO
+
+-- =============================================
 -- ACTUALIZAR USUARIO ADMIN EXISTENTE
 -- =============================================
 UPDATE Usuarios 
@@ -64,12 +81,12 @@ FROM Usuarios
 WHERE Estado = 'Activo'
 ORDER BY Rol, Nombre;
 
-PRINT '============================================='
-PRINT 'ACTUALIZACIÓN DE ROLES COMPLETADA'
+PRINT '=============================================';
+PRINT 'ACTUALIZACIÓN DE ROLES COMPLETADA';
 PRINT 'Roles disponibles:';
 PRINT '- Administrador';
 PRINT '- Operador Totes';
 PRINT '- Operador Preparados';
 PRINT '- Operador Despacho';
-PRINT '============================================='
+PRINT '=============================================';
 GO

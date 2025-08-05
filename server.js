@@ -6,27 +6,28 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 // Función helper para obtener datos completos del usuario
-async function getUserFromToken(email) {
-  console.log(`[DEBUG] Buscando usuario con email: ${email}`); // Añadido para depuración
+async function getUserFromToken(identifier) {
+  console.log(`[DEBUG] Buscando usuario con identificador: ${identifier}`); // Añadido para depuración
   let pool;
   try {
     pool = await new sql.ConnectionPool(sqlConfig).connect();
+    // Buscar por email O por nombre
     const result = await pool.request()
-      .input('email', sql.VarChar, email)
-      .query('SELECT Id, Nombre, Apellido, Email, Rol FROM Usuarios WHERE Email = @email');
+      .input('identifier', sql.VarChar, identifier)
+      .query('SELECT Id, Nombre, Apellido, Email, Rol FROM Usuarios WHERE Email = @identifier OR Nombre = @identifier');
     
     if (result.recordset.length > 0) {
       console.log(`[DEBUG] Usuario encontrado: ${result.recordset[0].Nombre}`); // Añadido para depuración
       return result.recordset[0];
     }
     
-    console.log(`[DEBUG] Usuario con email ${email} no encontrado.`); // Añadido para depuración
+    console.log(`[DEBUG] Usuario con identificador ${identifier} no encontrado.`); // Añadido para depuración
     // Si no se encuentra el usuario, devolver un objeto con valores por defecto
     return {
       Id: null,
       Nombre: 'Usuario',
       Apellido: 'Desconocido',
-      Email: email,
+      Email: identifier,
       Rol: 'Desconocido'
     };
   } catch (error) {

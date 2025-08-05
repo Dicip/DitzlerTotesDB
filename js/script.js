@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     isAdmin: data.isAdmin,
                     fullname: data.fullname,
                     role: data.role,
+                    email: email, // Agregar el email que se usó para el login
                     timestamp: new Date().getTime()
                 };
                 
