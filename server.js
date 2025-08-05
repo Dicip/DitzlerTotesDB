@@ -1061,6 +1061,25 @@ app.post('/api/admin/totes', async (req, res) => {
                   @observaciones, @usuarioCreacion, GETDATE(), GETDATE(), 1)
         `);
       
+      // Auditar creación de tote
+      const newToteData = {
+        codigo: toteData.codigo,
+        estado: toteData.estado,
+        ubicacion: toteData.ubicacion,
+        cliente: toteData.cliente,
+        operador: toteData.operador
+      };
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditCreate(
+        req,
+        currentUser,
+        'TOTES',
+        'Tote',
+        null,
+        newToteData,
+        `Tote ${toteData.codigo} creado`
+      );
+      
       res.json({ success: true, message: 'Tote creado correctamente' });
     }
     // Obtener lista de totes
@@ -1096,6 +1115,20 @@ app.post('/api/admin/totes', async (req, res) => {
         });
       }
       
+      // Obtener datos anteriores para auditoría
+      const oldToteResult = await pool.request()
+        .input('toteId', sql.Int, toteData.id)
+        .query('SELECT * FROM Totes WHERE Id = @toteId');
+      
+      if (oldToteResult.recordset.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Tote no encontrado' 
+        });
+      }
+      
+      const oldToteData = oldToteResult.recordset[0];
+      
       await pool.request()
         .input('id', sql.Int, toteData.id)
         .input('codigo', sql.VarChar, toteData.codigo)
@@ -1130,10 +1163,52 @@ app.post('/api/admin/totes', async (req, res) => {
           WHERE Id = @id AND Activo = 1
         `);
       
+      // Auditar actualización de tote
+      const oldData = {
+        codigo: oldToteData.Codigo,
+        estado: oldToteData.Estado,
+        ubicacion: oldToteData.Ubicacion,
+        cliente: oldToteData.Cliente,
+        operador: oldToteData.Operador
+      };
+      const newData = {
+        codigo: toteData.codigo,
+        estado: toteData.estado,
+        ubicacion: toteData.ubicacion,
+        cliente: toteData.cliente,
+        operador: toteData.operador
+      };
+      
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditUpdate(
+        req,
+        currentUser,
+        'TOTES',
+        'Tote',
+        toteData.id,
+        oldData,
+        newData,
+        `Tote ${toteData.codigo} actualizado`
+      );
+      
       res.json({ success: true, message: 'Tote actualizado correctamente' });
     }
     // Eliminar tote (soft delete)
     else if (action === 'delete' && toteData && toteData.id) {
+      // Obtener datos del tote antes de eliminarlo para auditoría
+      const toteToDeleteResult = await pool.request()
+        .input('toteId', sql.Int, toteData.id)
+        .query('SELECT * FROM Totes WHERE Id = @toteId');
+      
+      if (toteToDeleteResult.recordset.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Tote no encontrado' 
+        });
+      }
+      
+      const deletedToteData = toteToDeleteResult.recordset[0];
+      
       await pool.request()
         .input('usuarioModificacion', sql.VarChar, toteData.usuarioModificacion || 'admin')
         .input('toteId', sql.Int, toteData.id)
@@ -1143,6 +1218,25 @@ app.post('/api/admin/totes', async (req, res) => {
               UsuarioModificacion = @usuarioModificacion
           WHERE Id = @toteId
         `);
+      
+      // Auditar eliminación de tote
+      const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+      await auditLogger.auditDelete(
+        req,
+        currentUser,
+        'TOTES',
+        'Tote',
+        toteData.id,
+        {
+          codigo: deletedToteData.Codigo,
+          estado: deletedToteData.Estado,
+          ubicacion: deletedToteData.Ubicacion,
+          cliente: deletedToteData.Cliente,
+          operador: deletedToteData.Operador
+        },
+        `Tote ${deletedToteData.Codigo} eliminado`
+      );
+      
       res.json({ success: true, message: 'Tote eliminado correctamente' });
     }
     // Buscar totes por filtros usando procedimiento almacenado
@@ -1175,6 +1269,22 @@ app.post('/api/admin/totes', async (req, res) => {
     }
   } catch (err) {
     console.error('Error en operación de totes:', err);
+    
+    // Auditar error en operación de totes
+    if (req.headers.authorization) {
+      try {
+        const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+        await auditLogger.auditError(
+          req,
+          currentUser,
+          'TOTES',
+          'Error en operación de totes',
+          err.message
+        );
+      } catch (auditError) {
+        console.error('Error en auditoría:', auditError.message);
+      }
+    }
     
     // Manejo específico de errores de restricciones
     let errorMessage = 'Error al conectar con la base de datos.';
@@ -2025,6 +2135,25 @@ app.post('/api/recepcion/assign-route', async (req, res) => {
       }
     }
   }
+});
+
+// Nuevo endpoint para logout
+app.post('/api/logout', async (req, res) => {
+    if (!req.headers.authorization) {
+        return res.status(401).json({ success: false, message: 'No autorizado' });
+    }
+    
+    try {
+        const currentUser = await getUserFromToken(req.headers.authorization.replace('Bearer ', ''));
+        
+        // Auditar logout
+        await auditLogger.auditLogout(req, currentUser);
+        
+        res.json({ success: true, message: 'Sesión cerrada correctamente' });
+    } catch (error) {
+        console.error('Error en logout:', error);
+        res.status(500).json({ success: false, message: 'Error interno del servidor' });
+    }
 });
 
 // Iniciar el servidor

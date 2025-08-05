@@ -89,10 +89,27 @@ function formatDate(dateString) {
 }
 
 // Manejar cierre de sesión
+// Función para logout con auditoría
 function handleLogout() {
-    localStorage.removeItem('loggedInAdmin');
-    sessionStorage.removeItem('loggedInAdmin');
-    window.location.href = '../index.html';
+    const adminData = getSessionData();
+    
+    if (adminData && adminData.email) {
+        // Llamar al endpoint de logout para auditoría
+        fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + adminData.email
+            }
+        }).catch(error => {
+            console.error('Error en logout:', error);
+        }).finally(() => {
+            clearSession();
+            window.location.href = '../index.html';
+        });
+    } else {
+        clearSession();
+        window.location.href = '../index.html';
+    }
 }
 
 // Limpiar formulario
