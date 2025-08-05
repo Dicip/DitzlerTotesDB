@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + adminData.email // Si tienes el email disponible
+                'Authorization': 'Bearer ' + adminData.email // Cambiado de username a email
             },
             body: JSON.stringify({
                 action: 'delete',
