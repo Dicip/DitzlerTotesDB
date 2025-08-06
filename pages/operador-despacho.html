@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Operador Despacho - Ditzler Totes</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/operador.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-shipping-fast"></i> Despacho</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="nav-links">
+                    <li class="active">
+                        <a href="#" onclick="showSection('panelControl')">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Panel de Control
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="despachoTab">
+                            <i class="fas fa-truck"></i>
+                            Gestión de Despachos
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="entregasTab">
+                            <i class="fas fa-clipboard-check"></i>
+                            Control de Entregas
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="transporteTab">
+                            <i class="fas fa-route"></i>
+                            Gestión de Transporte
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" id="reportesDespachoTab">
+                            <i class="fas fa-chart-line"></i>
+                            Reportes
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Panel de Control -->
+            <section id="panelControl" class="content-section active">
+                <div class="section-header">
+                    <h1><i class="fas fa-tachometer-alt"></i> Panel de Control - Despacho</h1>
+                    <p>Resumen general de operaciones de despacho</p>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pendientesDespacho">0</h3>
+                            <p>Pendientes de Despacho</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-truck-loading"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="enTransito">0</h3>
+                            <p>En Tránsito</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="entregados">0</h3>
+                            <p>Entregados Hoy</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="urgentes">0</h3>
+                            <p>Entregas Urgentes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos -->
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>Estado de Despachos</h3>
+                        <canvas id="estadoDespachoChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Entregas por Día</h3>
+                        <canvas id="entregasDiariaChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gestión de Despachos -->
+            <section id="despacho" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-truck"></i> Gestión de Despachos</h1>
+                    <button id="nuevoDespachoBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Despacho
+                    </button>
+                </div>
+
+                <!-- Filtros -->
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="estadoDespachoFilter">Estado:</label>
+                        <select id="estadoDespachoFilter">
+                            <option value="">Todos los estados</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Preparación">En Preparación</option>
+                            <option value="Listo">Listo para Despacho</option>
+                            <option value="En Tránsito">En Tránsito</option>
+                            <option value="Entregado">Entregado</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="clienteDespachoFilter">Cliente:</label>
+                        <select id="clienteDespachoFilter">
+                            <option value="">Todos los clientes</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="fechaDespachoFilter">Fecha:</label>
+                        <input type="date" id="fechaDespachoFilter">
+                    </div>
+                    <div class="filter-group">
+                        <label for="transportistaFilter">Transportista:</label>
+                        <select id="transportistaFilter">
+                            <option value="">Todos los transportistas</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tabla de Despachos -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID Despacho</th>
+                                <th>Cliente</th>
+                                <th>Totes</th>
+                                <th>Estado</th>
+                                <th>Fecha Programada</th>
+                                <th>Transportista</th>
+                                <th>Dirección</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="despachosList">
+                            <!-- Los despachos se cargarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Control de Entregas -->
+            <section id="entregas" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-clipboard-check"></i> Control de Entregas</h1>
+                </div>
+
+                <!-- Escáner de Códigos -->
+                <div class="scanner-section">
+                    <div class="scanner-container">
+                        <h3><i class="fas fa-qrcode"></i> Confirmar Entrega</h3>
+                        <div class="scanner-input">
+                            <input type="text" id="codigoEntrega" placeholder="Escanear código de entrega o ingresar manualmente">
+                            <button id="confirmarEntregaBtn" class="btn btn-success">
+                                <i class="fas fa-check"></i> Confirmar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entregas del Día -->
+                <div class="entregas-hoy">
+                    <h3>Entregas Programadas para Hoy</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Dirección</th>
+                                    <th>Totes</th>
+                                    <th>Transportista</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="entregasHoyList">
+                                <!-- Las entregas se cargarán aquí dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gestión de Transporte -->
+            <section id="transporte" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-route"></i> Gestión de Transporte</h1>
+                    <button id="nuevoTransportistaBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuevo Transportista
+                    </button>
+                </div>
+
+                <!-- Transportistas Activos -->
+                <div class="transportistas-grid">
+                    <div class="transportista-card">
+                        <h4><i class="fas fa-truck"></i> Transportistas Disponibles</h4>
+                        <div id="transportistasDisponibles" class="transportistas-list">
+                            <!-- Lista de transportistas disponibles -->
+                        </div>
+                    </div>
+                    <div class="transportista-card">
+                        <h4><i class="fas fa-route"></i> En Ruta</h4>
+                        <div id="transportistasEnRuta" class="transportistas-list">
+                            <!-- Lista de transportistas en ruta -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rutas Optimizadas -->
+                <div class="rutas-section">
+                    <h3>Optimización de Rutas</h3>
+                    <div class="rutas-container">
+                        <button id="optimizarRutasBtn" class="btn btn-info">
+                            <i class="fas fa-route"></i> Optimizar Rutas del Día
+                        </button>
+                        <div id="rutasOptimizadas" class="rutas-resultado">
+                            <!-- Resultados de optimización -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reportes -->
+            <section id="reportesDespacho" class="content-section">
+                <div class="section-header">
+                    <h1><i class="fas fa-chart-line"></i> Reportes de Despacho</h1>
+                </div>
+
+                <!-- Filtros de Reportes -->
+                <div class="report-filters">
+                    <div class="filter-group">
+                        <label for="fechaInicioReporte">Fecha Inicio:</label>
+                        <input type="date" id="fechaInicioReporte">
+                    </div>
+                    <div class="filter-group">
+                        <label for="fechaFinReporte">Fecha Fin:</label>
+                        <input type="date" id="fechaFinReporte">
+                    </div>
+                    <div class="filter-group">
+                        <label for="tipoReporte">Tipo de Reporte:</label>
+                        <select id="tipoReporte">
+                            <option value="entregas">Entregas</option>
+                            <option value="transportistas">Transportistas</option>
+                            <option value="clientes">Por Cliente</option>
+                            <option value="eficiencia">Eficiencia</option>
+                        </select>
+                    </div>
+                    <button id="generarReporteBtn" class="btn btn-primary">
+                        <i class="fas fa-chart-bar"></i> Generar Reporte
+                    </button>
+                </div>
+
+                <!-- Área de Reportes -->
+                <div id="reporteResultado" class="reporte-container">
+                    <!-- Los reportes se mostrarán aquí -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Nuevo Despacho -->
+    <div id="despachoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="despachoModalTitle">Nuevo Despacho</h2>
+                <span id="closeDespachoModal" class="close">&times;</span>
+            </div>
+            <form id="despachoForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="clienteDespacho">Cliente *</label>
+                        <select id="clienteDespacho" name="cliente_id" required>
+                            <option value="">Seleccionar cliente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="totesDespacho">Totes a Despachar *</label>
+                        <select id="totesDespacho" name="totes" multiple required>
+                            <!-- Totes listos para despacho -->
+                        </select>
+                        <small>Mantén Ctrl para seleccionar múltiples totes</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaProgramadaDespacho">Fecha Programada *</label>
+                        <input type="datetime-local" id="fechaProgramadaDespacho" name="fecha_programada" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transportistaDespacho">Transportista</label>
+                        <select id="transportistaDespacho" name="transportista_id">
+                            <option value="">Seleccionar transportista</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="direccionEntrega">Dirección de Entrega *</label>
+                        <textarea id="direccionEntrega" name="direccion" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="observacionesDespacho">Observaciones</label>
+                        <textarea id="observacionesDespacho" name="observaciones" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelDespachoBtn" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Despacho</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Transportista -->
+    <div id="transportistaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo Transportista</h2>
+                <span id="closeTransportistaModal" class="close">&times;</span>
+            </div>
+            <form id="transportistaForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="nombreTransportista">Nombre *</label>
+                        <input type="text" id="nombreTransportista" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefonoTransportista">Teléfono *</label>
+                        <input type="tel" id="telefonoTransportista" name="telefono" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vehiculoTransportista">Vehículo</label>
+                        <input type="text" id="vehiculoTransportista" name="vehiculo">
+                    </div>
+                    <div class="form-group">
+                        <label for="placaTransportista">Placa</label>
+                        <input type="text" id="placaTransportista" name="placa">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="observacionesTransportista">Observaciones</label>
+                        <textarea id="observacionesTransportista" name="observaciones" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancelTransportistaBtn" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Transportista</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contenedor de Mensajes -->
+    <div id="messageContainer" class="message" style="display: none;"></div>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/operador-despacho.js"></script>
+</body>
+</html>

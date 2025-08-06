@@ -53,12 +53,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Redirigir según el rol del usuario
                 console.log('Redirigiendo según rol:', data.role);
-                if (data.role === 'Admin') {
+                if (data.role === 'Admin' || data.role === 'Administrador') {
                     window.location.href = 'pages/dashboard.html';
                 } else if (data.role === 'Operador') {
                     window.location.href = 'pages/operador.html';
-                } else if (data.role === 'Recepción') {
-                    window.location.href = 'pages/recepcion.html';
+                } else if (data.role === 'Operador Totes') {
+                    window.location.href = 'pages/operador-totes.html';
+                } else if (data.role === 'Operador Preparados' || data.role === 'Producción') {
+                    window.location.href = 'pages/operador-preparados.html';
+                } else if (data.role === 'Operador Despacho' || data.role === 'Calidad/Despacho') {
+                    window.location.href = 'pages/operador-despacho.html';
                 } else {
                     // Por defecto redirigir al dashboard para otros roles
                     window.location.href = 'pages/dashboard.html';
@@ -99,12 +103,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (adminData && UTILS.isSessionValid(adminData)) {
             // Redirigir según el rol del usuario
-            if (adminData.role === 'Admin') {
+            if (adminData.role === 'Admin' || adminData.role === 'Administrador') {
                 window.location.href = 'pages/dashboard.html';
             } else if (adminData.role === 'Operador') {
                 window.location.href = 'pages/operador.html';
-            } else if (adminData.role === 'Recepción') {
-                window.location.href = 'pages/recepcion.html';
+            } else if (adminData.role === 'Operador Totes') {
+                window.location.href = 'pages/operador-totes.html';
+            } else if (adminData.role === 'Operador Preparados' || adminData.role === 'Producción') {
+                window.location.href = 'pages/operador-preparados.html';
+            } else if (adminData.role === 'Operador Despacho' || adminData.role === 'Calidad/Despacho') {
+                window.location.href = 'pages/operador-despacho.html';
             } else if (adminData.isAdmin) {
                 // Fallback para compatibilidad con sesiones anteriores
                 window.location.href = 'pages/dashboard.html';

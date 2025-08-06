@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DitzlerTotes - Operador de Preparados</title>
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/dashboard-styles.css">
+    <link rel="stylesheet" href="../css/operador-styles.css">
+    <link rel="stylesheet" href="../css/modern-buttons.css">
+    <link rel="stylesheet" href="../css/totes-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="../public/img/LOGO DITZLER PNG.png" alt="Ditzler Chile Logo" class="logo">
+            </div>
+            <ul class="nav-links">
+                <li class="active"><a href="#"><i class="fas fa-th-large"></i> Panel de Control</a></li>
+                <li><a href="#" id="preparacionTab"><i class="fas fa-flask"></i> Preparación</a></li>
+                <li><a href="#" id="controlCalidadTab"><i class="fas fa-check-circle"></i> Control de Calidad</a></li>
+                <li><a href="#" id="inventarioTab"><i class="fas fa-warehouse"></i> Inventario</a></li>
+                <li><a href="#" id="reportesTab"><i class="fas fa-chart-line"></i> Reportes</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                <a href="#"><i class="fas fa-user"></i> Mi Perfil</a>
+            </div>
+        </nav>
+        <main class="main-content">
+            <!-- Panel de Control -->
+            <div id="panelControl" class="content-section active">
+                <header>
+                    <h1><i class="fas fa-flask"></i> Operador de Preparados</h1>
+                    <p>Panel de control para gestión de preparación y calidad</p>
+                </header>
+                <div class="cards-container">
+                    <!-- Estadísticas rápidas -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-hourglass-half"></i> En Preparación</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="metric-value" id="enPreparacion">0</div>
+                            <div class="metric-label">Totes en proceso</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-check"></i> Listos</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="metric-value" id="totesListos">0</div>
+                            <div class="metric-label">Para despacho</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Control Calidad</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="metric-value" id="controlCalidad">0</div>
+                            <div class="metric-label">Pendientes revisión</div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Vencimientos</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="metric-value" id="proximosVencimientos">0</div>
+                            <div class="metric-label">Próximos 7 días</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Gráficos -->
+                <div class="charts-row">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-pie"></i> Estado de Preparación</h3>
+                        </div>
+                        <div class="card-content">
+                            <canvas id="estadoPreparacionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-bar"></i> Producción Diaria</h3>
+                        </div>
+                        <div class="card-content">
+                            <canvas id="produccionDiariaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preparación -->
+            <div id="preparacion" class="content-section">
+                <header class="totes-header">
+                    <div class="title-and-actions">
+                        <h1><i class="fas fa-flask"></i> Preparación de Totes</h1>
+                        <p>Gestione el proceso de preparación y envasado</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-primary" id="nuevaPreparacionBtn"><i class="fas fa-plus-circle"></i> Nueva Preparación</button>
+                        <button class="btn-secondary" id="exportPreparacionBtn"><i class="fas fa-download"></i> Exportar</button>
+                    </div>
+                </header>
+                <div id="messageContainer" class="message"></div>
+                
+                <!-- Filtros -->
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="estadoPreparacionFilter">Estado:</label>
+                        <select id="estadoPreparacionFilter">
+                            <option value="">Todos</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Completado">Completado</option>
+                            <option value="Control Calidad">Control Calidad</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="clientePreparacionFilter">Cliente:</label>
+                        <select id="clientePreparacionFilter">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="fechaPreparacionFilter">Fecha:</label>
+                        <input type="date" id="fechaPreparacionFilter">
+                    </div>
+                </div>
+
+                <!-- Tabla de preparaciones -->
+                <table class="system-table">
+                    <thead>
+                        <tr>
+                            <th>Código Tote</th>
+                            <th>Cliente</th>
+                            <th>Estado</th>
+                            <th>Fecha Inicio</th>
+                            <th>Fecha Envasado</th>
+                            <th>Fecha Vencimiento</th>
+                            <th>Operador</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preparacionesList">
+                        <!-- Aquí se cargarán las preparaciones dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Control de Calidad -->
+            <div id="controlCalidadSection" class="content-section">
+                <header class="totes-header">
+                    <div class="title-and-actions">
+                        <h1><i class="fas fa-check-circle"></i> Control de Calidad</h1>
+                        <p>Revisión y aprobación de totes preparados</p>
+                    </div>
+                </header>
+                <div class="quality-controls">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Pendientes de Revisión</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="pendientesRevision"><!-- Lista de totes pendientes --></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Historial de Calidad</h3>
+                        </div>
+                        <div class="card-content">
+                            <canvas id="calidadHistorialChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventario -->
+            <div id="inventario" class="content-section">
+                <header class="totes-header">
+                    <div class="title-and-actions">
+                        <h1><i class="fas fa-warehouse"></i> Inventario de Materiales</h1>
+                        <p>Control de stock y materiales para preparación</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-primary" id="nuevoMaterialBtn"><i class="fas fa-plus-circle"></i> Nuevo Material</button>
+                    </div>
+                </header>
+                <div class="inventory-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Stock Crítico</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="stockCritico"><!-- Lista de materiales con stock bajo --></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Movimientos Recientes</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="movimientosRecientes"><!-- Lista de movimientos --></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reportes -->
+            <div id="reportes" class="content-section">
+                <header>
+                    <h1><i class="fas fa-chart-line"></i> Reportes de Producción</h1>
+                    <p>Análisis y estadísticas de preparación</p>
+                </header>
+                <div class="reports-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Eficiencia de Preparación</h3>
+                        </div>
+                        <div class="card-content">
+                            <canvas id="eficienciaPreparacionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Tiempos de Proceso</h3>
+                        </div>
+                        <div class="card-content">
+                            <canvas id="tiemposProcesoChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Control de Calidad</h3>
+                        </div>
+                        <div class="card-content">
+                            <canvas id="calidadReporteChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para nueva preparación -->
+    <div id="preparacionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="preparacionModalTitle">Nueva Preparación</h3>
+                <span class="close" id="closePreparacionModal">&times;</span>
+            </div>
+            <form id="preparacionForm" class="preparation-form">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="toteSeleccion">Tote:</label>
+                        <select id="toteSeleccion" name="tote_id" required>
+                            <option value="">Seleccionar tote...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="clientePreparacion">Cliente:</label>
+                        <select id="clientePreparacion" name="cliente_id" required>
+                            <option value="">Seleccionar cliente...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaInicioPreparacion">Fecha Inicio:</label>
+                        <input type="datetime-local" id="fechaInicioPreparacion" name="fecha_inicio" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaEnvasadoPreparacion">Fecha Envasado:</label>
+                        <input type="date" id="fechaEnvasadoPreparacion" name="fecha_envasado">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaVencimientoPreparacion">Fecha Vencimiento:</label>
+                        <input type="date" id="fechaVencimientoPreparacion" name="fecha_vencimiento">
+                    </div>
+                    <div class="form-group">
+                        <label for="observacionesPreparacion">Observaciones:</label>
+                        <textarea id="observacionesPreparacion" name="observaciones" rows="3" maxlength="500"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelPreparacionBtn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Iniciar Preparación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para control de calidad -->
+    <div id="calidadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Control de Calidad</h3>
+                <span class="close" id="closeCalidadModal">&times;</span>
+            </div>
+            <form id="calidadForm">
+                <div class="modal-body">
+                    <div class="quality-checklist">
+                        <h4>Lista de Verificación</h4>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check1" name="limpieza">
+                            <label for="check1">Limpieza del tote</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check2" name="sellado">
+                            <label for="check2">Sellado correcto</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check3" name="etiquetado">
+                            <label for="check3">Etiquetado completo</label>
+                        </div>
+                        <div class="checklist-item">
+                            <input type="checkbox" id="check4" name="peso">
+                            <label for="check4">Peso correcto</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="resultadoCalidad">Resultado:</label>
+                        <select id="resultadoCalidad" name="resultado" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="Aprobado">Aprobado</option>
+                            <option value="Rechazado">Rechazado</option>
+                            <option value="Requiere Corrección">Requiere Corrección</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="observacionesCalidad">Observaciones:</label>
+                        <textarea id="observacionesCalidad" name="observaciones" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-secondary" id="cancelCalidadBtn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Resultado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/operador-preparados.js"></script>
+</body>
+</html>
