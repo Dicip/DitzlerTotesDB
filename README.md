@@ -3,6 +3,12 @@
 ## Descripción
 Sistema completo de gestión para DitzlerTotes que incluye administración de usuarios, gestión de clientes y control de totes. La aplicación utiliza SQL Server como base de datos con restricciones avanzadas, triggers de sincronización automática y validaciones completas tanto en frontend como backend.
 
+**Características destacadas:**
+- ✅ Panel de operador optimizado para móviles y tablets
+- ✅ Configuración de API con URLs relativas para compatibilidad con túneles públicos
+- ✅ Sistema de auditoría completo con middleware personalizado
+- ✅ Interfaz simplificada para operadores de totes con flujos de trabajo específicos
+
 ## Estructura del Proyecto
 
 ```
@@ -34,7 +40,11 @@ DitzlerTotes/
 │   ├── clientes.html            # Gestión de clientes
 │   ├── totes.html               # Gestión de totes
 │   ├── operador.html            # Dashboard específico para operarios
-│   └── totes-operador.html      # Gestión de totes para operarios
+│   ├── operador-totes.html      # Panel optimizado para operadores de totes (móvil/tablet)
+│   ├── operador-preparados.html # Panel para operadores de preparados
+│   ├── operador-despacho.html   # Panel para operadores de despacho
+│   ├── eventos.html             # Interfaz de consulta de eventos y auditoría
+│   └── totes-operador.html      # Gestión de totes para operarios (legacy)
 ├── public/
 │   ├── eventos.html             # Interfaz de registro de eventos
 │   └── js/
@@ -86,11 +96,15 @@ DitzlerTotes/
 - **Auditoría completa** de cambios de estado y ubicación
 
 ### 👷 Gestión de Operarios
-- **Dashboard específico** para usuarios con rol "Operario"
-- **Gestión limitada de totes**: solo pueden ver y actualizar estado/ubicación
-- **Interfaz simplificada** enfocada en operaciones diarias
-- **Filtros avanzados** por estado, cliente y código
-- **Validación de permisos** para acceso solo a totes asignados
+- **Panel de Operador de Totes optimizado** para dispositivos móviles y tablets
+- **Dos flujos principales de trabajo**:
+  - 🔄 **Tote con Contenido Reutilizable**: Proceso para totes que van al patio para evaluación
+  - 🧽 **Tote para Lavado Directo**: Proceso para totes que van directamente a lavado
+- **Interfaz touch-friendly** con botones grandes e intuitivos
+- **Modales de proceso** con pasos claros y escaneo de códigos
+- **Actualización automática de estados** según el flujo seleccionado
+- **Diseño responsivo** optimizado para uso en campo
+- **Validación de permisos** para acceso solo a funciones asignadas
 - **Registro automático** de todas las acciones en el sistema de auditoría
 
 ### 🔄 Sincronización Automática
@@ -99,6 +113,8 @@ DitzlerTotes/
 - Cambios en usuarios se propagan automáticamente
 - Eliminación de actualizaciones manuales
 - **Sincronización en tiempo real** entre interfaces de admin y operarios
+- **APIs con URLs relativas** para compatibilidad con túneles públicos (Tunnelmole, ngrok)
+- **Configuración automática** de endpoints según el entorno de ejecución
 
 ### 📊 Panel de Control
 - Dashboard con estadísticas en tiempo real
@@ -172,7 +188,26 @@ DitzlerTotes/
    npm run dev
    ```
 
-3. Abra su navegador y vaya a `http://localhost:3000`
+3. Abra su navegador y vaya a `http://localhost:3002`
+
+### Configuración de Túnel Público (Opcional)
+
+Para acceder a la aplicación desde dispositivos externos o compartir el acceso:
+
+1. **Usando Tunnelmole** (recomendado):
+   ```bash
+   npx tunnelmole 3002
+   ```
+   Esto generará una URL pública como: `https://xxxxx-ip-xxx-xxx-xxx-xxx.tunnelmole.net`
+
+2. **Usando ngrok**:
+   ```bash
+   ngrok http 3002
+   ```
+
+3. **Configuración automática**: La aplicación está configurada con URLs relativas, por lo que funcionará automáticamente con cualquier túnel público sin necesidad de cambios adicionales.
+
+**Nota**: El sistema está optimizado para uso móvil, especialmente el panel de operadores de totes.
 
 ### Uso de la Aplicación
 
@@ -182,6 +217,11 @@ DitzlerTotes/
    - Email: admin@ditzler.com
    - Contraseña: admin123
    - Permisos: Acceso completo al sistema
+   
+   **Usuario Operario de Totes:**
+   - Rol: "Operador Totes"
+   - Acceso: Panel móvil optimizado con dos flujos principales
+   - Funciones: Procesamiento de totes con contenido reutilizable y lavado directo
    
    **Usuario Operario (ejemplo):**
    - Email: diego@ditzler.com
@@ -199,7 +239,13 @@ DitzlerTotes/
    - **Totes**: Control y seguimiento completo de totes
    - **Registro de Eventos**: Auditoría y logs del sistema
    
-   **Para Operarios:**
+   **Para Operarios de Totes:**
+   - **Panel Mobile-First**: Interfaz optimizada para tablets y móviles
+   - **Flujo "Tote con Contenido"**: Proceso para totes que van al patio
+   - **Flujo "Lavado Directo"**: Proceso para totes que van directamente a lavado
+   - **Modales interactivos**: Guías paso a paso con escaneo de códigos
+   
+   **Para Otros Operarios:**
    - **Dashboard**: Vista simplificada con estadísticas básicas
    - **Gestión de Totes**: Solo actualización de estado y ubicación
    - **Registro de Eventos**: Consulta de logs (solo lectura)
@@ -221,6 +267,9 @@ DitzlerTotes/
 - **Base de datos**: SQL Server con restricciones avanzadas
 - **Frontend**: JavaScript vanilla con validaciones HTML5
 - **Conexión**: mssql para Node.js con parámetros preparados
+- **Middleware personalizado**: Sistema de auditoría automática
+- **Configuración flexible**: URLs relativas para compatibilidad con túneles públicos
+- **Diseño mobile-first**: Optimizado para dispositivos táctiles
 
 ### 🔒 Seguridad Implementada
 - **Prevención de inyección SQL**: Parámetros preparados en todas las consultas
@@ -254,20 +303,25 @@ DitzlerTotes/
 ## Correcciones y Mejoras Implementadas
 
 ### 🔧 Correcciones Técnicas Recientes
-- **Corrección de consultas SQL**: Solucionado error de columna 'Username' inexistente en tabla Usuarios
+- **Panel de Operador de Totes completamente rediseñado**: Interfaz móvil optimizada con flujos específicos
+- **Configuración de API mejorada**: URLs relativas para compatibilidad con túneles públicos (Tunnelmole)
 - **Sistema de auditoría**: Implementado sistema completo de logging y auditoría
 - **Gestión de operarios**: Corregidos problemas de actualización de datos en interfaz de operarios
 - **Navegación mejorada**: Agregados enlaces a "Registro de Eventos" en todas las secciones
 - **Sincronización de base de datos**: Verificación y corrección de stored procedures
 - **Manejo de errores**: Implementado logging automático de errores del sistema
+- **Resolución de problemas de conexión**: Solucionados errores de login desde URLs públicas
 
 ### 🚀 Nuevas Funcionalidades Implementadas
-- **Dashboard de operarios**: Interfaz específica y simplificada para usuarios operarios
+- **Panel de Operador de Totes Mobile-First**: Interfaz completamente rediseñada para tablets y móviles
+- **Flujos de trabajo específicos**: Dos procesos principales para manejo de totes
+- **Modales interactivos**: Guías paso a paso para cada proceso
 - **Sistema de eventos**: Registro completo de todas las acciones del sistema
 - **Auditoría automática**: Tracking de cambios con información de usuario, IP y timestamp
 - **Filtros avanzados**: Búsqueda y filtrado mejorado en gestión de totes
 - **Validación de permisos**: Control granular de acceso según rol de usuario
 - **Interfaz de eventos**: Consulta y visualización de logs del sistema
+- **Configuración de túneles públicos**: Soporte nativo para Tunnelmole y herramientas similares
 
 ### 🛠️ Mejoras de Estabilidad
 - **Manejo de conexiones**: Optimización de conexiones a base de datos
