@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         operador: '',
         alerta: ''
     };
-    const storedAdminData = JSON.parse(storedAdmin);
+    const storedAdminData = adminData;
     
     // --- Función para cargar operadores para el modal ---
     async function loadOperatorsForModal() {

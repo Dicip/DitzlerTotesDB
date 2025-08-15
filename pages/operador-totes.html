@@ -3,43 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DitzlerTotes - Operador de Totes</title>
+    <title>Operador de Totes - Ditzler Chile</title>
     <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/unified-table-styles.css">
     <link rel="stylesheet" href="../css/operador-totes.css">
-    <link rel="stylesheet" href="../public/fonts/fontawesome.css">
+    <link rel="stylesheet" href="../css/modern-buttons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    <!-- Header fijo para móviles -->
-    <header class="mobile-header">
-        <div class="header-content">
-            <div class="logo-section">
-                <i class="fas fa-boxes"></i>
-                <h1>Operador Totes</h1>
+    <div class="dashboard-wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="../public/img/LOGO DITZLER PNG.png" alt="Ditzler Chile Logo" class="logo">
             </div>
-            <button id="logoutBtn" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- Contenedor principal -->
-    <main class="main-container">
-        <!-- Mensaje de estado -->
-        <div id="messageContainer" class="message-container" style="display: none;"></div>
-
-        <!-- Panel de bienvenida -->
-        <section class="welcome-section">
-            <div class="welcome-card">
-                <div class="welcome-icon">
-                    <i class="fas fa-hand-paper"></i>
+            <ul class="nav-links">
+                <li class="active"><a href="operador-totes.html"><i class="fas fa-boxes"></i> Operador Totes</a></li>
+                <li><a href="totes-table.html"><i class="fas fa-table"></i> Tabla de Totes</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                <a href="#"><i class="fas fa-cog"></i> Configuración</a>
+            </div>
+        </nav>
+        <div class="main-content">
+            <header class="totes-header">
+                <div class="title-and-actions">
+                    <h1><i class="fas fa-boxes"></i> Operador de Totes</h1>
+                    <p>Selecciona el tipo de proceso que deseas realizar.</p>
                 </div>
-                <h2>¡Bienvenido!</h2>
-                <p>Selecciona el tipo de proceso que deseas realizar:</p>
-            </div>
-        </section>
+            </header>
+            <div id="messageContainer" class="message" style="display: none;"></div>
 
-        <!-- Opciones de proceso -->
-        <section class="process-options">
+
+
+            <!-- Opciones de proceso -->
+            <section class="process-options">
             <div class="option-card tote-contenido" id="toteConContenido">
                 <div class="card-icon">
                     <i class="fas fa-recycle"></i>
@@ -81,8 +79,26 @@
             </div>
         </section>
 
-        <!-- Estadísticas rápidas -->
-        <section class="quick-stats">
+            <!-- Estadísticas rápidas -->
+            <section class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="totalTotes">0</span>
+                    <span class="stat-label">Total Totes</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="activeTotes">0</span>
+                    <span class="stat-label">Totes Activos</span>
+                </div>
+            </div>
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-clock"></i>
@@ -92,20 +108,48 @@
                     <span class="stat-label">Procesados hoy</span>
                 </div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-user"></i>
+            </section>
+
+            <!-- Registro de Movimientos -->
+            <section class="movements-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-history"></i> Registro de Movimientos</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="refreshMovements()">
+                            <i class="fas fa-sync-alt"></i> Actualizar
+                        </button>
+                    </div>
                 </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="operadorNombre">-</span>
-                    <span class="stat-label">Operador activo</span>
+                <div class="movements-table-container table-container">
+                    <table class="unified-table" id="movementsTable">
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Tipo de Movimiento</th>
+                                <th>ID Tote</th>
+                                <th>Origen</th>
+                                <th>Destino</th>
+                                <th>Usuario</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movementsTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding: 20px;">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando movimientos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        </section>
-    </main>
+                <div id="movementsPagination" class="pagination"></div>
+            </section>
+        </div>
+    </div>
     
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
+    <script src="../js/operador-movements.js"></script>
     <script src="../js/operador-totes.js"></script>
 </body>
 </html>

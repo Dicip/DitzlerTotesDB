@@ -1,15 +1,26 @@
 .content-card {
-    background-color: #ffffff;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
 }
 
 .totes-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-light);
+}
+
+.totes-header h1 {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .title-and-actions h1 {
@@ -25,96 +36,128 @@
     margin-left: 10px;
 }
 
+.filters-section {
+    background: var(--bg-light);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--border-light);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-lg);
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 200px;
+}
+
+.filter-group label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xs);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-input);
+    border-radius: var(--border-radius-md);
+    font-size: 0.95rem;
+    transition: var(--transition-fast);
+    background: var(--bg-white);
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 .filters-and-search {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-xl);
 }
 
 .filters-and-search input {
     width: 300px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-input);
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-fast);
+}
+
+.filters-and-search input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .filter-buttons select {
-    margin-left: 10px;
-    padding: 8px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    margin-left: var(--spacing-md);
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-input);
+    border-radius: var(--border-radius-md);
+    transition: var(--transition-fast);
 }
 
-.totes-table-container {
-    background: white;
-    border-radius: 16px;
-    box-shadow: var(--shadow-base-primary);
-    overflow: hidden;
-    position: relative;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-    margin: 20px 0;
+.filter-buttons select:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-.totes-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: 12px;
-}
+/* Estilos de tabla eliminados - ahora se usan los estilos unificados en unified-table-styles.css */
 
-.status-badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: inline-block;
-    min-width: 80px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-
-.status-badge:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
+/* Estilos de status-badge base eliminados - ahora se usan los estilos unificados en unified-table-styles.css */
 
 .status-con-cliente {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--status-warning), #f39c12);
     color: white;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+    padding-left: var(--spacing-lg);
 }
 
 .status-en-lavado {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), #5a67d8);
     color: white;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    padding-left: var(--spacing-lg);
 }
 
 .status-en-uso {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--status-success), #38a169);
     color: white;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);
+    padding-left: var(--spacing-lg);
 }
 
 .status-disponible {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, #48bb78, #38a169);
     color: white;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 2px 8px rgba(72, 187, 120, 0.3);
+    padding-left: var(--spacing-lg);
 }
 
 .status-mantenimiento {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, var(--status-error), #e53e3e);
     color: white;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 2px 8px rgba(229, 62, 62, 0.3);
+    padding-left: var(--spacing-lg);
 }
 
 .status-fuera-servicio {
-    background: var(--primary-color);
+    background: linear-gradient(135deg, #718096, #4a5568);
     color: white;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 2px 8px rgba(113, 128, 150, 0.3);
+    padding-left: var(--spacing-lg);
 }
 
 
@@ -234,6 +277,15 @@
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 20px;
     }
+    
+    .filters-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        min-width: auto;
+    }
 }
 
 /* Tablets */
@@ -268,21 +320,34 @@
         font-size: 1.3rem;
     }
     
+    .content-card {
+        padding: var(--spacing-lg);
+        margin: var(--spacing-md);
+    }
+    
+    .totes-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+        text-align: left;
+    }
+    
+    .totes-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
     /* Table improvements */
     .table-responsive {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
     
-    .totes-table {
-        min-width: 100%;
-    }
-    
-    .totes-table th,
-    .totes-table td {
-        padding: 12px 8px;
-        font-size: 0.9rem;
-    }
+    /* Estilos de tabla eliminados - ahora se usan los estilos unificados */
     
     .action-buttons .edit-btn,
     .action-buttons .delete-btn,
@@ -300,11 +365,41 @@
     
     .filters-and-search {
         flex-direction: column;
-        gap: 10px;
+        gap: var(--spacing-md);
     }
     
     .filters-and-search input {
         width: 100%;
+    }
+    
+    .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+    }
+    
+    .filter-buttons select {
+        margin-left: 0;
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .quick-stats {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+    }
+    
+    .stat-card {
+        padding: var(--spacing-lg);
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+        min-width: 50px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
     }
     
     /* Form improvements */
@@ -344,11 +439,7 @@
         padding: 15px;
     }
     
-    .totes-table thead th,
-    .totes-table tbody td {
-        padding: 10px 6px;
-        font-size: 0.8rem;
-    }
+    /* Estilos de tabla eliminados - se usan los unificados */
     
     .totes-header {
         flex-direction: column;
@@ -378,11 +469,103 @@
         margin-bottom: 10px;
     }
     
-    /* Table improvements for mobile */
-    .totes-table {
-        font-size: 0.8rem;
-        min-width: 500px;
+    /* Estilos de tabla eliminados - se usan los unificados */
+    
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        min-width: 60px;
     }
+    
+    /* Modal improvements for mobile */
+    .modal-content {
+        width: 98vw;
+        margin: 5px;
+        border-radius: 12px;
+    }
+    
+    .modal-header {
+        padding: 15px;
+    }
+    
+    .modal-title {
+        font-size: 1rem;
+    }
+    
+    .modal-body {
+        padding: 15px;
+    }
+    
+    .content-card {
+        padding: var(--spacing-md);
+        margin: var(--spacing-sm);
+    }
+    
+    .totes-header h1 {
+        font-size: 1.25rem;
+    }
+    
+    .stat-card {
+        flex-direction: column;
+        text-align: center;
+        padding: var(--spacing-md);
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-sm);
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    .main-content {
+        padding: 70px 15px 15px;
+    }
+    
+    .card-header {
+        padding: 15px;
+    }
+    
+    .card-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .card-content {
+        padding: 15px;
+    }
+    
+    /* Estilos de tabla eliminados - se usan los unificados */
+    
+    .totes-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .header-actions {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    /* Improved form elements for mobile */
+    .form-group input,
+    .form-group select {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 15px;
+        min-height: 50px;
+    }
+    
+    .btn {
+        padding: 15px 20px;
+        font-size: 16px;
+        min-height: 50px;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* Estilos de tabla eliminados - se usan los unificados */
     
     .status-badge {
         font-size: 0.7rem;
@@ -425,9 +608,7 @@
         font-size: 1rem;
     }
     
-    .totes-table {
-        min-width: 450px;
-    }
+    /* Estilo de tabla eliminado - se usa el unificado */
     
     .btn {
         font-size: 14px;

@@ -29,12 +29,10 @@ document.addEventListener('DOMContentLoaded', function() {
         setupEventListeners();
         updateUserInfo();
         loadTodayStats();
-        loadAssignedTotes();
         
         // Actualizar datos cada 30 segundos
         setInterval(() => {
             loadTodayStats();
-            loadAssignedTotes();
         }, 30000);
         
         // Prevenir zoom en doble tap en iOS

@@ -440,30 +440,7 @@ body:has(.sidebar) .metric-period {
     transform: translateY(0);
 }
 
-/* Tabla específica para operador */
-.operador-table {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.operador-table th {
-    background: var(--primary-color);
-    color: white;
-    padding: 1rem;
-    font-weight: 600;
-    text-align: left;
-}
-
-.operador-table td {
-    padding: 1rem;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.operador-table tr:hover {
-    background-color: #f8f9ff;
-}
+/* Estilos de tabla eliminados - ahora se usan los estilos unificados en unified-table-styles.css */
 
 /* Modal específico para operador */
 .operador-modal .modal-header {
@@ -577,30 +554,7 @@ body:has(.sidebar) .metric-period {
         font-size: 2rem;
     }
     
-    .operador-table {
-        font-size: 0.875rem;
-    }
-    
-    .operador-table th,
-    .operador-table td {
-        padding: 0.75rem 0.5rem;
-    }
-    
-    /* Table improvements */
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .totes-table {
-        min-width: 600px;
-    }
-    
-    .totes-table th,
-    .totes-table td {
-        padding: 12px 8px;
-        font-size: 0.9rem;
-    }
+    /* Estilos de tabla eliminados - ahora se usan los estilos unificados */
     
     /* Form improvements */
     .form-group {
@@ -702,9 +656,7 @@ body:has(.sidebar) .metric-period {
         font-size: 1rem;
     }
     
-    .totes-table {
-        min-width: 450px;
-    }
+    /* Estilo de tabla eliminado - se usa el unificado */
     
     .btn {
         font-size: 14px;
@@ -786,4 +738,362 @@ body:has(.sidebar) .metric-period {
 .operador-tooltip:hover::after {
     opacity: 1;
     visibility: visible;
+}
+
+/* ===== ESTILOS PARA TABLA DE MOVIMIENTOS ===== */
+
+/* Sección de movimientos */
+.movements-section {
+    margin-top: 30px;
+    width: 100%;
+}
+
+.full-width-card {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+/* Tabla de movimientos */
+.movements-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.movements-table thead {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+.movements-table th {
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.movements-table tbody tr {
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+
+.movements-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.movements-table td {
+    padding: 12px;
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+/* Estilos específicos para celdas */
+.datetime-cell {
+    min-width: 140px;
+}
+
+.datetime-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.datetime-info .date {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.datetime-info .time {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.movement-type-cell {
+    min-width: 120px;
+}
+
+.movement-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.movement-type.assignment {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.movement-type.unassignment {
+    background-color: #ffebee;
+    color: #d32f2f;
+}
+
+.movement-type.relocation {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.movement-type.reception {
+    background-color: #e8f5e8;
+    color: #388e3c;
+}
+
+.movement-type.dispatch {
+    background-color: #fff3e0;
+    color: #f57c00;
+}
+
+.movement-type.maintenance {
+    background-color: #fce4ec;
+    color: #c2185b;
+}
+
+.movement-type.default {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.tote-id-cell {
+    min-width: 100px;
+}
+
+.tote-id {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: var(--primary-color);
+    background-color: #f8f9fa;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+.location-cell {
+    min-width: 120px;
+}
+
+.location {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.location.origin {
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+}
+
+.location.destination {
+    background-color: #e8f5e8;
+    color: #388e3c;
+    border: 1px solid #c8e6c9;
+}
+
+.user-cell {
+    min-width: 100px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.user-info i {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.username {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.status-cell {
+    min-width: 100px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.status-badge.success {
+    background-color: #e8f5e8;
+    color: #388e3c;
+    border: 1px solid #c8e6c9;
+}
+
+.status-badge.warning {
+    background-color: #fff3e0;
+    color: #f57c00;
+    border: 1px solid #ffcc02;
+}
+
+.status-badge.info {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.status-badge.danger {
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+}
+
+.status-badge.secondary {
+    background-color: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+/* Estados especiales de la tabla */
+.loading-row td,
+.no-data-row td,
+.error-row td {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.loading-row i {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-right: 8px;
+}
+
+.no-data-row i {
+    font-size: 2rem;
+    color: #ccc;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.error-message {
+    color: #d32f2f;
+}
+
+.error-message i {
+    color: #d32f2f;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Paginación */
+.table-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding: 15px 0;
+    border-top: 1px solid #eee;
+}
+
+.pagination-info {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-pagination {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #666;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.btn-pagination:hover:not(.disabled) {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-pagination.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-pagination.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Responsive para tabla de movimientos */
+@media (max-width: 1200px) {
+    .movements-table th,
+    .movements-table td {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+    
+    .datetime-info .date {
+        font-size: 0.85rem;
+    }
+    
+    .datetime-info .time {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .movements-section {
+        margin-top: 20px;
+    }
+    
+    .movements-table {
+        font-size: 0.8rem;
+    }
+    
+    .movements-table th,
+    .movements-table td {
+        padding: 8px 6px;
+    }
+    
+    .table-pagination {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .pagination-controls {
+        justify-content: center;
+    }
+    
+    /* Ocultar algunas columnas en móvil */
+    .movements-table th:nth-child(4),
+    .movements-table td:nth-child(4),
+    .movements-table th:nth-child(5),
+    .movements-table td:nth-child(5) {
+        display: none;
+    }
 }

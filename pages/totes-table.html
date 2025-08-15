@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabla de Totes - Ditzler Chile</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../css/variables.css">
+    <link rel="stylesheet" href="../css/unified-table-styles.css">
+    <link rel="stylesheet" href="../css/operador-totes.css">
+    <link rel="stylesheet" href="../css/modern-buttons.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <img src="../public/img/LOGO DITZLER PNG.png" alt="Ditzler Chile Logo" class="logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="operador-totes.html"><i class="fas fa-boxes"></i> Operador Totes</a></li>
+                <li class="active"><a href="totes-table.html"><i class="fas fa-table"></i> Tabla de Totes</a></li>
+            </ul>
+            <div class="sidebar-footer">
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
+                <a href="#"><i class="fas fa-cog"></i> Configuración</a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content">
+                <div class="totes-header">
+                </div>
+
+
+
+                <!-- Contenedor de mensajes -->
+                <div id="message-container"></div>
+
+                <!-- Tabla de Totes del Sistema -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Tabla de Totes</h3>
+                    </div>
+                    <div class="card-content">
+
+                        <div class="table-container">
+                            <table class="unified-table" id="totesTable">
+                                <thead>
+                                    <tr>
+                                        <th onclick="sortTable(0)">ID Tote <i class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable(1)">Estado <i class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable(2)">Cliente <i class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable(3)">Ubicación <i class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable(4)">Producto <i class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable(5)">Peso <i class="fas fa-sort"></i></th>
+                                        <th onclick="sortTable(6)">Última Actualización <i class="fas fa-sort"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="totesTableBody">
+                                    <!-- Los datos se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Paginación -->
+                        <div class="pagination-container">
+                            <div class="pagination-info">
+                                <span id="paginationInfo">Mostrando 0 de 0 registros</span>
+                            </div>
+                            <div class="pagination-controls">
+                                <button class="btn btn-sm" onclick="previousPage()" id="prevBtn" disabled>
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </button>
+                                <span id="pageNumbers"></span>
+                                <button class="btn btn-sm" onclick="nextPage()" id="nextBtn" disabled>
+                                    Siguiente <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas rápidas -->
+                <div class="quick-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="totalTotes">0</span>
+                            <span class="stat-label">Total Totes</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="activeTotes">0</span>
+                            <span class="stat-label">Totes Activos</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-pause-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="inactiveTotes">0</span>
+                            <span class="stat-label">Totes Inactivos</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-number" id="maintenanceTotes">0</span>
+                            <span class="stat-label">En Mantenimiento</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/totes-table.js"></script>
+</body>
+</html>

@@ -165,6 +165,64 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// API para obtener todos los totes (GET /api/totes)
+app.get('/api/totes', async (req, res) => {
+  console.log('=== ENDPOINT /api/totes LLAMADO ===');
+  
+  let pool;
+  try {
+    pool = await new sql.ConnectionPool(sqlConfig).connect();
+    
+    // Obtener todos los totes con información del cliente
+    const result = await pool.request().query(`
+      SELECT 
+        t.Id,
+        t.Codigo as id_tote,
+        t.Estado as estado,
+        t.Ubicacion as ubicacion,
+        t.Cliente as cliente_nombre,
+        t.Operador,
+        t.Producto,
+        t.Lote,
+        t.FechaEnvasado,
+        t.FechaVencimiento,
+        t.FechaDespacho,
+        t.Peso,
+        t.Alerta,
+        t.Observaciones,
+        t.FechaModificacion as fecha_actualizacion,
+        t.FechaCreacion
+      FROM Totes t
+      WHERE t.Activo = 1
+      ORDER BY t.FechaModificacion DESC
+    `);
+    
+    console.log(`Totes encontrados: ${result.recordset.length}`);
+    
+    res.json({
+      success: true,
+      totes: result.recordset,
+      total: result.recordset.length
+    });
+    
+  } catch (error) {
+    console.error('Error obteniendo totes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor al obtener totes',
+      error: error.message
+    });
+  } finally {
+    if (pool) {
+      try {
+        await pool.close();
+      } catch (err) {
+        console.error('Error cerrando conexión:', err);
+      }
+    }
+  }
+});
+
 // Ruta para el panel de administrador
 app.get('/dashboard', (req, res) => {
   res.sendFile(path.join(__dirname, 'pages/dashboard.html'));
@@ -1345,6 +1403,146 @@ app.post('/api/admin/totes', async (req, res) => {
     }
     
     res.status(500).json({ success: false, message: errorMessage });
+  } finally {
+    if (pool) {
+      try {
+        await pool.close();
+      } catch (err) {
+        console.error('Error al cerrar la conexión:', err);
+      }
+    }
+  }
+});
+
+// API para operadores - Obtener registro de movimientos
+app.get('/api/movements', async (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ success: false, message: 'No autorizado' });
+  }
+  
+  let pool;
+  try {
+    const operadorName = req.headers.authorization.replace('Bearer ', '');
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const offset = (page - 1) * limit;
+    
+    pool = await new sql.ConnectionPool(sqlConfig).connect();
+    
+    // Consulta para obtener movimientos con información detallada
+    const movementsQuery = `
+      WITH MovimientosDetallados AS (
+        SELECT 
+          a.Id,
+          a.FechaHora as fecha_hora,
+          a.Accion as tipo_movimiento,
+          a.TablaAfectada,
+          a.RegistroId,
+          a.ValoresAnteriores,
+          a.ValoresNuevos,
+          a.UsuarioId,
+          a.UsuarioNombre as usuario,
+          a.Descripcion,
+          -- Extraer información del tote desde los valores
+          CASE 
+            WHEN a.TablaAfectada = 'TOTES' THEN
+              COALESCE(
+                JSON_VALUE(a.ValoresNuevos, '$.codigo'),
+                JSON_VALUE(a.ValoresAnteriores, '$.codigo')
+              )
+            ELSE NULL
+          END as tote_id,
+          -- Ubicación origen (valor anterior)
+          CASE 
+            WHEN a.TablaAfectada = 'TOTES' AND a.Accion IN ('UPDATE', 'DELETE') THEN
+              JSON_VALUE(a.ValoresAnteriores, '$.ubicacion')
+            ELSE NULL
+          END as ubicacion_origen,
+          -- Ubicación destino (valor nuevo)
+          CASE 
+            WHEN a.TablaAfectada = 'TOTES' AND a.Accion IN ('CREATE', 'UPDATE') THEN
+              JSON_VALUE(a.ValoresNuevos, '$.ubicacion')
+            ELSE NULL
+          END as ubicacion_destino,
+          -- Estado basado en la acción
+          CASE 
+            WHEN a.Accion = 'CREATE' THEN 'Completado'
+            WHEN a.Accion = 'UPDATE' THEN 'Completado'
+            WHEN a.Accion = 'DELETE' THEN 'Completado'
+            ELSE 'Completado'
+          END as estado
+        FROM AuditoriaGeneral a
+        WHERE a.TablaAfectada = 'TOTES'
+          AND a.UsuarioNombre = @operador
+      )
+      SELECT 
+        Id,
+        fecha_hora,
+        CASE 
+          WHEN tipo_movimiento = 'CREATE' THEN 'Recepción'
+          WHEN tipo_movimiento = 'UPDATE' AND ubicacion_origen != ubicacion_destino THEN 'Reubicación'
+          WHEN tipo_movimiento = 'UPDATE' THEN 'Actualización'
+          WHEN tipo_movimiento = 'DELETE' THEN 'Desasignación'
+          ELSE 'Movimiento'
+        END as tipo_movimiento,
+        tote_id,
+        ubicacion_origen,
+        ubicacion_destino,
+        usuario,
+        estado
+      FROM MovimientosDetallados
+      WHERE tote_id IS NOT NULL
+      ORDER BY fecha_hora DESC
+      OFFSET @offset ROWS
+      FETCH NEXT @limit ROWS ONLY
+    `;
+    
+    // Consulta para contar el total de registros
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM AuditoriaGeneral a
+      WHERE a.TablaAfectada = 'TOTES'
+        AND a.UsuarioNombre = @operador
+        AND (
+          JSON_VALUE(a.ValoresNuevos, '$.codigo') IS NOT NULL OR
+          JSON_VALUE(a.ValoresAnteriores, '$.codigo') IS NOT NULL
+        )
+    `;
+    
+    // Ejecutar consultas
+    const [movementsResult, countResult] = await Promise.all([
+      pool.request()
+        .input('operador', sql.VarChar, operadorName)
+        .input('offset', sql.Int, offset)
+        .input('limit', sql.Int, limit)
+        .query(movementsQuery),
+      pool.request()
+        .input('operador', sql.VarChar, operadorName)
+        .query(countQuery)
+    ]);
+    
+    const movements = movementsResult.recordset;
+    const totalRecords = countResult.recordset[0].total;
+    const totalPages = Math.ceil(totalRecords / limit);
+    
+    res.json({
+      success: true,
+      movements: movements,
+      pagination: {
+        currentPage: page,
+        totalPages: totalPages,
+        totalRecords: totalRecords,
+        limit: limit
+      }
+    });
+    
+  } catch (err) {
+    console.error('Error al obtener movimientos:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error interno del servidor',
+      movements: []
+    });
   } finally {
     if (pool) {
       try {
