@@ -566,18 +566,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.classList.add('alert-row');
             }
             
+            // Si el tote está en estado 'Mantenimiento' (lavado), mostrar datos vacíos
+            const isLavado = tote.estado === 'Mantenimiento';
+            
             row.innerHTML = `
                 <td>${tote.codigo}</td>
                 <td><span class="status-badge status-${tote.estado.toLowerCase().replace(/\s+/g, '-')}">${tote.estado}</span></td>
                 <td>${tote.ubicacion}</td>
-                <td>${tote.peso ? parseFloat(tote.peso).toFixed(2) : '-'}</td>
-                <td>${tote.cliente}</td>
+                <td>${isLavado ? '<em style="color: #999;">-</em>' : (tote.peso ? parseFloat(tote.peso).toFixed(2) : '-')}</td>
+                <td>${isLavado ? '<em style="color: #999;">Vacío</em>' : tote.cliente}</td>
                 <td>${tote.operador}</td>
-                <td>${tote.producto}</td>
-                <td>${tote.lote}</td>
-                <td>${tote.fEnvasado}</td>
-                <td>${tote.fVencimiento}</td>
-                <td>${tote.fDespacho}</td>
+                <td>${isLavado ? '<em style="color: #999;">Vacío</em>' : tote.producto}</td>
+                <td>${isLavado ? '<em style="color: #999;">Vacío</em>' : tote.lote}</td>
+                <td>${isLavado ? '<em style="color: #999;">-</em>' : tote.fEnvasado}</td>
+                <td>${isLavado ? '<em style="color: #999;">-</em>' : tote.fVencimiento}</td>
+                <td>${isLavado ? '<em style="color: #999;">-</em>' : tote.fDespacho}</td>
                 <td>
                     <div class="action-buttons">
                         <button class="edit-btn" onclick="editTote(${tote.id})" title="Editar"><i class="fas fa-edit"></i></button>

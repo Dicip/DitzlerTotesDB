@@ -810,7 +810,7 @@ app.get('/api/operador/stats', async (req, res) => {
       .query('SELECT COUNT(*) as total FROM Totes WHERE Estado = \'Disponible\'');
     
     const totesLavadoResult = await pool.request()
-      .query('SELECT COUNT(*) as total FROM Totes WHERE Estado = \'En Lavado\'');
+      .query('SELECT COUNT(*) as total FROM Totes WHERE Estado = \'Mantenimiento\'');
     
     const totesClienteResult = await pool.request()
       .query('SELECT COUNT(*) as total FROM Totes WHERE Estado = \'En Uso\'');
@@ -912,19 +912,32 @@ app.put('/api/operador/totes/update-status', async (req, res) => {
   let pool;
   try {
     const operadorName = req.headers.authorization.replace('Bearer ', '');
-    const { toteId, nuevoEstado, ubicacion, observaciones } = req.body;
+    const { codigo, toteId, nuevoEstado, nuevaUbicacion, ubicacion, observaciones } = req.body;
     
     pool = await new sql.ConnectionPool(sqlConfig).connect();
     
-    // Verificar que el tote pertenece al operador y obtener datos del operador
-    const checkResult = await pool.request()
-      .input('toteId', sql.Int, toteId)
-      .input('operador', sql.VarChar, operadorName)
-      .query('SELECT COUNT(*) as count FROM Totes WHERE Id = @toteId AND Operador = @operador');
-    
-    if (checkResult.recordset[0].count === 0) {
-      return res.status(403).json({ success: false, message: 'No tiene permisos para modificar este tote' });
+    // Buscar tote por código o ID
+    let toteQuery, toteParam;
+    if (codigo) {
+      toteQuery = 'SELECT Id, Codigo, Estado, Ubicacion FROM Totes WHERE Codigo = @codigo';
+      toteParam = { name: 'codigo', type: sql.VarChar, value: codigo };
+    } else if (toteId) {
+      toteQuery = 'SELECT Id, Codigo, Estado, Ubicacion FROM Totes WHERE Id = @toteId';
+      toteParam = { name: 'toteId', type: sql.Int, value: toteId };
+    } else {
+      return res.status(400).json({ success: false, message: 'Debe proporcionar código o ID del tote' });
     }
+    
+    const toteResult = await pool.request()
+      .input(toteParam.name, toteParam.type, toteParam.value)
+      .query(toteQuery);
+    
+    if (toteResult.recordset.length === 0) {
+      return res.status(404).json({ success: false, message: 'Tote no encontrado' });
+    }
+    
+    const toteData = toteResult.recordset[0];
+    const actualToteId = toteData.Id;
     
     // Obtener datos del operador para auditoría
     const operadorResult = await pool.request()
@@ -937,25 +950,51 @@ app.put('/api/operador/totes/update-status', async (req, res) => {
     
     const currentUser = operadorResult.recordset[0];
     
-    // Obtener datos anteriores del tote para auditoría
-    const oldToteResult = await pool.request()
-      .input('toteId', sql.Int, toteId)
-      .query('SELECT Codigo, Estado, Ubicacion FROM Totes WHERE Id = @toteId');
+    // Los datos anteriores ya los tenemos del toteData
+    const oldToteData = {
+      Codigo: toteData.Codigo,
+      Estado: toteData.Estado,
+      Ubicacion: toteData.Ubicacion
+    };
     
-    const oldToteData = oldToteResult.recordset[0];
+    // Usar nuevaUbicacion si está disponible, sino usar ubicacion
+    const finalUbicacion = nuevaUbicacion || ubicacion;
     
     // Actualizar el tote
-    await pool.request()
-      .input('toteId', sql.Int, toteId)
+    let updateQuery;
+    let updateRequest = pool.request()
+      .input('toteId', sql.Int, actualToteId)
       .input('estado', sql.VarChar, nuevoEstado)
-      .input('ubicacion', sql.VarChar, ubicacion)
-      .query(`
+      .input('ubicacion', sql.VarChar, finalUbicacion);
+    
+    // Si el estado es 'Mantenimiento' (lavado), limpiar todos los datos del tote
+    if (nuevoEstado === 'Mantenimiento') {
+      updateQuery = `
+        UPDATE Totes 
+        SET Estado = @estado,
+            Ubicacion = @ubicacion,
+            Cliente = NULL,
+            Producto = NULL,
+            Lote = NULL,
+            FechaEnvasado = NULL,
+            FechaVencimiento = NULL,
+            FechaDespacho = NULL,
+            Peso = NULL,
+            Observaciones = NULL,
+            FechaModificacion = GETDATE()
+        WHERE Id = @toteId
+      `;
+    } else {
+      updateQuery = `
         UPDATE Totes 
         SET Estado = @estado,
             Ubicacion = @ubicacion,
             FechaModificacion = GETDATE()
         WHERE Id = @toteId
-      `);
+      `;
+    }
+    
+    await updateRequest.query(updateQuery);
     
     // Registrar auditoría del cambio de estado
     const oldData = {
@@ -967,7 +1006,7 @@ app.put('/api/operador/totes/update-status', async (req, res) => {
     const newData = {
       codigo: oldToteData.Codigo,
       estado: nuevoEstado,
-      ubicacion: ubicacion
+      ubicacion: finalUbicacion
     };
     
     await auditLogger.auditUpdate(
@@ -975,7 +1014,7 @@ app.put('/api/operador/totes/update-status', async (req, res) => {
       currentUser,
       'TOTES',
       'Tote',
-      toteId,
+      actualToteId,
       oldData,
       newData,
       `Estado de tote ${oldToteData.Codigo} actualizado por operador`
@@ -2058,7 +2097,7 @@ app.post('/api/recepcion/assign-route', async (req, res) => {
     
     // Mapear rutas a estados y ubicaciones
     const routeMapping = {
-      'lavado': { estado: 'En Lavado', ubicacion: 'Área de Lavado' },
+      'lavado': { estado: 'Mantenimiento', ubicacion: 'Área de Lavado' },
       'almacenamiento': { estado: 'Disponible', ubicacion: 'Almacén Principal' },
       'mantenimiento': { estado: 'En Mantenimiento', ubicacion: 'Taller de Mantenimiento' },
       'despacho': { estado: 'Listo para Despacho', ubicacion: 'Área de Despacho' },

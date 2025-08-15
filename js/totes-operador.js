@@ -42,16 +42,20 @@ function renderTotesTable() {
     
     totesData.forEach(tote => {
         const row = document.createElement('tr');
+        
+        // Si el tote está en estado 'Mantenimiento' (lavado), mostrar datos vacíos
+        const isLavado = tote.Estado === 'Mantenimiento';
+        
         row.innerHTML = `
             <td>${tote.Codigo}</td>
             <td><span class="status-badge status-${tote.Estado.toLowerCase().replace(' ', '-')}">${tote.Estado}</span></td>
             <td>${tote.Ubicacion || '-'}</td>
-            <td>${tote.ClienteNombre || '-'}</td>
-            <td>${tote.Producto || '-'}</td>
-            <td>${tote.Lote || '-'}</td>
-            <td>${tote.FechaEnvasado ? formatDate(tote.FechaEnvasado) : '-'}</td>
-            <td>${tote.FechaVencimiento ? formatDate(tote.FechaVencimiento) : '-'}</td>
-            <td>${tote.FechaDespacho ? formatDate(tote.FechaDespacho) : '-'}</td>
+            <td>${isLavado ? '<em style="color: #999;">Vacío</em>' : (tote.ClienteNombre || '-')}</td>
+            <td>${isLavado ? '<em style="color: #999;">Vacío</em>' : (tote.Producto || '-')}</td>
+            <td>${isLavado ? '<em style="color: #999;">Vacío</em>' : (tote.Lote || '-')}</td>
+            <td>${isLavado ? '<em style="color: #999;">-</em>' : (tote.FechaEnvasado ? formatDate(tote.FechaEnvasado) : '-')}</td>
+            <td>${isLavado ? '<em style="color: #999;">-</em>' : (tote.FechaVencimiento ? formatDate(tote.FechaVencimiento) : '-')}</td>
+            <td>${isLavado ? '<em style="color: #999;">-</em>' : (tote.FechaDespacho ? formatDate(tote.FechaDespacho) : '-')}</td>
             <td>
                 <button class="btn-small btn-primary" onclick="openUpdateModal(${tote.Id})">
                     <i class="fas fa-edit"></i> Actualizar

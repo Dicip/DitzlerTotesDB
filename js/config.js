@@ -19,7 +19,7 @@ const CONFIG = {
         TOTE_STATES: {
             'Con Cliente': '#4A90E2',
             'Disponible': '#50E3C2',
-            'En Lavado': '#7ED321',
+            'Mantenimiento': '#7ED321',
             'En Mantenimiento': '#F5A623',
             'En Uso': '#9013FE',
             'Fuera de Servicio': '#D0021B'
@@ -29,7 +29,7 @@ const CONFIG = {
         OPERADOR_STATES: {
             'Disponible': '#28a745',
             'En Uso': '#007bff',
-            'En Lavado': '#17a2b8',
+            'Mantenimiento': '#17a2b8',
             'Con Cliente': '#ffc107',
             'En Mantenimiento': '#fd7e14',
             'Fuera de Servicio': '#dc3545'

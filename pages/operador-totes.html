@@ -5,107 +5,105 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DitzlerTotes - Operador de Totes</title>
     <link rel="stylesheet" href="../css/variables.css">
-    <link rel="stylesheet" href="../css/dashboard-styles.css">
-    <link rel="stylesheet" href="../css/operador-styles.css">
-    <link rel="stylesheet" href="../css/modern-buttons.css">
-    <link rel="stylesheet" href="../css/totes-styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../css/operador-totes.css">
+    <link rel="stylesheet" href="../public/fonts/fontawesome.css">
 </head>
 <body>
-    <div class="mobile-container">
-        <!-- Header simple -->
-        <header class="mobile-header">
-            <img src="../public/img/LOGO DITZLER PNG.png" alt="Ditzler Logo" class="mobile-logo">
-            <h1>Operador de Totes</h1>
-            <button id="logoutBtn" class="mobile-logout-btn"><i class="fas fa-sign-out-alt"></i></button>
-        </header>
+    <!-- Header fijo para móviles -->
+    <header class="mobile-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <i class="fas fa-boxes"></i>
+                <h1>Operador Totes</h1>
+            </div>
+            <button id="logoutBtn" class="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </header>
 
-        <!-- Message Container -->
-        <div id="messageContainer" class="message" style="display: none;"></div>
+    <!-- Contenedor principal -->
+    <main class="main-container">
+        <!-- Mensaje de estado -->
+        <div id="messageContainer" class="message-container" style="display: none;"></div>
 
-        <!-- Opciones principales de procesamiento -->
-        <div class="mobile-processing-options">
-            <div class="mobile-option-card" id="toteConContenido">
-                <div class="mobile-option-icon">
+        <!-- Panel de bienvenida -->
+        <section class="welcome-section">
+            <div class="welcome-card">
+                <div class="welcome-icon">
+                    <i class="fas fa-hand-paper"></i>
+                </div>
+                <h2>¡Bienvenido!</h2>
+                <p>Selecciona el tipo de proceso que deseas realizar:</p>
+            </div>
+        </section>
+
+        <!-- Opciones de proceso -->
+        <section class="process-options">
+            <div class="option-card tote-contenido" id="toteConContenido">
+                <div class="card-icon">
                     <i class="fas fa-recycle"></i>
                 </div>
-                <h2>Tote con Contenido</h2>
-                <p>Producto Reutilizable</p>
-                <div class="mobile-flow">
-                    <span>Recepción → Patio → Evaluación</span>
+                <div class="card-content">
+                    <h3>Tote con Contenido</h3>
+                    <p>Producto reutilizable</p>
+                    <div class="process-flow">
+                        <span class="flow-step">Recepción</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step">Patio</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step">Evaluación</span>
+                    </div>
+                </div>
+                <div class="card-action">
+                    <i class="fas fa-chevron-right"></i>
                 </div>
             </div>
-            
-            <div class="mobile-option-card" id="toteSinContenido">
-                <div class="mobile-option-icon">
+
+            <div class="option-card tote-lavado" id="toteLavado">
+                <div class="card-icon">
                     <i class="fas fa-tint"></i>
                 </div>
-                <h2>Tote para Lavado</h2>
-                <p>Directo a Limpieza</p>
-                <div class="mobile-flow">
-                    <span>Recepción → Lavado → Disponible</span>
+                <div class="card-content">
+                    <h3>Tote para Lavado</h3>
+                    <p>Directo a limpieza</p>
+                    <div class="process-flow">
+                        <span class="flow-step">Recepción</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step">Lavado</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="flow-step">Disponible</span>
+                    </div>
+                </div>
+                <div class="card-action">
+                    <i class="fas fa-chevron-right"></i>
                 </div>
             </div>
-        </div>
-    </div>
-    </div>
+        </section>
 
-    <!-- Modal para agregar/editar tote -->
-    <div id="toteModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Agregar Tote</h3>
-                <span class="close" id="closeModal">&times;</span>
+        <!-- Estadísticas rápidas -->
+        <section class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number" id="totesHoy">0</span>
+                    <span class="stat-label">Procesados hoy</span>
+                </div>
             </div>
-            <form id="toteForm" class="tote-form">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="codigo">Código:</label>
-                        <input type="text" id="codigo" name="codigo" required maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label for="estado">Estado:</label>
-                        <select id="estado" name="estado" required>
-                            <option value="Disponible">Disponible</option>
-                            <option value="En Uso">En Uso</option>
-                            <option value="Con Cliente">Con Cliente</option>
-                            <option value="En Lavado">En Lavado</option>
-                            <option value="En Mantenimiento">En Mantenimiento</option>
-                            <option value="Fuera de Servicio">Fuera de Servicio</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cliente_id">Cliente:</label>
-                        <select id="cliente_id" name="cliente_id">
-                            <option value="">Sin cliente asignado</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="fecha_envasado">Fecha Envasado:</label>
-                        <input type="date" id="fecha_envasado" name="fecha_envasado">
-                    </div>
-                    <div class="form-group">
-                        <label for="fecha_vencimiento">Fecha Vencimiento:</label>
-                        <input type="date" id="fecha_vencimiento" name="fecha_vencimiento">
-                    </div>
-                    <div class="form-group">
-                        <label for="ubicacion">Ubicación:</label>
-                        <input type="text" id="ubicacion" name="ubicacion" maxlength="100">
-                    </div>
-                    <div class="form-group">
-                        <label for="observaciones">Observaciones:</label>
-                        <textarea id="observaciones" name="observaciones" rows="3" maxlength="500"></textarea>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-user"></i>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
-                    <button type="submit" class="btn-primary">Guardar</button>
+                <div class="stat-info">
+                    <span class="stat-number" id="operadorNombre">-</span>
+                    <span class="stat-label">Operador activo</span>
                 </div>
-            </form>
-        </div>
-    </div>
-
+            </div>
+        </section>
+    </main>
+    
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/operador-totes.js"></script>
