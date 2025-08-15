@@ -1,24 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Verificación de sesión de administrador ---
-    const storedAdmin = localStorage.getItem('loggedInAdmin') || sessionStorage.getItem('loggedInAdmin');
+    const adminData = UTILS.getSessionData();
     
-    if (!storedAdmin) {
+    if (!adminData || !adminData.isAdmin) {
         window.location.href = '../index.html';
         return;
     }
 
-    try {
-        const adminData = JSON.parse(storedAdmin);
-        if (!adminData.isAdmin) {
-            localStorage.removeItem('loggedInAdmin');
-            sessionStorage.removeItem('loggedInAdmin');
-            window.location.href = '../index.html';
-            return;
-        }
-    } catch (error) {
-        console.error('Error al parsear los datos de sesión:', error);
-        localStorage.removeItem('loggedInAdmin');
-        sessionStorage.removeItem('loggedInAdmin');
+    // Verificar si la sesión no ha expirado
+    if (!UTILS.isSessionValid(adminData)) {
+        UTILS.clearSession();
         window.location.href = '../index.html';
         return;
     }
@@ -28,9 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            localStorage.removeItem('loggedInAdmin');
-            sessionStorage.removeItem('loggedInAdmin');
-            window.location.href = '../index.html';
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                UTILS.clearSession();
+                window.location.href = '../index.html';
+            }
         });
     }
 

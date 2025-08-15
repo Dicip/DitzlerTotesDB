@@ -89,8 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
             '¿Cerrar Sesión?',
             '¿Está seguro que desea cerrar sesión?',
             () => {
-                sessionStorage.clear();
-                localStorage.clear();
+                UTILS.clearSession();
                 window.location.href = '../index.html';
             }
         );

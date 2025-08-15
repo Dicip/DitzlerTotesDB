@@ -1,17 +1,28 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Session verification
-    const adminData = JSON.parse(sessionStorage.getItem('loggedInAdmin')) || JSON.parse(localStorage.getItem('loggedInAdmin'));
+    // Verificar autenticación del administrador
+    const adminData = UTILS.getSessionData();
+    
     if (!adminData || !adminData.isAdmin) {
-        window.location.href = '../index.html'; // Redirect to login if not admin
+        window.location.href = '../index.html';
         return;
     }
 
-    // Logout
+    // Verificar si la sesión no ha expirado
+    if (!UTILS.isSessionValid(adminData)) {
+        UTILS.clearSession();
+        window.location.href = '../index.html';
+        return;
+    }
+
+    // Lógica para el botón de cerrar sesión
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function() {
-            sessionStorage.clear();
-            window.location.href = '../index.html';
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                UTILS.clearSession();
+                window.location.href = '../index.html';
+            }
         });
     }
     

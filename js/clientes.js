@@ -15,10 +15,18 @@ const messageContainer = document.getElementById('messageContainer');
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', async function() {
-    // Verificación de sesión
-    const adminData = JSON.parse(sessionStorage.getItem('loggedInAdmin')) || JSON.parse(localStorage.getItem('loggedInAdmin'));
+    // --- Verificación de sesión de administrador ---
+    const adminData = UTILS.getSessionData();
+    
     if (!adminData || !adminData.isAdmin) {
-        window.location.href = '../index.html'; // Redirigir al login si no es admin
+        window.location.href = '../index.html';
+        return;
+    }
+
+    // Verificar si la sesión no ha expirado
+    if (!UTILS.isSessionValid(adminData)) {
+        UTILS.clearSession();
+        window.location.href = '../index.html';
         return;
     }
     
@@ -43,14 +51,13 @@ function setupEventListeners() {
     // Formatear teléfono mientras se escribe
     document.getElementById('telefono').addEventListener('input', formatPhone);
     
-    // Logout
+    // --- Lógica para el botón de cerrar sesión ---
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
+        logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-                sessionStorage.removeItem('loggedInAdmin');
-                localStorage.removeItem('loggedInAdmin');
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                UTILS.clearSession();
                 window.location.href = '../index.html';
             }
         });
@@ -160,7 +167,7 @@ function validateClientData(data) {
 // Operaciones CRUD
 async function createClient(clientData) {
     try {
-        const adminData = JSON.parse(sessionStorage.getItem('loggedInAdmin')) || JSON.parse(localStorage.getItem('loggedInAdmin'));
+        const adminData = UTILS.getSessionData();
         const response = await fetch('/api/admin/clientes', {
             method: 'POST',
             headers: {
@@ -191,7 +198,7 @@ async function createClient(clientData) {
 
 async function updateClient(clientId, clientData) {
     try {
-        const adminData = JSON.parse(sessionStorage.getItem('loggedInAdmin')) || JSON.parse(localStorage.getItem('loggedInAdmin'));
+        const adminData = UTILS.getSessionData();
         const response = await fetch('/api/admin/clientes', {
             method: 'POST',
             headers: {
@@ -223,7 +230,7 @@ async function updateClient(clientId, clientData) {
 async function deleteClient(clientId) {
     if (confirm('¿Está seguro de que desea eliminar este cliente?')) {
         try {
-            const adminData = JSON.parse(sessionStorage.getItem('loggedInAdmin')) || JSON.parse(localStorage.getItem('loggedInAdmin'));
+            const adminData = UTILS.getSessionData();
             const response = await fetch('/api/admin/clientes', {
                 method: 'POST',
                 headers: {
@@ -326,7 +333,7 @@ function formatPhone(event) {
 
 async function loadClients() {
     try {
-        const adminData = JSON.parse(sessionStorage.getItem('loggedInAdmin')) || JSON.parse(localStorage.getItem('loggedInAdmin'));
+        const adminData = UTILS.getSessionData();
         const response = await fetch('/api/admin/clientes', {
             method: 'POST',
             headers: {

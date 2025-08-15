@@ -7,6 +7,21 @@ const eventsPerPage = 20;
 
 // Inicializar página
 document.addEventListener('DOMContentLoaded', function() {
+    // --- Verificación de sesión de administrador ---
+    const adminData = UTILS.getSessionData();
+    
+    if (!adminData || !adminData.isAdmin) {
+        window.location.href = '../index.html';
+        return;
+    }
+
+    // Verificar si la sesión no ha expirado
+    if (!UTILS.isSessionValid(adminData)) {
+        UTILS.clearSession();
+        window.location.href = '../index.html';
+        return;
+    }
+    
     cargarEstadisticas();
     cargarEventos();
     
@@ -22,7 +37,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            logout();
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                UTILS.clearSession();
+                window.location.href = '../index.html';
+            }
         });
     }
     
@@ -30,17 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMobileMenu();
 });
 
-// Función de logout
-function logout() {
-    if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-        // Limpiar cualquier dato de sesión local
-        localStorage.clear();
-        sessionStorage.clear();
-        
-        // Redirigir al login
-        window.location.href = '../index.html';
-    }
-}
+// Función de logout eliminada - ahora se usa UTILS.clearSession()
 
 // Formatear fecha para input datetime-local
 function formatDateForInput(date) {
@@ -513,11 +521,6 @@ function mostrarError(mensaje) {
     }, CONFIG.TIMING.NOTIFICATION_TIMEOUT);
 }
 
-// Función de logout
-function logout() {
-    if (confirm('¿Está seguro que desea cerrar sesión?')) {
-        window.location.href = '../index.html';
-    }
-}
+// Función de logout eliminada - se usa UTILS.clearSession() en el event listener
 
 // Función initializeMobileMenu ahora está en utils.js

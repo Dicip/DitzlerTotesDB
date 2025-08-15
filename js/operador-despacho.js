@@ -77,9 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Logout
         logoutBtn.addEventListener('click', function() {
-            sessionStorage.clear();
-            localStorage.clear();
-            window.location.href = '../index.html';
+            if (confirm('¿Está seguro que desea cerrar sesión?')) {
+                UTILS.clearSession();
+                window.location.href = '../index.html';
+            }
         });
 
         // Modales
