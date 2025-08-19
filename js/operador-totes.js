@@ -2,10 +2,22 @@
 // Optimizado para tablets y smartphones con diseño didáctico
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Verificación de sesión
-    const userData = JSON.parse(sessionStorage.getItem('loggedInAdmin')) || JSON.parse(localStorage.getItem('loggedInAdmin'));
-    if (!userData || (userData.role !== 'Operador Totes' && userData.role !== 'Admin' && userData.role !== 'Administrador')) {
+    // Verificación de sesión usando UTILS
+    const userData = UTILS.getSessionData();
+    
+    // Verificar si hay sesión válida
+    if (!userData || !UTILS.isSessionValid(userData)) {
+        UTILS.clearSession();
         window.location.href = '../index.html';
+        return;
+    }
+    
+    // Verificar permisos de rol
+    if (userData.role !== 'Operador Totes' && userData.role !== 'Admin' && userData.role !== 'Administrador') {
+        UTILS.showNotification('Acceso denegado. Esta página es solo para Operadores de Totes.', 'error');
+        setTimeout(() => {
+            window.location.href = '../index.html';
+        }, 2000);
         return;
     }
 

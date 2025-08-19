@@ -90,6 +90,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
+    // Manejar clic en "Cerrar Sesión Activa"
+    const clearSessionLink = document.getElementById('clear-session');
+    if (clearSessionLink) {
+        clearSessionLink.addEventListener('click', function(event) {
+            event.preventDefault();
+            UTILS.clearSession();
+            showError(''); // Limpiar mensajes de error
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            alert('Sesión cerrada correctamente. Ahora puede iniciar sesión nuevamente.');
+        });
+    }
+    
     // Función para mostrar mensajes de error
     function showError(message) {
         errorMessage.textContent = message;
@@ -101,21 +114,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function checkExistingSession() {
         const adminData = UTILS.getSessionData();
         
+        // Solo redirigir si hay una sesión válida Y no hay intento de login en curso
         if (adminData && UTILS.isSessionValid(adminData)) {
-            // Redirigir según el rol del usuario
-            if (adminData.role === 'Admin' || adminData.role === 'Administrador') {
-                window.location.href = 'pages/dashboard.html';
-            } else if (adminData.role === 'Operador') {
-                window.location.href = 'pages/operador.html';
-            } else if (adminData.role === 'Operador Totes') {
-                window.location.href = 'pages/operador-totes.html';
-            } else if (adminData.role === 'Operador Preparados' || adminData.role === 'Producción') {
-                window.location.href = 'pages/operador-preparados.html';
-            } else if (adminData.role === 'Operador Despacho' || adminData.role === 'Calidad/Despacho') {
-                window.location.href = 'pages/operador-despacho.html';
-            } else if (adminData.isAdmin) {
-                // Fallback para compatibilidad con sesiones anteriores
-                window.location.href = 'pages/dashboard.html';
+            // Verificar si el usuario está intentando hacer login (campos llenos)
+            const emailField = document.getElementById('username');
+            const passwordField = document.getElementById('password');
+            
+            // Si los campos están vacíos, proceder con la redirección automática
+            if (!emailField.value.trim() && !passwordField.value.trim()) {
+                // Redirigir según el rol del usuario
+                if (adminData.role === 'Admin' || adminData.role === 'Administrador') {
+                    window.location.href = 'pages/dashboard.html';
+                } else if (adminData.role === 'Operador') {
+                    window.location.href = 'pages/operador.html';
+                } else if (adminData.role === 'Operador Totes') {
+                    window.location.href = 'pages/operador-totes.html';
+                } else if (adminData.role === 'Operador Preparados' || adminData.role === 'Producción') {
+                    window.location.href = 'pages/operador-preparados.html';
+                } else if (adminData.role === 'Operador Despacho' || adminData.role === 'Calidad/Despacho') {
+                    window.location.href = 'pages/operador-despacho.html';
+                } else if (adminData.isAdmin) {
+                    // Fallback para compatibilidad con sesiones anteriores
+                    window.location.href = 'pages/dashboard.html';
+                }
             }
         } else if (adminData) {
             // Limpiar sesión expirada

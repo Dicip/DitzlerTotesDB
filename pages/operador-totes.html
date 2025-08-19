@@ -18,7 +18,7 @@
             </div>
             <ul class="nav-links">
                 <li class="active"><a href="operador-totes.html"><i class="fas fa-boxes"></i> Operador Totes</a></li>
-                <li><a href="totes-table.html"><i class="fas fa-table"></i> Tabla de Totes</a></li>
+                <li><a href="totes-table.html"><i class="fas fa-chart-bar"></i> Estadísticas</a></li>
             </ul>
             <div class="sidebar-footer">
                 <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
@@ -79,77 +79,14 @@
             </div>
         </section>
 
-            <!-- Estadísticas rápidas -->
-            <section class="quick-stats">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-boxes"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="totalTotes">0</span>
-                    <span class="stat-label">Total Totes</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-play-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="activeTotes">0</span>
-                    <span class="stat-label">Totes Activos</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-number" id="totesHoy">0</span>
-                    <span class="stat-label">Procesados hoy</span>
-                </div>
-            </div>
-            </section>
 
-            <!-- Registro de Movimientos -->
-            <section class="movements-section">
-                <div class="section-header">
-                    <h2><i class="fas fa-history"></i> Registro de Movimientos</h2>
-                    <div class="header-actions">
-                        <button class="btn btn-secondary" onclick="refreshMovements()">
-                            <i class="fas fa-sync-alt"></i> Actualizar
-                        </button>
-                    </div>
-                </div>
-                <div class="movements-table-container table-container">
-                    <table class="unified-table" id="movementsTable">
-                        <thead>
-                            <tr>
-                                <th>Fecha y Hora</th>
-                                <th>Tipo de Movimiento</th>
-                                <th>ID Tote</th>
-                                <th>Origen</th>
-                                <th>Destino</th>
-                                <th>Usuario</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="movementsTableBody">
-                            <tr>
-                                <td colspan="7" style="text-align:center; padding: 20px;">
-                                    <i class="fas fa-spinner fa-spin"></i> Cargando movimientos...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div id="movementsPagination" class="pagination"></div>
-            </section>
+
+
         </div>
     </div>
     
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
-    <script src="../js/operador-movements.js"></script>
     <script src="../js/operador-totes.js"></script>
 </body>
 </html>

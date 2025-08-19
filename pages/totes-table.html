@@ -3,15 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabla de Totes - Ditzler Chile</title>
+    <title>Estadísticas - Ditzler Chile</title>
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="../css/variables.css">
     <link rel="stylesheet" href="../css/unified-table-styles.css">
     <link rel="stylesheet" href="../css/operador-totes.css">
     <link rel="stylesheet" href="../css/modern-buttons.css">
+    <link rel="stylesheet" href="../css/statistics.css">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="dashboard-wrapper">
@@ -21,7 +23,7 @@
             </div>
             <ul class="nav-links">
                 <li><a href="operador-totes.html"><i class="fas fa-boxes"></i> Operador Totes</a></li>
-                <li class="active"><a href="totes-table.html"><i class="fas fa-table"></i> Tabla de Totes</a></li>
+                <li class="active"><a href="totes-table.html"><i class="fas fa-chart-bar"></i> Estadísticas</a></li>
             </ul>
             <div class="sidebar-footer">
                 <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a>
@@ -32,21 +34,238 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="content">
-                <div class="totes-header">
+                <!-- Header Dashboard -->
+                <div class="dashboard-header">
+                    <h1><i class="fas fa-chart-line"></i> Panel de Estadísticas Operativas</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-primary" onclick="refreshAllData()">
+                            <i class="fas fa-sync-alt"></i> Actualizar Todo
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportReport()">
+                            <i class="fas fa-download"></i> Exportar Reporte
+                        </button>
+                    </div>
                 </div>
-
-
 
                 <!-- Contenedor de mensajes -->
                 <div id="message-container"></div>
 
-                <!-- Tabla de Totes del Sistema -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Tabla de Totes</h3>
+                <!-- Sección 1: KPIs Principales -->
+                <section class="kpi-section">
+                    <h2><i class="fas fa-tachometer-alt"></i> Indicadores Clave de Rendimiento</h2>
+                    <div class="kpi-grid">
+                        <div class="kpi-card primary">
+                            <div class="kpi-icon">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-value" id="totalTotes">0</span>
+                                <span class="kpi-label">Total Totes</span>
+                                <span class="kpi-trend positive" id="totalTotesTrend">+5.2%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="kpi-card success">
+                            <div class="kpi-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-value" id="operationalEfficiency">87.5%</span>
+                                <span class="kpi-label">Eficiencia Operativa</span>
+                                <span class="kpi-trend positive" id="efficiencyTrend">+2.1%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="kpi-card warning">
+                            <div class="kpi-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-value" id="avgResponseTime">4.2 min</span>
+                                <span class="kpi-label">Tiempo Promedio Respuesta</span>
+                                <span class="kpi-trend negative" id="responseTimeTrend">-0.8%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="kpi-card info">
+                            <div class="kpi-icon">
+                                <i class="fas fa-target"></i>
+                            </div>
+                            <div class="kpi-content">
+                                <span class="kpi-value" id="objectiveCompliance">92.3%</span>
+                                <span class="kpi-label">Cumplimiento Objetivos</span>
+                                <span class="kpi-trend positive" id="complianceTrend">+1.5%</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-content">
+                </section>
 
+                <!-- Sección de Indicadores de Cumplimiento -->
+                <section class="compliance-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-bullseye"></i> Indicadores de Cumplimiento</h2>
+                        <p>Monitoreo en tiempo real del cumplimiento de objetivos operacionales</p>
+                    </div>
+                    <div id="compliance-indicators" class="compliance-grid">
+                        <!-- Los indicadores se generan dinámicamente via JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Sección 2: Gráficos de Análisis -->
+                <section class="charts-section">
+                    <h2><i class="fas fa-chart-bar"></i> Análisis Visual</h2>
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>Distribución de Estados</h3>
+                                <div class="chart-controls">
+                                    <select id="statusPeriod">
+                                        <option value="today">Hoy</option>
+                                        <option value="week">Esta Semana</option>
+                                        <option value="month" selected>Este Mes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <canvas id="statusChart" width="400" height="200"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h3>Productividad por Día</h3>
+                                <div class="chart-controls">
+                                    <select id="productivityPeriod">
+                                        <option value="7days" selected>Últimos 7 días</option>
+                                        <option value="30days">Últimos 30 días</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <canvas id="productivityChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-grid">
+                        <div class="chart-container wide">
+                            <div class="chart-header">
+                                <h3>Tendencia de Eficiencia Operativa</h3>
+                                <div class="chart-controls">
+                                    <button class="btn btn-sm" onclick="updateEfficiencyChart('hourly')">Por Hora</button>
+                                    <button class="btn btn-sm active" onclick="updateEfficiencyChart('daily')">Diario</button>
+                                    <button class="btn btn-sm" onclick="updateEfficiencyChart('weekly')">Semanal</button>
+                                </div>
+                            </div>
+                            <canvas id="efficiencyChart" width="800" height="300"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección 3: Métricas Detalladas -->
+                <section class="metrics-section">
+                    <h2><i class="fas fa-list-alt"></i> Métricas Detalladas</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3><i class="fas fa-play-circle"></i> Estados Actuales</h3>
+                            </div>
+                            <div class="metric-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Activos</span>
+                                    <span class="stat-value active" id="activeTotes">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Inactivos</span>
+                                    <span class="stat-value inactive" id="inactiveTotes">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Mantenimiento</span>
+                                    <span class="stat-value maintenance" id="maintenanceTotes">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Procesados Hoy</span>
+                                    <span class="stat-value processed" id="totesHoy">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3><i class="fas fa-stopwatch"></i> Tiempos de Respuesta</h3>
+                            </div>
+                            <div class="metric-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Promedio General</span>
+                                    <span class="stat-value" id="avgGeneralTime">4.2 min</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Tiempo Mínimo</span>
+                                    <span class="stat-value good" id="minResponseTime">1.8 min</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Tiempo Máximo</span>
+                                    <span class="stat-value warning" id="maxResponseTime">12.5 min</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Meta Objetivo</span>
+                                    <span class="stat-value target" id="targetTime">≤ 5.0 min</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3><i class="fas fa-users"></i> Productividad Comparativa</h3>
+                            </div>
+                            <div class="metric-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Operador Líder</span>
+                                    <span class="stat-value leader" id="topOperator">Juan P.</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Promedio Equipo</span>
+                                    <span class="stat-value" id="teamAverage">45.2 totes/día</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Mi Productividad</span>
+                                    <span class="stat-value personal" id="myProductivity">52.1 totes/día</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Vs. Meta</span>
+                                    <span class="stat-value positive" id="vsTarget">+15.3%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección 4: Tabla de Datos del Sistema -->
+                <section class="data-section">
+                    <h2><i class="fas fa-table"></i> Datos del Sistema</h2>
+                    <div class="data-tabs">
+                        <button class="tab-btn active" onclick="switchTab('totes')">Tabla de Totes</button>
+                        <button class="tab-btn" onclick="switchTab('movements')">Registro de Movimientos</button>
+                    </div>
+                    
+                    <!-- Tab: Tabla de Totes -->
+                    <div id="totesTab" class="tab-content active">
+                        <div class="table-controls">
+                            <div class="search-filters">
+                                <input type="text" id="searchTotes" placeholder="Buscar totes..." class="search-input">
+                                <select id="filterStatus" class="filter-select">
+                                    <option value="">Todos los estados</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                    <option value="Mantenimiento">Mantenimiento</option>
+                                </select>
+                            </div>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary" onclick="refreshTotesTable()">
+                                    <i class="fas fa-sync-alt"></i> Actualizar
+                                </button>
+                                <button class="btn btn-secondary" onclick="exportTotesTable()">
+                                    <i class="fas fa-download"></i> Exportar
+                                </button>
+                            </div>
+                        </div>
+                        
                         <div class="table-container">
                             <table class="unified-table" id="totesTable">
                                 <thead>
@@ -66,7 +285,6 @@
                             </table>
                         </div>
                         
-                        <!-- Paginación -->
                         <div class="pagination-container">
                             <div class="pagination-info">
                                 <span id="paginationInfo">Mostrando 0 de 0 registros</span>
@@ -82,47 +300,51 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Estadísticas rápidas -->
-                <div class="quick-stats">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-boxes"></i>
+                    
+                    <!-- Tab: Registro de Movimientos -->
+                    <div id="movementsTab" class="tab-content">
+                        <div class="table-controls">
+                            <div class="search-filters">
+                                <input type="text" id="searchMovements" placeholder="Buscar movimientos..." class="search-input">
+                                <select id="filterMovementType" class="filter-select">
+                                    <option value="">Todos los tipos</option>
+                                    <option value="Entrada">Entrada</option>
+                                    <option value="Salida">Salida</option>
+                                    <option value="Transferencia">Transferencia</option>
+                                </select>
+                            </div>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary" onclick="refreshMovements()">
+                                    <i class="fas fa-sync-alt"></i> Actualizar
+                                </button>
+                            </div>
                         </div>
-                        <div class="stat-info">
-                            <span class="stat-number" id="totalTotes">0</span>
-                            <span class="stat-label">Total Totes</span>
+                        
+                        <div class="table-container">
+                            <table class="unified-table" id="movementsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha y Hora</th>
+                                        <th>Tipo de Movimiento</th>
+                                        <th>ID Tote</th>
+                                        <th>Origen</th>
+                                        <th>Destino</th>
+                                        <th>Usuario</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="movementsTableBody">
+                                    <tr>
+                                        <td colspan="7" style="text-align:center; padding: 20px;">
+                                            <i class="fas fa-spinner fa-spin"></i> Cargando movimientos...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
+                        <div id="movementsPagination" class="pagination"></div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-play-circle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-number" id="activeTotes">0</span>
-                            <span class="stat-label">Totes Activos</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-pause-circle"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-number" id="inactiveTotes">0</span>
-                            <span class="stat-label">Totes Inactivos</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-tools"></i>
-                        </div>
-                        <div class="stat-info">
-                            <span class="stat-number" id="maintenanceTotes">0</span>
-                            <span class="stat-label">En Mantenimiento</span>
-                        </div>
-                    </div>
-                </div>
+                </section>
             </div>
         </div>
     </div>
@@ -131,5 +353,7 @@
     <script src="../js/config.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/totes-table.js"></script>
+    <script src="../js/operador-movements.js"></script>
+    <script src="../js/statistics.js"></script>
 </body>
 </html>
